@@ -1,0 +1,3 @@
+Last messages:
+{% for post in posts %}{% include "jabber/post.txt" %}
+{% empty %}No messages{% endfor %}

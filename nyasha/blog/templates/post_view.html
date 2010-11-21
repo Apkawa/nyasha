@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "_post_piece.html" %}
+{% for comment in comments %}
+    <div id="comment_{{ comment.number }} }}">
+        <a name="{{ comment.number }}"/>
+    <div class="comment_header">
+        <a href="{% url user_blog comment.user.username%}">@{{ comment.user.username }}</a>
+    </div>
+    <div class="comment_content">
+        {{ comment.body }}
+    </div>
+    <div class="comment_bottom"><a href="{% url post_view comment.post_id %}#{{ comment.number }}">{{ comment.get_number }}</a> {{ comment.datetime|date:"SHORT_DATETIME_FORMAT" }}</div>
+</div>
+    
+{% empty %}
+{% endfor %}
+
+{% endblock content %}

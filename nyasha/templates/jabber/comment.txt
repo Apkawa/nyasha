@@ -1,0 +1,3 @@
+@{{ comment.user.username }}:
+{{ comment.body }}
+#{{ comment.post_id }}/{{ comment.number }}

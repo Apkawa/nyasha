@@ -1,0 +1,13 @@
+{% for comment in comments %}
+<div id="comment_{{ comment.pk }}">
+    <div class="comment_header">
+        <a href="{% url user_blog comment.user.username%}">@{{ comment.user.username }}</a>
+    </div>
+    <div class="comment_content">
+        {{ comment.body }}
+    </div>
+    <div class="comment_bottom">{{ comment.get_number }} {{ post.datetime|date:"SHORT_DATETIME_FORMAT" }}</div>
+</div>
+    
+{% empty %}
+{% endfor %}
