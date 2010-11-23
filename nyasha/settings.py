@@ -101,8 +101,12 @@ INSTALLED_APPS = (
     'jabber_daemon',
 )
 
+AUTH_PROFILE_MODULE = 'blog.Profile'
+
+
 JABBER_BOT_SETTINGS = {
         'jid' : "test@jabber.ru",
         'password': "test",
         'resource':'Nyasha Bot',
         }
+

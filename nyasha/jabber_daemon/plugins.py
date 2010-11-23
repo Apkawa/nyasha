@@ -5,16 +5,17 @@ from core import BaseMessageHandler, BaseIqHandler, BasePresenceHandler
 from core import BaseHandler
 from core import BaseRoomManager, BaseRoomHandler
 
-from core import Message, Presence, Iq, JID
+from core import Message, Presence, Iq, JID, Request
 
 from parser import BaseParser
-from commands import get_command
+from command_resolver import command_patterns 
 
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.conf import settings
 from blog.views import post_in_blog, send_broadcast, render_post
-from blog.models import Subscribed 
+from blog.models import Subscribed
+
 
 
 def get_user_from_jid(jid):
@@ -23,17 +24,17 @@ def get_user_from_jid(jid):
     return user
 
 
+
 class PrivateMessageHandler(BaseMessageHandler):
     message_types = ('chat',)
+
     def chat_message(self, message):
         from_jid = message.from_jid
         message_body = message.body
         user = get_user_from_jid(from_jid)
-        command = get_command(message_body, user, self.send)
-        if command:
-            args, kwargs = command.parse()
-            text = command.execute_command(*args, **kwargs)
-        else:
+        request = Request(message_body, from_jid, message.to_jid, self.send, user)
+        text = command_patterns.execute_command(request)
+        if not text:
             post = post_in_blog(message_body, user)
             send_broadcast(post, render_post(post), sender=self.send, exclude_user=[user])
             send_broadcast(user, render_post(post), sender=self.send, exclude_user=[user])
@@ -140,6 +141,7 @@ class LastHandler(BaseIqHandler):
         q = iq.new_query("jabber:iq:last")
         q.newProp( "seconds", "0")
         return iq
+
 
 
 PLUGINS = [

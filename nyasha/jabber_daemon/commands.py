@@ -70,66 +70,79 @@ class Command(object):
         pass
 
 
-class HelpCommand(Command):
-    '''
-    HELP - this help
-    '''
-    regexp = re.compile(r'^HELP$', re.IGNORECASE)
-    def execute_command(self, *args, **kwargs):
-        return ''.join(['\n'.join([dl.strip() for dl in c.__doc__.splitlines() if dl]) for c in Command.__subclasses__()])
+def help_command(request):
+    from command_resolver import command_patterns
+    return '\n'.join(c.doc or str(c) for c in command_patterns.get_commands())
 
-class PingCommand(Command):
+def ping_command(request):
     '''
     PING - Pong
     '''
-    regexp = re.compile(r'^PING$')
-    def execute_command(self, *args, **kwargs):
-        return 'PONG'
+    return 'PONG'
 
-class NickCommand(Command):
+NICK_MAX_LENGTH = 42
+def nick_command(request, new_nick=None):
     '''
     NICK - show nick
     NICK <new username> - set new username
     '''
-    regexp = re.compile(r'^NICK(:?\s+(?P<new_nick>[\w]+)|)$')
-    MAX_LENGTH = 42
-    def execute_command(self, *args, **kwargs):
-        print kwargs
-        new_nick = kwargs.get('new_nick')
-        if new_nick:
-            if not User.objects.filter(username=new_nick).exists():
-                self.user.username = new_nick
-                self.user.save()
+    if new_nick:
+        if not User.objects.filter(username=new_nick).exists() and len(new_nick) > NICK_MAX_LENGTH:
+            request.user.username = new_nick
+            request.user.save()
         else:
-            new_nick = self.user.username
-        return new_nick
+            return 'Uncorrect nick!'
+    else:
+        new_nick = request.user.username
+    return '@%s'%new_nick
 
-class ShowMessageCommand(Command):
+def show_message_command(request, post_pk, comment_number=None, show_comments=None):
     '''
     #1234 - Show message
     #1234\\1 - Show reply
     #1234+ - Show message with replies
     '''
-    regexp = re.compile(r'^#(?P<post_pk>\d+)(?:/(?P<comment_number>\d+)|(?P<show_comments>\+)|)$')
-    def execute_command(self, *args, **kwargs):
-        post_pk = kwargs.get('post_pk')
-        comment_number = kwargs.get('comment_number')
-        show_comments = kwargs.get('show_comments')
-        context = {}
-        if not comment_number:
-            try:
-                post = Post.objects.select_related('user').get(pk=post_pk)
-                body = render_post(post, with_comments=bool(show_comments))
-            except Post.DoesNotExist:
-                return "Message not found."
-        else:
-            try:
-                comment = Comment.objects.select_related('user').get(post=post_pk, number=comment_number)
-                body = render_comment(comment)
-            except Comment.DoesNotExist:
-                return "Message not found."
+    context = {}
+    if not comment_number:
+        try:
+            post = Post.objects.select_related('user').get(pk=post_pk)
+            body = render_post(post, with_comments=bool(show_comments))
+        except Post.DoesNotExist:
+            return "Message not found."
+    else:
+        try:
+            comment = Comment.objects.select_related('user').get(post=post_pk, number=comment_number)
+            body = render_comment(comment)
+        except Comment.DoesNotExist:
+            return "Message not found."
 
-        return body[:-1]
+    return body[:-1]
+
+def comment_add_command(request, post_pk, message, comment_number=None):
+    '''
+    #1234 Blah-blah-blah - Answer to message #1234
+    #1234/5 Blah - Answer to reply #1234/5
+    '''
+    user = request.user
+    reply_to = comment_number
+    try:
+        post = Post.objects.get(pk=post_pk)
+    except Post.DoesNotExist:
+        return "Message not found."
+    if reply_to:
+        try:
+            reply_to = post.comments.get(number=reply_to).pk
+        except Comment.DoesNotExist:
+            return "Message not found."
+
+    comment = Comment.objects.create(post=post, reply_to_id=reply_to, user=user, body=message)
+    send_broadcast(post, render_comment(comment), sender=request.get_stream(), exclude_user=(user,))
+    subscribe, create = Subscribed.objects.get_or_create(user=user, subscribed_post=post)
+
+    text = '''Reply posted\n%s'''%comment.get_number()
+
+    #print post.body
+    return text
 
 class AddTagCommand(Command):
     '''
@@ -159,35 +172,6 @@ class AddTagCommand(Command):
             post.tags.add(tag)
             return 'Tag added.'
 
-class CommentCommand(Command):
-    '''
-    #1234 Blah-blah-blah - Answer to message #1234
-    #1234/5 Blah - Answer to reply #1234/5
-    '''
-    regexp = re.compile(r'^#(?P<post_pk>\d+)(?:/(?P<comment_number>\d+)|)\s+(?P<message>.*)$')
-    def execute_command(self, *args, **kwargs):
-        print kwargs
-        post_pk = kwargs.get('post_pk')
-        reply_to = kwargs.get('comment_number')
-        message = kwargs.get('message')
-        try:
-            post = Post.objects.get(pk=post_pk)
-        except Post.DoesNotExist:
-            return "Message not found."
-        if reply_to:
-            try:
-                reply_to = post.comments.get(number=reply_to).pk
-            except Comment.DoesNotExist:
-                return "Message not found."
-
-        comment = Comment.objects.create(post=post, reply_to_id=reply_to, user=self.user, body=message)
-        send_broadcast(post, render_comment(comment), sender=self.sender, exclude_user=(self.user,))
-        subscribe, create = Subscribed.objects.get_or_create(user=self.user, subscribed_post=post)
-
-        text = '''Reply posted\n%s'''%comment.get_number()
-
-        #print post.body
-        return text
 
 class RecommendCommand(Command):
     '''
@@ -387,3 +371,4 @@ class ShowTags(Command):
     def execute_command(self, *args, **kwargs):
         tags = Tag.objects.filter(post__user=2).values('name').annotate(count=Count('post')).order_by('name')
         return "Your tags: (tag - messages)\n\n%s"%'\n'.join("*%s - %s"%(t['name'],t['count']) for t in tags)
+

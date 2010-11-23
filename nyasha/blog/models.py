@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+
 
 class NotDeletedManager(models.Manager):
     def get_query_set(self):
@@ -17,8 +19,6 @@ class NotDeletedModel(models.Model):
 
     def delete(self):
         self.__class__.objects.filter(pk=self.pk).update(is_deleted=True)
-
-
 
 
 class Post(NotDeletedModel):
@@ -100,5 +100,21 @@ class Subscribed(NotDeletedModel):
         elif isinstance(obj, User):
             return obj.subscribed_user.filter()
 
+'''
+class Profile(models.Model):
+    user = models.OneToOneField('auth.User')
 
+    #vcard 
+    url = models.URLField(blank=True)
+    name = models.CharField(max_length=128, blank=True)
+    last_name = models.CharField(max_length=128, blank=True)
+    comment = models.TextField(blank=True)
+
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+       profile, created = Profile.objects.get_or_create(user=instance)
+
+post_save.connect(create_user_profile, sender=User)
+'''
 

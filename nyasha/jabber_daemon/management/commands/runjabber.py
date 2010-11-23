@@ -6,7 +6,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from utils.daemon import PeriodDaemon, run_pool
-from jabber_daemon.core import Client
+from jabber_daemon.core import Client, TimeoutException
 
 
 class Command(BaseCommand):
@@ -34,10 +34,17 @@ class Command(BaseCommand):
         print jid
         c = Client(jid, password, resource)
         c.connect()
-        try:
-            c.loop(1)
-        except KeyboardInterrupt:
-            c.disconnect()
+        while True:
+            try:
+                c.loop(1)
+                break
+            except TimeoutException:
+                c.disconnect()
+                c.connect()
+                continue
+            except KeyboardInterrupt:
+                c.disconnect()
+                break
         #cbd = JabberDaemon(workers=options.get('workers'))
         #cbd.runserver(*args, **options)
         

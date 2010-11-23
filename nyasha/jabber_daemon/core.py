@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+import time
 import logging
 from datetime import datetime
 
@@ -12,6 +14,98 @@ from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler
 from pyxmpp.interface import implements
 from pyxmpp.interfaces import IIqHandlersProvider, IFeaturesProvider, IMessageHandlersProvider, IPresenceHandlersProvider
 from pyxmpp.streamtls import TLSSettings
+from pyxmpp.exceptions import StreamError
+
+
+from django.conf import settings
+
+class Request(object):
+    def __init__(self, body, from_jid, to_jid, stream, user=None, context=None, *args, **kwargs):
+        self.body = body
+        self.from_jid = from_jid
+        self.to_jid = to_jid
+        self.user = user
+        self.context = context
+        self.stream = stream
+
+    def get_stream(self):
+        return self.stream
+
+
+class CommandPatterns(object):
+    __namespace = None
+    __commands = None
+    def __init__(self, namespace, *args):
+        if isinstance(namespace, basestring):
+            n = __import__(namespace)
+            for mod in namespace.split('.')[1:]:
+                n = getattr(n, mod)
+            namespace = n
+
+        self.__namespace = namespace
+
+        commands = []
+        for c in args:
+            if not isinstance(c, Command):
+                raise
+            c.set_namespace(namespace)
+            commands.append(c)
+        self.__commands = commands
+
+    def execute_command(self, request):
+        for cmd in self.__commands:
+            res = cmd.execute(request)
+            if res:
+                return res
+
+    def get_commands(self):
+        return list(self.__commands)
+
+cmd_patterns = CommandPatterns
+
+class Command(object):
+    command_handler = None
+    raw_string = None
+
+    __valid = False
+
+    __args = ()
+    __kwargs = {}
+    
+    def __init__(self, regexp, command, doc='', extra_kwargs=None):
+        self.regexp = re.compile(regexp)
+        self.command = command
+        if not isinstance(command, basestring):
+            self.command_handler = command
+        self.doc = doc
+        self.extra_kwargs = extra_kwargs or {}
+
+    def set_namespace(self, namespace):
+        try:
+            self.command_handler = getattr(namespace, self.command)
+        except AttributeError:
+            self.command_handler = __import__(self.command, fromlist=[namespace])
+
+    def execute(self, request):
+        raw_string = request.body
+        match = self.regexp.match(raw_string)
+        if match:
+            args = match.groups()
+            kwargs = match.groupdict()
+            kwargs.update(self.extra_kwargs)
+            print args, kwargs
+            print self.extra_kwargs
+            return self.command_handler(request, **kwargs)
+
+    def is_valid(self):
+        return bool(self.regexp.match(test_string))
+
+cmd = Command
+
+
+class TimeoutException(StreamError):
+    pass
+
 
 class BaseHandler(object):
     __stanza = None
@@ -176,6 +270,8 @@ class Client(JabberClient):
     class as base. That class provides basic stream setup (including
     authentication) and Service Discovery server. It also does server address
     and port discovery based on the JID provided."""
+    pong_timeout = 60
+    last_ping_time = None
 
     def __init__(self, jid, password, resource='Bot', tls_cacerts=None):
         # if bare JID is provided add a resource -- it is required
@@ -183,6 +279,7 @@ class Client(JabberClient):
             jid = JID(jid)
         if not jid.resource:
             jid=JID(jid.node, jid.domain, resource)
+        self.jid = jid
 
         if tls_cacerts:
             if tls_cacerts == 'tls_noverify':
@@ -200,6 +297,7 @@ class Client(JabberClient):
 
         # add the separate components
         self.interface_providers = self.get_plugins()
+
         #self.interface_providers.append(PresenceHandler)
         #Presence(to_jid=JID("torrents.ru_nixoids","conference.jabber.ru","Nia"))
 
@@ -218,6 +316,49 @@ class Client(JabberClient):
         import plugins
         return [p(self) for p in plugins.PLUGINS]
 
+    def send_ping(self):
+        client_jid = JID(settings.JABBER_BOT_SETTINGS['jid'])
+
+        ping = Iq(to_jid=client_jid.domain, from_jid=client_jid, stanza_type='get')
+        ping.new_query('urn:xmpp:ping', name='ping')
+
+        self.get_stream().set_response_handlers(ping, res_handler=self.pong_handler,
+                err_handler=lambda x: x, timeout_handler=self.pong_timeout_handler, timeout=120)
+        self.get_stream().send(ping)
+        self.last_ping_time = time.time()
+
+    def pong_handler(self, stanza):
+        #print'*'*20
+        #print stanza
+        pass
+
+    def pong_timeout_handler(self, *args, **kwargs):
+        print 'PONG TIMEOUT!'
+        print args, kwargs
+        raise TimeoutException
+
+    def loop(self,timeout=1):
+        """Simple "main loop" for the client.
+
+        By default just call the `pyxmpp.Stream.loop_iter` method of
+        `self.stream`, which handles stream input and `self.idle` for some
+        "housekeeping" work until the stream is closed.
+
+        This usually will be replaced by something more sophisticated. E.g.
+        handling of other input sources."""
+        self.send_ping()
+        while 1:
+            stream=self.get_stream()
+            if not stream:
+                break
+
+            time_delta = int(time.time() - self.last_ping_time)
+            if time_delta > self.pong_timeout:
+                self.send_ping()
+
+            act=stream.loop_iter(timeout)
+            if not act:
+                self.idle()
 
 
 
