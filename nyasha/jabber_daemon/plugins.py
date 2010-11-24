@@ -7,8 +7,7 @@ from core import BaseRoomManager, BaseRoomHandler
 
 from core import Message, Presence, Iq, JID, Request
 
-from parser import BaseParser
-from command_resolver import command_patterns 
+from command_resolver import command_patterns
 
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -50,24 +49,6 @@ class PresenceHandler(BasePresenceHandler):
         user = get_user_from_jid(from_jid)
         return presence.make_accept_response()
 
-COMMANDS = {}
-
-def make_command(name):
-    '''
-
-    '''
-    def wrap(func):
-        COMMANDS[name] = func
-        @wraps(func)
-        def _func(*args, **kwargs):
-            return func(*args, **kwargs)
-        return _func
-    return wrap
-
-
-@make_command("test")
-def test_command(args):
-    return ", ".join(args)
 
 class BasePlugin(object):
     def test_command(self, args):
@@ -80,26 +61,7 @@ class ExampleMessageHandler(BaseMessageHandler):
 
     def chat_message(self, message):
         body = message.body
-        parser = BaseParser()
-        command, args = parser.parse(body)
-        func = COMMANDS.get(command)
-        if callable(func):
-            response = func(args)
-            if response is not False:
-                message = Message(from_jid=message.to_jid, to_jid=message.from_jid, stanza_type=message.type, body=response)
-                self.send(message)
-
-        '''
-        if body.startswith("#join"):
-            stream = self.get_stream()
-            self.room = BaseRoomManager(stream)
-            state = self.room.join(self.room_jid, "Nia", BaseRoomHandler())
-            state.send_message("Всем привет! Я робот.")
-        else:
-            if self.room:
-                state = self.room.get_room_state(self.room_jid)
-                state.send_message(body)
-        '''
+        print body
 
 
 class GroupMessageHandler(BaseMessageHandler):
