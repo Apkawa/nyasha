@@ -32,7 +32,7 @@ class PrivateMessageHandler(BaseMessageHandler):
         from_jid = message.from_jid
         message_body = message.body
         user = get_user_from_jid(from_jid)
-        request = Request(message_body, from_jid, message.to_jid, self.send, user)
+        request = Request(message, self.send, user)
         text = command_patterns.execute_command(request)
         if not text:
             post = post_in_blog(message_body, user)

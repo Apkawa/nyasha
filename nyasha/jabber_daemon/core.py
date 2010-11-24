@@ -20,10 +20,12 @@ from pyxmpp.exceptions import StreamError
 from django.conf import settings
 
 class Request(object):
-    def __init__(self, body, from_jid, to_jid, stream, user=None, context=None, *args, **kwargs):
-        self.body = body
-        self.from_jid = from_jid
-        self.to_jid = to_jid
+    def __init__(self, stanza, stream, user=None, context=None, *args, **kwargs):
+        self.body = stanza.body.strip()
+        self.raw_body = stanza.body
+        self.stanza = stanza
+        self.from_jid = stanza.from_jid
+        self.to_jid = stanza.to_jid
         self.user = user
         self.context = context
         self.stream = stream

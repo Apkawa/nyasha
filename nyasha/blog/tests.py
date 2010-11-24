@@ -28,3 +28,8 @@ class ParseMessageTest(TestCase):
         print tags
         print message
 
+    def test_unicode_tags(self):
+        body = '''*日本 *にゃ *ня ** *tags5 *tags6 *кошка Сообщение - вы поели говна? Нет?'''
+        tags, message = parse_message(body)
+        print tags
+        print message

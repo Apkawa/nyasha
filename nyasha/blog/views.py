@@ -31,8 +31,8 @@ def send_alert(to_user, message, sender):
 
 
 MAX_TAG_COUNT = 5
-SPLIT_MESSAGE_REGEXP = re.compile('^\s*(?:\*\w+\s+){,%s}'%MAX_TAG_COUNT)
-SPLIT_TAG_REGEXP = re.compile('(?:\*([\w]+)|\S.*)')
+SPLIT_MESSAGE_REGEXP = re.compile('^\s*(?:\*\S+\s+){,%s}'%MAX_TAG_COUNT)
+SPLIT_TAG_REGEXP = re.compile('(?:\*([\S]+)|\S.*)')
 def parse_message(body):
     '''
 
