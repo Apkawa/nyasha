@@ -8,6 +8,7 @@ from pprint import pprint
 
 from pyxmpp.all import JID, Iq, Presence, Message, StreamError
 from pyxmpp.jabber.client import JabberClient
+from pyxmpp.jabber.vcard import VCard
 
 from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler
 
@@ -31,7 +32,7 @@ class Request(object):
         self.stream = stream
 
     def get_stream(self):
-        return self.stream
+        return self.stream.send
 
 
 class CommandPatterns(object):

@@ -30,8 +30,10 @@ class PrivateMessageHandler(BaseMessageHandler):
     def chat_message(self, message):
         from_jid = message.from_jid
         message_body = message.body
+        if not message_body:
+            return
         user = get_user_from_jid(from_jid)
-        request = Request(message, self.send, user)
+        request = Request(message, self.get_stream(), user)
         text = command_patterns.execute_command(request)
         if not text:
             post = post_in_blog(message_body, user)

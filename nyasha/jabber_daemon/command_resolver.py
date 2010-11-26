@@ -12,7 +12,7 @@ command_patterns = cmd_patterns('jabber_daemon.commands',
         cmd(r'^#(?P<post_pk>\d+)/(?P<comment_number>\d+)$', 'show_message_command', doc='#1234/1 - Show reply'),
         cmd(r'^#(?P<post_pk>\d+)\+$', 'show_message_command',
             extra_kwargs={'show_comments':True}, doc='#1234+ - Show message with replies'),
-        cmd(r'^#(?P<post_pk>\d+)[\s]+[\*](?P<tag>[\w]+)$', 'add_tag_command', doc='#1234 *tag - add or remove tag on message'),
+        cmd(r'^#(?P<post_pk>\d+)[\s]+[\*](?P<tag>[\S]+)$', 'add_tag_command', doc='#1234 *tag - add or remove tag on message'),
         #
         cmd(r'^#(?P<post_pk>\d+)\s+(?P<message>.*)$', 'comment_add_command',
             doc='#1234 Blah-blah-blah - Answer to message #1234'),
@@ -36,9 +36,13 @@ command_patterns = cmd_patterns('jabber_daemon.commands',
             doc='U @username - Unsubscribe from user\'s blog'),
         cmd(r'^\*$', 'show_tags_command', doc='* - Show your tags'),
         cmd(r'^#\+$', 'last_messages', doc='#+ - Show last messages from public timeline'),
-        cmd(r'^\*(?P<tag>[\w]+)$', 'last_messages_by_tag', doc='*tag - Show last messages by tag'),
+        cmd(r'^(?P<numpage>#+)$', 'user_feed_messages', doc='# - Show last messages from your feed (## - second page, ...)'),
+        cmd(r'^\*(?P<tag>[\S]+)$', 'last_messages_by_tag', doc='*tag - Show last messages by tag'),
         cmd(r'^@(?P<username>[\w]+)\+$', 'last_messages_by_user', doc='@username+ - Show user\'s info and last 10 messages'),
-        cmd(r'^@(?P<username>[\w]+) \*(?P<tag>[\w]+)$', 'last_messages_by_user', doc='@username *tag - User\'s messages with this tag'),
+        cmd(r'^@(?P<username>[\w]+) \*(?P<tag>[\S]+)$', 'last_messages_by_user', doc='@username *tag - User\'s messages with this tag'),
+        cmd(r'^@(?P<username>[\w]+)$', 'user_info', doc='@username - User info'),
+
+        #cmd(r'^VCARD$', 'vcard_command', doc='VCARD - Update "About" info from Jabber vCard'),
 
 )
 

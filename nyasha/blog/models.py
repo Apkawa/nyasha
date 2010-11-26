@@ -80,7 +80,7 @@ class Tag(models.Model):
 
 class Recommend(NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name='recommends_user')
-    post = models.ForeignKey('Post')
+    post = models.ForeignKey('Post', related_name='recommends')
     datetime = models.DateTimeField(auto_now=True)
 
     class Meta:

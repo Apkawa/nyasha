@@ -17,57 +17,17 @@ VCARD - Update "About" info from Jabber vCard
 PING - Pong
 '''
 import re
-from abc import ABCMeta, abstractmethod
 
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 
+from core import Iq, VCard
 from blog.models import Post, Comment, Subscribed, Recommend, Tag
 from blog.views import render_post, render_comment, send_broadcast, send_alert
 
 from django.db.models import Count, Q
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
-
-def get_command(line, from_jid, *args, **kwargs):
-    commands_class = Command.__subclasses__()
-    print commands_class
-    for command in commands_class:
-        cmd = command(line, from_jid, *args, **kwargs)
-        if cmd.validate():
-            return cmd
-
-class Command(object):
-    '''
-    Базовый класс
-    '''
-    __metaclass__ = ABCMeta
-
-    regexp = re.compile(r'')
-
-    error_message = 'error'
-    __validate_match = None
-
-    def __init__(self, line, user, sender):
-        self.line = line.strip()
-        self.user = user
-        self.sender = sender
-
-    def validate(self):
-        self.__validate_match = self.regexp.match(self.line)
-        return self.__validate_match
-
-    def parse(self):
-        args = []
-        kwargs = {}
-        v =  self.__validate_match
-        if v:
-            args = v.groups()
-            kwargs = v.groupdict()
-        return args, kwargs
-
-    @abstractmethod
-    def execute_command(self, *args, **kwargs):
-        pass
 
 
 def help_command(request):
@@ -87,7 +47,7 @@ def nick_command(request, new_nick=None):
     NICK <new username> - set new username
     '''
     if new_nick:
-        if not User.objects.filter(username=new_nick).exists() and len(new_nick) > NICK_MAX_LENGTH:
+        if not User.objects.filter(username=new_nick).exists() and len(new_nick) < NICK_MAX_LENGTH:
             request.user.username = new_nick
             request.user.save()
         else:
@@ -169,13 +129,12 @@ def recommend_post_command(request, post_pk):
     '''
     ! #1234 - Recommend post
     '''
-    post_pk = kwargs.get('post_pk')
     try:
         post = Post.objects.get(pk=post_pk)
     except Post.DoesNotExist:
         return "Message not found."
 
-    if post.user_id == self.user.pk:
+    if post.user_id == request.user.pk:
         return '''You can't recommend your own messages.'''
 
     recommend, created = Recommend.admin_objects.get_or_create(user=self.user, post=post)
@@ -293,40 +252,19 @@ def subscribe_toggle_command(request, post_pk, username=None, delete=False):
     return responce
 
 '''
-# - Show last messages from your feed (## - second page, ...)
 @ - Show recomendations and popular personal blogs
 '''
-class ShowMessagesCommand(Command):
-    '''
-    #+ - Show last messages from public timeline
-    *tag - Show last messages by tag
-    @username+ - Show user's info and last 10 messages
-    '''
-    #regexp = re.compile('^(?:(?P<last_messages>#\+)|\*(?P<by_tag>[\w]+)|(?P<by_feed>[#]+)|(?P<by_popular>@))$')
-    regexp = re.compile(r'^(?:(?P<last_messages>#\+)|\*(?P<by_tag>[\w]+)|@(?P<by_user>[\w]+)\+)$')
-    PER_PAGE = 10
 
+def _render_posts(queryset, numpage=1,  per_page=10):
+    paginate = Paginator(queryset.annotate(replies_count=Count('comments')), per_page)
 
+    try:
+        page = paginate.page(numpage)
+    except (EmptyPage, InvalidPage):
+        page = paginate.page(paginate.num_pages)
 
-    def by_feed(self, kwargs):
-        page = len(kwargs.get('by_feed','#'))
-        u.me_subscribe.all().values('user').annotate(Count('pk'))
-        return Post.objects.filter(user__me_subscribe=self.user)
-
-    def by_popular(self, kwargs):
-        return Post.objects.filter()[:self.PER_PAGE]
-
-    def execute_command(self, *args, **kwargs):
-        func = [f for f in (getattr(self, key, None) for key, val in kwargs.iteritems() if val) if f]
-        print func
-        if func:
-            post_queryset = func[0](kwargs)
-        return str(kwargs)
-
-def _render_posts(queryset, per_page=10):
-    queryset = reversed(queryset.annotate(replies_count=Count('comments'))[:per_page])
     context = {}
-    context['posts'] = queryset
+    context['posts'] = reversed(page.object_list)
     body = render_to_string('jabber/posts.txt', context)[:-1]
     return body
 
@@ -337,6 +275,9 @@ def last_messages_by_tag(request, tag):
     return _render_posts(Post.objects.filter(tags__name=tag))
 
 def last_messages_by_user(request, username, tag=None):
+    '''
+    # - Show last messages from your feed (## - second page, ...)
+    '''
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -347,6 +288,18 @@ def last_messages_by_user(request, username, tag=None):
         kw['tags__name'] = tag
     return _render_posts(Post.objects.filter(**kw))
 
+def user_feed_messages(request, numpage, username=None):
+    numpage = len(numpage)
+    if username:
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return "Unknown user, sorry."
+    else:
+        user = request.user
+    posts = Post.objects.filter(Q(user=user)|Q(recommends__user=user)|Q(user__subscribed_user__user=user))
+    return _render_posts(posts, numpage)
+
 def show_tags_command(request):
     '''
     * - Show your tags
@@ -354,3 +307,38 @@ def show_tags_command(request):
     tags = Tag.objects.filter(post__user=2).values('name').annotate(count=Count('post')).order_by('name')
     return "Your tags: (tag - messages)\n\n%s"%'\n'.join("*%s - %s"%(t['name'],t['count']) for t in tags)
 
+
+def user_info(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return "Unknown user, sorry."
+    context = {}
+    context['userprofile'] = user
+    context['last_messages_and_recommendations'] = Post.objects.filter(Q(recommends__user=user)|Q(user=user)).order_by('-id')[:10]
+    return render_to_string('jabber/user_info.txt', context)
+
+
+def vcard_command(request):
+    def vcard_success(stanza):
+        print '*'*50
+        print '!success!'
+        vcard = VCard(stanza.get_node().get_children())
+        print vcard.components
+        pass
+
+    def vcard_error(stanza):
+        print '*'*50
+        print '!ERROR!'
+        print stanza
+        pass
+
+    user = request.user
+    user_jid = user.email
+
+    get_vcard_req = Iq(to_jid=user_jid, from_jid=request.to_jid, stanza_type='get')
+    get_vcard_req.new_query('vcard-temp', name='vCard')
+
+    request.stream.set_response_handlers(get_vcard_req, res_handler=vcard_success, err_handler=vcard_error)
+    request.stream.send(get_vcard_req)
+    return "Updating..."
