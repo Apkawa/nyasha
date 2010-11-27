@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 
-from models import Post, Subscribed, Tag
+from models import Post, Subscribed, Tag, Comment
 from jabber_daemon.core import Message
 
 from utils.shortcuts import render_template
@@ -95,14 +95,14 @@ def main(request):
     posts = Post.objects.filter()
     context = {}
     context['posts'] = posts
-    return render_template(request, 'main.html', context)
+    return render_template(request, 'blog/main.html', context)
 
 def post_view(request, post_pk):
     post = get_object_or_404(Post, pk=post_pk)
     context = {}
     context['post'] = post
     context['comments'] = post.comments.filter()
-    return render_template(request, 'post_view.html', context)
+    return render_template(request, 'blog/post_view.html', context)
 
 @login_required
 def post_add(request):
@@ -123,13 +123,44 @@ def post_add(request):
 
     context = {}
     context['form'] = form_p.form
-    return render_template(request, 'post_add.html', context)
+    return render_template(request, 'blog/post_add.html', context)
+
+@login_required
+def reply_add(request, post_pk, reply_to=None):
+    post = get_object_or_404(Post, pk=post_pk)
+
+    if reply_to:
+        reply_to = get_object_or_404(Comment, post=post_pk, number=reply_to)
+
+    form_p = FormProcessor(PostForm, request)
+    form_p.process()
+    if form_p.is_valid():
+        data = form_p.data
+        message  = data['body']
+        comment = Comment(user=request.user, post=post, reply_to=reply_to, body=message)
+        comment.save()
+        #TODO:
+        #send_broadcast(post, render_post(post), sender=self.send, exclude_user=[user])
+        #send_broadcast(user, render_post(post), sender=self.send, exclude_user=[user])
+        return redirect('post_view', post_pk=post.pk)
+
+    context = {}
+    context['form'] = form_p.form
+    return render_template(request, 'blog/post_add.html', context)
+
 
 def user_blog(request, username):
     user = get_object_or_404(User, username=username)
 
     posts = Post.objects.filter(user=user)
     context = {}
+    context['user_blog']= user
     context['posts'] = posts
-    return render_template(request, 'main.html', context)
+    return render_template(request, 'blog/user_blog.html', context)
+
+
+def help(request):
+    context = {}
+    context['settings'] = settings
+    return render_template(request, 'blog/help.html', context)
 

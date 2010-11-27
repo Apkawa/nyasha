@@ -380,8 +380,8 @@ class Client(JabberClient):
 
 logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
-#logger.setLevel(logging.DEBUG) # change to DEBUG for higher verbosity
-logger.setLevel(logging.INFO) # change to DEBUG for higher verbosity
+logger.setLevel(logging.DEBUG) # change to DEBUG for higher verbosity
+#logger.setLevel(logging.INFO) # change to DEBUG for higher verbosity
 
 def main():
     jid = JID("testnanodesu@jabber.ru")

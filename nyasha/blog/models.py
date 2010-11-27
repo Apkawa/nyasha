@@ -12,6 +12,7 @@ from django.db.models.signals import post_save
 
 from fields import AvatarImageField
 
+
 class NotDeletedManager(models.Manager):
     def get_query_set(self):
         return super(NotDeletedManager, self).get_query_set().exclude(is_deleted=True)
@@ -29,12 +30,23 @@ class NotDeletedModel(models.Model):
         self.__class__.objects.filter(pk=self.pk).update(is_deleted=True)
 
 
+def prepare_body(body):
+    from django.utils.html import escape
+    import re
+    body = escape(body)
+    body = re.sub(r'(?:^|\s)@([\w]+)\b', r'<a href="/\g<1>">@\g<1></a>', body)
+    body = re.sub(r'(?:^|\s)/([\d]+)\b', r'<a href="#\g<1>">/\g<1></a>', body)
+    body = re.sub(r'(?:^|\s)#([\d]+)/([\d])\b', r'<a href="/\g<1>#\g<2>">#\g<1>/\g<2></a>', body)
+    body = re.sub(r'(?:^|\s)#([\d]+)\b', r'<a href="/\g<1>">#\g<1></a>', body)
+    return body
+
 class Post(NotDeletedModel):
     user = models.ForeignKey('auth.User')
     body = models.TextField()
+    body_html = models.TextField()
 
     datetime = models.DateTimeField(auto_now=True)
-    from_client = models.CharField(max_length=256, blank=True)
+    from_client = models.CharField(max_length=256, blank=True, default='web')
 
     tags = models.ManyToManyField("Tag")
 
@@ -42,6 +54,10 @@ class Post(NotDeletedModel):
         get_latest_by = 'id'
         ordering = ['-id']
         unique_together = ("id", "user")
+
+    def save(self, *args, **kwargs):
+        self.body_html = prepare_body(self.body)
+        super(Post, self).save(*args, **kwargs)
 
     def get_number(self):
         return '#%s'%self.pk
@@ -62,12 +78,13 @@ class CommentManager(models.Manager):
 class Comment(NotDeletedModel):
     user = models.ForeignKey('auth.User')
     body = models.TextField()
+    body_html = models.TextField()
     post = models.ForeignKey('Post', related_name='comments')
     reply_to = models.ForeignKey('self', null=True, blank=True)
 
     number = models.IntegerField()
     datetime = models.DateTimeField(auto_now=True)
-    from_client = models.CharField(max_length=256, blank=True)
+    from_client = models.CharField(max_length=256, blank=True, default='web')
 
 
     objects = CommentManager()
@@ -82,6 +99,7 @@ class Comment(NotDeletedModel):
             self.number = last_comment_for_post.number + 1
         except IndexError:
             self.number = 1
+        self.body_html = prepare_body(self.body)
         super(Comment, self).save(*args, **kwargs)
 
     def delete(self):
@@ -107,7 +125,6 @@ class Recommend(NotDeletedModel):
     class Meta:
         unique_together = ("post", "user")
 
-
 class Subscribed(NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name="me_subscribe")
     subscribed_user = models.ForeignKey('auth.User', related_name='subscribed_user', blank=True, null=True)
@@ -120,8 +137,6 @@ class Subscribed(NotDeletedModel):
             return obj.subscribed_post.filter()
         elif isinstance(obj, User):
             return obj.subscribed_user.filter()
-
-
 
 
 def avatar_upload_to(instance, filename):

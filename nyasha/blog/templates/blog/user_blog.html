@@ -1,0 +1,10 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    {% with user_blog.get_profile as user_profile %}
+    <h2>@{{ user_blog.username }} ({{ user_profile.name|default:_("noname") }})</h2>
+    {% if user_profile.avatar %}<img src="{{ user_profile.avatar.url }}"/>{% endif %}
+        {% endwith %}
+    <div id="posts_wrapper">
+        {% include "blog/_posts_piece.html" %}
+    </div>
+{% endblock content %}

@@ -249,7 +249,7 @@ def subscribe_toggle_command(request, post_pk=None, username=None, delete=False)
                 subscribe.save()
             if username:
                 if created:
-                    send_alert(s_user, "@%s subscribed to your blog!"%username, sender=request.get_sender())
+                    send_alert(s_user, "@%s subscribed to your blog!"%request.user.username, sender=request.get_sender())
                 return 'Subscribed to @%s!'%username
             elif post_pk:
                 return 'Subscribed (%i replies).'%post.comments.count()
@@ -330,9 +330,12 @@ def user_info(request, username):
 
 def vcard_command(request):
     def vcard_success(stanza):
-        vcard = VCard(stanza.get_node().get_children())
-        profile = request.user.get_profile()
-        profile.update_from_vcard(vcard)
+        try:
+            vcard = VCard(stanza.get_node().get_children())
+            profile = request.user.get_profile()
+            profile.update_from_vcard(vcard)
+        except ValueError:
+            print stanza.get_node().get_children()
 
     def vcard_error(stanza):
         print '*'*50

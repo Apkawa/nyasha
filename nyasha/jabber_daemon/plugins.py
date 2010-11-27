@@ -16,12 +16,12 @@ from blog.views import post_in_blog, send_broadcast, render_post
 from blog.models import Subscribed
 
 
-
 def get_user_from_jid(jid):
+    from django.template.defaultfilters import slugify
     if isinstance(jid, basestring):
         jid = JID(jid)
     user_email = "%s@%s"%(jid.node, jid.domain)
-    user, created = User.objects.get_or_create(email=user_email, defaults={'username':user_email})
+    user, created = User.objects.get_or_create(email=user_email, defaults={'username':slugify(user_email)})
     return user
 
 

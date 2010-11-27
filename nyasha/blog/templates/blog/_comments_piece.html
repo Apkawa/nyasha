@@ -4,9 +4,9 @@
         <a href="{% url user_blog comment.user.username%}">@{{ comment.user.username }}</a>
     </div>
     <div class="comment_content">
-        {{ comment.body }}
+        {{ comment.body_html|safe }}
     </div>
-    <div class="comment_bottom">{{ comment.get_number }} {{ post.datetime|date:"SHORT_DATETIME_FORMAT" }}</div>
+    <div class="comment_bottom">{{ comment.get_number }} {{ post.datetime|date:"SHORT_DATETIME_FORMAT" }} {% if comment.reply_to_id %} <a href="#{{ comment.reply_to.number }}">/{{ comment.reply_to.number }}</a>{% endif %}</div> 
 </div>
     
 {% empty %}

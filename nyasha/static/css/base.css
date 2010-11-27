@@ -1,0 +1,46 @@
+.page { 
+    background: url("/static/images/bg_1.gif"); 
+    border: 1px solid #444;}
+
+#posts_wrapper {
+    margin-top: 42px;
+}
+
+.post { 
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #555;
+    background-color: #333;
+}
+.post_header {
+    border-bottom: 1px solid #444;
+    margin-bottom: 6px;
+}
+.post_content {
+}
+.post_bottom {
+    border-top: 1px solid #444;
+    margin-top: 6px;
+    text-align: right;
+}
+
+
+.comment { 
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #555;
+    background-color: #333;
+}
+.comment_header {
+    border-bottom: 1px solid #444;
+    margin-bottom: 6px;
+}
+.comment_content {
+
+}
+
+.comment_bottom {
+    border-top: 1px solid #444;
+    margin-top: 6px;
+    text-align: right;
+}

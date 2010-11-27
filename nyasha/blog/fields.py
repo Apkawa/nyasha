@@ -3,6 +3,10 @@ from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.db.models.fields.files import ImageFieldFile
 
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^blog\.fields\.AvatarImageField"])
+
+
 class AvatarStorage(FileSystemStorage):
     def __init__(self, thumb_sizes=None, **kwargs):
         self.thumb_sizes = thumb_sizes or []

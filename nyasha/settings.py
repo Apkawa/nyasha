@@ -110,6 +110,7 @@ INSTALLED_APPS = (
     #
     'blog',
     'jabber_daemon',
+    'django_cpserver',
 )
 
 AUTH_PROFILE_MODULE = 'blog.Profile'
@@ -126,4 +127,3 @@ JABBER_BOT_SETTINGS = {
         'password': "test",
         'resource':'Nyasha Bot',
         }
-

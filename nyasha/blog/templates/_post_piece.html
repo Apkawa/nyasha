@@ -1,9 +1,0 @@
-<div id="post_{{ post.pk }}">
-    <div class="post_header">
-        <a href="{% url user_blog post.user.username%}">@{{ post.user.username }}</a>
-    </div>
-    <div class="post_content">
-        {{ post.body|wordwrap:42 }}
-    </div>
-    <div class="post_bottom"><a href="{% url post_view post.pk %}">{{ post.get_number }}</a> {{ post.datetime|date:"SHORT_DATETIME_FORMAT" }}; {{ post.comments.count }} replies</div>
-</div>
