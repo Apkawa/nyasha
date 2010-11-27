@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
+import os
+from hashlib import sha1
+import tempfile
+
 from django.conf import settings
+from django.core.files.base import ContentFile
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+from fields import AvatarImageField
 
 class NotDeletedManager(models.Manager):
     def get_query_set(self):
@@ -116,21 +122,43 @@ class Subscribed(NotDeletedModel):
         elif isinstance(obj, User):
             return obj.subscribed_user.filter()
 
-'''
+
+
+
+def avatar_upload_to(instance, filename):
+    filename = sha1(instance.user.email).hexdigest()
+    return 'avatar/o/%s'%filename
+
+AVATAR_SIZES = [22, 42]
 class Profile(models.Model):
     user = models.OneToOneField('auth.User')
 
     #vcard 
-    url = models.URLField(blank=True)
+    url = models.URLField(blank=True, verify_exists=False)
     name = models.CharField(max_length=128, blank=True)
-    last_name = models.CharField(max_length=128, blank=True)
     comment = models.TextField(blank=True)
+
+    avatar = AvatarImageField(upload_to=avatar_upload_to, thumb_sizes=AVATAR_SIZES, blank=True)
+
+
+    def update_from_vcard(self, vcard):
+        if vcard.photo:
+            tf = tempfile.NamedTemporaryFile()
+            photo = vcard.photo[0]
+            self.avatar.save(tf.name, ContentFile(photo.image))
+
+        if vcard.url:
+            self.url = vcard.url[0].value
+
+        if vcard.fn:
+            self.name = vcard.fn.value
+
+        if vcard.desc:
+            self.comment = vcard.desc[0].value
+        self.save()
 
 
 def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-       profile, created = Profile.objects.get_or_create(user=instance)
+   profile, created = Profile.objects.get_or_create(user=instance)
 
 post_save.connect(create_user_profile, sender=User)
-'''
-

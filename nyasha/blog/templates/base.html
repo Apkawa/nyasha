@@ -6,7 +6,7 @@
         <div id="wrapper">
         	<div id="header">
                 {% if user.is_authenticated %}
-                    <a href="{% url user_blog user.username %}">{{ user }}</a> <a href="{% url logout %}">{{ _("logout")|capfirst }}</a></br>
+                    <a href="{% url user_blog user.username %}"><img src="{{ user.get_profile.avatar.url_22 }}"/>{{ user }}</a> <a href="{% url logout %}">{{ _("logout")|capfirst }}</a></br>
                 <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
                     
                 {% endif %}
