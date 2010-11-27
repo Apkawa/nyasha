@@ -75,6 +75,17 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
+'''
+TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
+"django.core.context_processors.debug",
+"django.core.context_processors.i18n",
+"django.core.context_processors.media",
+"django.core.context_processors.static",
+"django.contrib.messages.context_processors.messages",
+#'blog.context_processors.context_processor',
+)
+'''
+
 
 ROOT_URLCONF = 'nyasha.urls'
 
@@ -102,6 +113,12 @@ INSTALLED_APPS = (
 )
 
 AUTH_PROFILE_MODULE = 'blog.Profile'
+
+SERVER_DOMAIN = '127.0.0.1:8000'
+#CACHE_BACKEND = 'locmem://'
+CACHE_BACKEND = 'file:///tmp/django_cache'
+
+
 
 
 JABBER_BOT_SETTINGS = {

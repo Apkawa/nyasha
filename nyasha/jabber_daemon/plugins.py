@@ -18,6 +18,8 @@ from blog.models import Subscribed
 
 
 def get_user_from_jid(jid):
+    if isinstance(jid, basestring):
+        jid = JID(jid)
     user_email = "%s@%s"%(jid.node, jid.domain)
     user, created = User.objects.get_or_create(email=user_email, defaults={'username':user_email})
     return user
@@ -36,7 +38,7 @@ class PrivateMessageHandler(BaseMessageHandler):
         request = Request(message, self.get_stream(), user)
         text = command_patterns.execute_command(request)
         if not text:
-            post = post_in_blog(message_body, user)
+            post = post_in_blog(message_body, user, from_jid.resource)
             send_broadcast(post, render_post(post), sender=self.send, exclude_user=[user])
             send_broadcast(user, render_post(post), sender=self.send, exclude_user=[user])
             if post:

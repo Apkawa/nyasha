@@ -1,3 +1,3 @@
 @{{ comment.user.username }}:
 {{ comment.body|safe }}
-#{{ comment.post_id }}/{{ comment.number }}
+#{{ comment.post_id }}/{{ comment.number }} {{ comment.get_full_url }}

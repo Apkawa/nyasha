@@ -32,6 +32,9 @@ class Request(object):
         self.stream = stream
 
     def get_stream(self):
+        return self.stream
+
+    def get_sender(self):
         return self.stream.send
 
 
@@ -60,6 +63,13 @@ class CommandPatterns(object):
             res = cmd.execute(request)
             if res:
                 return res
+
+    def find_command(self, string):
+        for cmd in self.__commands:
+            res = cmd.match(string)
+            if res:
+                return res
+
 
     def get_commands(self):
         return list(self.__commands)
@@ -90,15 +100,18 @@ class Command(object):
             self.command_handler = __import__(self.command, fromlist=[namespace])
 
     def execute(self, request):
-        raw_string = request.body
-        match = self.regexp.match(raw_string)
+        match = self.match(request.body)
         if match:
             args = match.groups()
             kwargs = match.groupdict()
             kwargs.update(self.extra_kwargs)
-            print args, kwargs
-            print self.extra_kwargs
+            #print args, kwargs
+            #print self.extra_kwargs
             return self.command_handler(request, **kwargs)
+
+    def match(self, string):
+        return self.regexp.match(string)
+
 
     def is_valid(self):
         return bool(self.regexp.match(test_string))

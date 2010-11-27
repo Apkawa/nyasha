@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="." method="POST">
+        {% csrf_token %}
+    <table>
+        <tbody>
+            {{ form.as_table }}
+            <tr>
+                <td>
+                	<button type="submit">{{ _("scat!")|capfirst }}</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </form>
+{% endblock content %}

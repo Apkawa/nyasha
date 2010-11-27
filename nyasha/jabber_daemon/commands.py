@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-# - Show last messages from your feed (## - second page, ...)
-@ - Show recomendations and popular personal blogs
-
-@username - Show user's info
-
+TODO:
 ? blah - Search posts for 'blah'
 ? @username blah - Searching among user's posts for 'blah'
 L @username - Subscribe without notifications
@@ -14,12 +10,19 @@ BL *tag - Add/delete tag to/from your blacklist
 PM @username text - Send personal message
 ON / OFF - Enable/disable subscriptions delivery
 VCARD - Update "About" info from Jabber vCard
-PING - Pong
 '''
 import re
+from hashlib import sha1
+from random import randint
+from django.core.cache import cache
 
+
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
+
+from django.conf import settings
+
 
 from core import Iq, VCard
 from blog.models import Post, Comment, Subscribed, Recommend, Tag
@@ -96,7 +99,7 @@ def comment_add_command(request, post_pk, message, comment_number=None):
             return "Message not found."
 
     comment = Comment.objects.create(post=post, reply_to_id=reply_to, user=user, body=message)
-    send_broadcast(post, render_comment(comment), sender=request.get_stream(), exclude_user=(user,))
+    send_broadcast(post, render_comment(comment), sender=request.get_sender(), exclude_user=(user,))
     subscribe, create = Subscribed.objects.get_or_create(user=user, subscribed_post=post)
 
     text = '''Reply posted\n%s'''%comment.get_number()
@@ -137,12 +140,12 @@ def recommend_post_command(request, post_pk):
     if post.user_id == request.user.pk:
         return '''You can't recommend your own messages.'''
 
-    recommend, created = Recommend.admin_objects.get_or_create(user=self.user, post=post)
+    recommend, created = Recommend.admin_objects.get_or_create(user=request.user, post=post)
     if created or recommend.is_deleted:
         if created:
             send_alert(post.user, 
-                    '@%s recommend %s'%(self.user.username, post.get_number()),
-                    sender=self.sender)
+                    '@%s recommend %s'%(request.user.username, post.get_number()),
+                    sender=request.get_sender())
 
         if recommend.is_deleted:
             recommend.is_deleted = False
@@ -208,7 +211,7 @@ def subscribe_show_command(request):
     subscribe_list = '\n'.join(["@%s"%s for s in subscribed_query])
     return "You are subscribed to users:\n%s"%subscribe_list 
 
-def subscribe_toggle_command(request, post_pk, username=None, delete=False):
+def subscribe_toggle_command(request, post_pk=None, username=None, delete=False):
     '''
     S #123 - Subscribe to message replies
     S @username - Subscribe to user's blog
@@ -241,7 +244,7 @@ def subscribe_toggle_command(request, post_pk, username=None, delete=False):
                 subscribe.save()
             if username:
                 if created:
-                    send_alert(s_user, "@%s subscribed to your blog!"%username, sender=self.sender)
+                    send_alert(s_user, "@%s subscribed to your blog!"%username, sender=request.get_sender())
                 return 'Subscribed to @%s!'%username
             elif post_pk:
                 return 'Subscribed (%i replies).'%post.comments.count()
@@ -327,7 +330,7 @@ def vcard_command(request):
         print vcard.components
         pass
 
-    def vcard_error(stanza):
+#    def vcard_error(stanza):
         print '*'*50
         print '!ERROR!'
         print stanza
@@ -342,3 +345,9 @@ def vcard_command(request):
     request.stream.set_response_handlers(get_vcard_req, res_handler=vcard_success, err_handler=vcard_error)
     request.stream.send(get_vcard_req)
     return "Updating..."
+
+
+def login_command(request):
+    token = sha1('%s-%s-%i'%(request.user.pk, settings.SECRET_KEY, randint(10, 99999))).hexdigest()
+    cache.set(token, request.user.pk, timeout=1800)
+    return 'http://%s%s'%(settings.SERVER_DOMAIN, reverse('jabber_login', kwargs={'token':token}))

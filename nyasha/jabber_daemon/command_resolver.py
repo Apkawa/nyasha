@@ -43,6 +43,7 @@ command_patterns = cmd_patterns('jabber_daemon.commands',
         cmd(r'^@(?P<username>[\w]+)$', 'user_info', doc='@username - User info'),
 
         #cmd(r'^VCARD$', 'vcard_command', doc='VCARD - Update "About" info from Jabber vCard'),
+        cmd(r'^LOGIN$', 'login_command', doc='LOGIN - login in web ui'),
 
 )
 

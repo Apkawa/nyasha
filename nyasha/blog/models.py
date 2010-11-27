@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -38,6 +40,13 @@ class Post(NotDeletedModel):
     def get_number(self):
         return '#%s'%self.pk
 
+    @models.permalink
+    def get_url(self):
+        return ('post_view', (),{'post_pk':self.pk})
+
+    def get_full_url(self):
+        return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_url())
+
 
 
 class CommentManager(models.Manager):
@@ -74,6 +83,13 @@ class Comment(NotDeletedModel):
 
     def get_number(self):
         return '#%s/%s'%(self.post_id, self.number)
+
+    @models.permalink
+    def get_url(self):
+        return ('post_view', (),{'post_pk':self.post_id})
+
+    def get_full_url(self):
+        return 'http://%s%s#%s'%(settings.SERVER_DOMAIN, self.get_url(), self.number)
 
 class Tag(models.Model):
     name = models.CharField(max_length=42, unique=True)
