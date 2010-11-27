@@ -24,10 +24,14 @@ class Command(BaseCommand):
         make_option('-d', '--daemon', action='store_true',
               dest='daemon', help='Daemonize'),
         make_option('-w', '--workers', dest='workers', type='int',
-                    help='Number of Workers threads', default=1)
+                    help='Number of Workers threads', default=1),
+
+        make_option('-r', '--autoreload', dest='reload', action='store_true',
+                    help='enable autoreload code')
+
     )
 
-    def handle(self, *args, **options):
+    def run_jabber_client(self):
         jid = settings.JABBER_BOT_SETTINGS['jid']
         password = settings.JABBER_BOT_SETTINGS['password']
         resource = settings.JABBER_BOT_SETTINGS['resource']
@@ -45,8 +49,15 @@ class Command(BaseCommand):
             except KeyboardInterrupt:
                 c.disconnect()
                 break
+        pass
+    def handle(self, *args, **options):
         #cbd = JabberDaemon(workers=options.get('workers'))
         #cbd.runserver(*args, **options)
+        if options.get('reload'):
+            from utils.autoreload import main
+            main(self.run_jabber_client)
+        else:
+            self.run_jabber_client()
         
     def usage(self, subcommand):
         return 'Statistic daemon'

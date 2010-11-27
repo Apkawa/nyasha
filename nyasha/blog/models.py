@@ -104,7 +104,6 @@ class Recommend(NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name='recommends_user')
     post = models.ForeignKey('Post', related_name='recommends')
     datetime = models.DateTimeField(auto_now=True)
-
     class Meta:
         unique_together = ("post", "user")
 

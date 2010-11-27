@@ -353,5 +353,5 @@ def vcard_command(request):
 
 def login_command(request):
     token = sha1('%s-%s-%i'%(request.user.pk, settings.SECRET_KEY, randint(10, 99999))).hexdigest()
-    cache.set(token, request.user.pk, timeout=1800)
-    return 'http://%s%s'%(settings.SERVER_DOMAIN, reverse('jabber_login', kwargs={'token':token}))
+    cache.set(token, request.user.pk, timeout=60*3)#за 3 минуты должны залогиниться
+    return 'http://%s%s [expire 3 minutes]'%(settings.SERVER_DOMAIN, reverse('jabber_login', kwargs={'token':token}))
