@@ -1,6 +1,6 @@
-Jabber ID: {{ userprofile.jid }}
-Full name: {{ userprofile.get_fullname }}
+Jabber ID: {{ user.email }}
+Full name: {{ userprofile.name }}
 From: {{ userprofile.from }}
-Web site: {{ userprofile.website }}
+Web site: {{ userprofile.url }}
 Status: {{ userprofile.status }}
 Last messages and recommendations: {% for m in last_messages_and_recommendations %}{{ m.get_number }} {% endfor %}

@@ -12,9 +12,14 @@ ON / OFF - Enable/disable subscriptions delivery
 VCARD - Update "About" info from Jabber vCard
 '''
 import re
+
 from hashlib import sha1
 from random import randint
+
 from django.core.cache import cache
+
+
+
 
 
 from django.core.urlresolvers import reverse
@@ -317,20 +322,19 @@ def user_info(request, username):
     except User.DoesNotExist:
         return "Unknown user, sorry."
     context = {}
-    context['userprofile'] = user
+    context['user'] = user
+    context['userprofile'] = user.get_profile()
     context['last_messages_and_recommendations'] = Post.objects.filter(Q(recommends__user=user)|Q(user=user)).order_by('-id')[:10]
     return render_to_string('jabber/user_info.txt', context)
 
 
 def vcard_command(request):
     def vcard_success(stanza):
-        print '*'*50
-        print '!success!'
         vcard = VCard(stanza.get_node().get_children())
-        print vcard.components
-        pass
+        profile = request.user.get_profile()
+        profile.update_from_vcard(vcard)
 
-#    def vcard_error(stanza):
+    def vcard_error(stanza):
         print '*'*50
         print '!ERROR!'
         print stanza
