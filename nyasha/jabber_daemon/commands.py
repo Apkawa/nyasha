@@ -103,11 +103,11 @@ def comment_add_command(request, post_pk, message, comment_number=None):
         except Comment.DoesNotExist:
             return "Message not found."
 
-    comment = Comment.objects.create(post=post, reply_to_id=reply_to, user=user, body=message)
+    comment = Comment.objects.create(post=post, reply_to_id=reply_to, user=user, body=message, from_client=request.from_jid.resource)
     send_broadcast(post, render_comment(comment), sender=request.get_sender(), exclude_user=(user,))
     subscribe, create = Subscribed.objects.get_or_create(user=user, subscribed_post=post)
 
-    text = '''Reply posted\n%s'''%comment.get_number()
+    text = '''Reply posted\n%s %s'''%(comment.get_number(), comment.get_full_url())
 
     #print post.body
     return text
@@ -264,15 +264,17 @@ def subscribe_toggle_command(request, post_pk=None, username=None, delete=False)
 '''
 
 def _render_posts(queryset, numpage=1,  per_page=10):
-    paginate = Paginator(queryset.annotate(replies_count=Count('comments')), per_page)
+    paginate = Paginator(queryset.select_related('user','user__profile'), per_page)
 
     try:
         page = paginate.page(numpage)
     except (EmptyPage, InvalidPage):
         page = paginate.page(paginate.num_pages)
 
+    posts = page.object_list
+    posts = Tag.attach_tags(posts)
     context = {}
-    context['posts'] = reversed(page.object_list)
+    context['posts'] = reversed(posts)
     body = render_to_string('jabber/posts.txt', context)[:-1]
     return body
 
@@ -305,7 +307,7 @@ def user_feed_messages(request, numpage, username=None):
             return "Unknown user, sorry."
     else:
         user = request.user
-    posts = Post.objects.comments_count().filter(Q(user=user)|Q(recommends__user=user)|Q(user__subscribed_user__user=user))
+    posts = Post.objects.comments_count().filter(Q(user=user)|Q(recommends__user=user)|Q(user__subscribed_user__user=user)).distinct()
     return _render_posts(posts, numpage)
 
 def show_tags_command(request):

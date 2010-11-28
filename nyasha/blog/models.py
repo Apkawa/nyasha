@@ -31,6 +31,9 @@ class NotDeletedModel(models.Model):
 
 
 def prepare_body(body):
+    '''
+    @todo  запилить нормальный парсинг.
+    '''
     from django.utils.html import escape
     import re
     body = escape(body)
@@ -53,7 +56,7 @@ class PostManager(NotDeletedManager):
                 '''})
 
 class Post(NotDeletedModel):
-    user = models.ForeignKey('auth.User')
+    user = models.ForeignKey('auth.User', related_name="posts")
     body = models.TextField()
     body_html = models.TextField()
 
@@ -91,7 +94,7 @@ class CommentManager(models.Manager):
                 models.Q(is_deleted=True)|models.Q(post__is_deleted=True))
 
 class Comment(NotDeletedModel):
-    user = models.ForeignKey('auth.User')
+    user = models.ForeignKey('auth.User', related_name='comments')
     body = models.TextField()
     body_html = models.TextField()
     post = models.ForeignKey('Post', related_name='comments')
@@ -203,6 +206,42 @@ class Profile(models.Model):
         if vcard.desc:
             self.comment = vcard.desc[0].value
         self.save()
+
+    @classmethod
+    def attach_user_info(self, user_queryset):
+        users = user_queryset.extra(select={'posts_count': '''
+                    SELECT COUNT(*) FROM "blog_post" 
+                    WHERE (NOT ("blog_post"."is_deleted" = true ) 
+                    AND "blog_post"."user_id" = "auth_user"."id")
+                    ''',
+                    'comments_count':'''
+                    SELECT COUNT(*) FROM "blog_comment" 
+                    INNER JOIN "blog_post" ON ("blog_comment"."post_id" = "blog_post"."id") 
+                    WHERE (NOT (("blog_comment"."is_deleted" = true OR "blog_post"."is_deleted" = true )) 
+                    AND "blog_comment"."user_id" =  "auth_user"."id")
+                    ''',
+                    'i_read_count':'''
+                    SELECT COUNT(*) FROM "blog_subscribed" 
+                    WHERE (NOT ("blog_subscribed"."is_deleted" = true ) 
+                    AND "blog_subscribed"."user_id" = "auth_user"."id"
+                    AND "blog_subscribed"."subscribed_user_id" IS NOT NULL)
+                    ''', 
+                    'my_readers_count':'''
+                    SELECT COUNT(*) FROM "blog_subscribed" 
+                    WHERE (NOT ("blog_subscribed"."is_deleted" = true ) 
+                    AND "blog_subscribed"."subscribed_user_id" = "auth_user"."id" )
+                    '''})
+        '''
+        for user in users:
+            if not user.my_readers_count:
+                flood_level = 0
+            elif user.my_readers_count > user.i_read_count:
+                flood_level = float(user.my_readers_count - user.i_read_count) / user.my_readers_count * 100
+            else:
+                flood_level = float(user.i_read_count - user.my_readers_count) / user.i_read_count * 100
+            user.flood_level = flood_level
+        '''
+        return users
 
 
 def create_user_profile(sender, instance, created, **kwargs):

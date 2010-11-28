@@ -14,8 +14,10 @@ from django.utils.encoding import smart_unicode
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
-from models import Post, Subscribed, Tag, Comment
+
+from models import Post, Subscribed, Tag, Comment, Profile
 from jabber_daemon.core import Message
 
 from utils.shortcuts import render_template
@@ -81,7 +83,7 @@ def post_in_blog(message, user, from_client='web'):
     return post
 
 def render_post(post, with_comments=False, template='jabber/post.txt'):
-    post.replies_count = post.comments.count()
+    post.comments_count = post.comments.count()
     context = {}
     context['post'] = post
     if with_comments:
@@ -115,37 +117,64 @@ def main(request):
     context = {}
     return render_template(request, 'blog/main.html', context)
 
+PER_PAGE = 10
 def user_blog(request, username=None):
-    user = username and get_object_or_404(User, username=username)
+    users = Profile.attach_user_info(User.objects.filter(username=username))
+    user = username and get_object_or_404(users, username=username)
+    page = request.GET.get('page', 1)
+    try:
+        page = int(page)
+    except ValueError:
+        return redirect('.')
+
+
     tagname = request.GET.get('tag')
     tag = tagname and get_object_or_404(Tag, name=tagname)
 
 
     posts = Post.objects.comments_count().select_related('user','user__profile')
     if user:
-        posts = posts.filter(user=user
-                ).filter(
+        posts = posts.filter(
                         Q(user=user)\
                         |Q(recommends__user=user)\
                         |Q(user__subscribed_user__user=user)
-                    )
+                    ).distinct()
+        #TODO: написать нормальный запрос
+
     if tag:
         posts = posts.filter(tags=tag)
 
+
+
+    paginate = Paginator(posts, PER_PAGE)
+
+    try:
+        page = paginate.page(page)
+    except (EmptyPage, InvalidPage):
+        page = paginate.page(paginate.num_pages)
+
+    posts = page.object_list
     posts = Tag.attach_tags(posts)
+
     context = {}
     context['user_blog'] = user
     context['posts'] = posts
+    context['page'] = page
     return render_template(request, 'blog/user_blog.html', context)
 
 def post_view(request, post_pk):
     posts = get_list_or_404(Post.objects.comments_count(), pk=post_pk)
     posts = Tag.attach_tags(posts)
+
     post = posts[0]
+
+    users = Profile.attach_user_info(User.objects.filter(pk=post.user_id))
+    post_user = users[0]
+
     context = {}
     context['post'] = post
-    context['user_blog'] = post.user
-    context['comments'] = post.comments.filter().order_by('id').select_related('user','user__profile')
+    context['user_blog'] = post_user
+    context['comments'] = post.comments.filter().order_by('id').select_related('user','user__profile','reply_to')
     return render_template(request, 'blog/post_view.html', context)
 
 @login_required

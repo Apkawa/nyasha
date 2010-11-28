@@ -1,12 +1,7 @@
 {% extends "blog/base.html" %}
 {% block content %}
     {% with post.user.get_profile as user_profile %}
-    <h2>@{{ post.user.username }} ({{ user_profile.name|default:_("noname") }})</h2>
-            {% if user_profile.avatar %}
-                <img src="{{ user_profile.avatar.url }}"/>
-            {% else %}
-                <img src="{{ MEDIA_URL }}avatar/default/100.png" width="100" height="100">
-            {% endif %}
+        {% include "blog/_user_info_short.html" %}
     {% endwith %}
     {% include "blog/_post_piece.html" %}
     <h3>{{ _("Replies")|capfirst }} ({{ post.comments_count }})</h3>
@@ -15,3 +10,9 @@
     {% empty %}
     {% endfor %}
 {% endblock content %}
+
+{% block right_sidebar %}
+    {% if user_blog %}
+         {% include "blog/_user_blog_sidebar.html" %}
+    {% endif %}
+{% endblock right_sidebar %}

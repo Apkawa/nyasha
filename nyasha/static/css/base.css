@@ -1,33 +1,63 @@
 .page { 
     background: url("/static/images/bg_1.gif"); 
-    border: 1px solid #444;}
+    border: 1px solid #444;
+    -webkit-border-radius: 42px;
+    -webkit-border-radius: 42px;
+    -moz-border-radius: 42px;
+    -moz-border-radius: 42px;
+    border-radius: 42px;
+    border-radius: 42px;
+
+}
+#content {
+    background-color: rgba(0,0,0,0.42);
+    border: 1px solid #555;
+    padding-bottom: 10px;
+    -webkit-border-radius: 12px;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+    border-radius: 12px;
+}
 
 #posts_wrapper {
-    margin-top: 42px;
+}
+#user_info {
+    margin-bottom: 5px;
 }
 
 .post { 
-    margin-top: 10px;
     margin-bottom: 10px;
     border: 1px solid #555;
     background-color: #333;
+}
+
+.kawaii {
+    -webkit-border-top-right-radius: 22px;
+    -webkit-border-bottom-left-radius: 22px;
+    -moz-border-radius-topright: 22px;
+    -moz-border-radius-bottomleft: 22px;
+    border-top-right-radius: 22px;
+    border-bottom-left-radius: 22px;
 }
 .post_header {
     border-bottom: 1px solid #444;
     margin-bottom: 6px;
 }
 .post_content {
+    padding-left:10px;
 }
 .post_bottom {
     border-top: 1px solid #444;
     margin-top: 6px;
+    padding: 4px;
     text-align: right;
 }
 
 
 .comment { 
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 3px;
     border: 1px solid #555;
     background-color: #333;
 }
@@ -36,11 +66,42 @@
     margin-bottom: 6px;
 }
 .comment_content {
-
+    padding-left:10px;
 }
 
 .comment_bottom {
     border-top: 1px solid #444;
     margin-top: 6px;
+    padding: 4px;
     text-align: right;
+}
+
+.small_avatar {
+    margin: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.large_avatar {
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+}
+
+
+
+.page_newer {
+    float: left;
+}
+
+.page_older {
+    float: right;
+}
+
+#user {
+    position: relative;
+    float: right;
 }

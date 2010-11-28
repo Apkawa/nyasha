@@ -15,6 +15,14 @@ from django.conf import settings
 from blog.views import post_in_blog, send_broadcast, render_post
 from blog.models import Subscribed
 
+from django.db import connection
+
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
+
 
 def get_user_from_jid(jid):
     from django.template.defaultfilters import slugify
@@ -34,6 +42,9 @@ class PrivateMessageHandler(BaseMessageHandler):
         message_body = message.body
         if not message_body:
             return
+
+        begin_queries_count = len(connection.queries)
+
         user = get_user_from_jid(from_jid)
         request = Request(message, self.get_stream(), user)
         text = command_patterns.execute_command(request)
@@ -42,9 +53,12 @@ class PrivateMessageHandler(BaseMessageHandler):
             send_broadcast(post, render_post(post), sender=self.send, exclude_user=[user])
             send_broadcast(user, render_post(post), sender=self.send, exclude_user=[user])
             if post:
-                text = '''New message posted\n%s'''%post.get_number()
+                text = '''New message posted\n%s %s'''%(post.get_number(), post.get_full_url())
 
         response_mes = Message(from_jid=message.to_jid,to_jid=message.from_jid, stanza_type=message.type, body=text)
+
+        end_queries_count = len(connection.queries)
+        logger.debug("SQL %s queries", end_queries_count - begin_queries_count)
         self.send(response_mes)
 
 class PresenceHandler(BasePresenceHandler):
