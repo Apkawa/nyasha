@@ -48,7 +48,7 @@ class PostManager(NotDeletedManager):
                 SELECT COUNT(*)
                 FROM "blog_comment" AS "c"
                 INNER JOIN "blog_post" AS "p" ON ("c"."post_id" = "p"."id")
-                WHERE (NOT (("c"."is_deleted" = 1 OR "p"."is_deleted" = 1 ))
+                WHERE (NOT (("c"."is_deleted" = True OR "p"."is_deleted" = True ))
                 AND "c"."post_id" =  "blog_post"."id")
                 '''})
 
@@ -57,7 +57,7 @@ class Post(NotDeletedModel):
     body = models.TextField()
     body_html = models.TextField()
 
-    datetime = models.DateTimeField(auto_now=True)
+    datetime = models.DateTimeField(auto_now_add=True)
     from_client = models.CharField(max_length=256, blank=True, default='web')
 
     tags = models.ManyToManyField("Tag")
@@ -98,7 +98,7 @@ class Comment(NotDeletedModel):
     reply_to = models.ForeignKey('self', null=True, blank=True)
 
     number = models.IntegerField()
-    datetime = models.DateTimeField(auto_now=True)
+    datetime = models.DateTimeField(auto_now_add=True)
     from_client = models.CharField(max_length=256, blank=True, default='web')
 
 
@@ -132,6 +132,24 @@ class Comment(NotDeletedModel):
 
 class Tag(models.Model):
     name = models.CharField(max_length=42, unique=True)
+
+    @classmethod
+    def attach_tags(cls, post_queryset):
+        post_tags = Post.tags.through.objects.filter(post__in=post_queryset).select_related('tag')
+        post_tags_dict = {}
+        for pt in post_tags:
+            post_pk = pt.post_id
+            if post_pk not in post_tags_dict:
+                post_tags_dict[post_pk] = []
+            post_tags_dict[post_pk].append(pt.tag)
+
+        for post in post_queryset:
+            post.post_tags = post_tags_dict.get(post.pk, ())
+
+        return post_queryset
+
+
+
 
 class Recommend(NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name='recommends_user')

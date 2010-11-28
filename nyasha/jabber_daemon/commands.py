@@ -277,10 +277,10 @@ def _render_posts(queryset, numpage=1,  per_page=10):
     return body
 
 def last_messages(request):
-    return _render_posts(Post.objects.filter())
+    return _render_posts(Post.objects.comments_count().filter())
 
 def last_messages_by_tag(request, tag):
-    return _render_posts(Post.objects.filter(tags__name=tag))
+    return _render_posts(Post.objects.comments_count().filter(tags__name=tag))
 
 def last_messages_by_user(request, username, tag=None):
     '''
@@ -294,7 +294,7 @@ def last_messages_by_user(request, username, tag=None):
     kw['user'] = user
     if tag:
         kw['tags__name'] = tag
-    return _render_posts(Post.objects.filter(**kw))
+    return _render_posts(Post.objects.comments_count().filter(**kw))
 
 def user_feed_messages(request, numpage, username=None):
     numpage = len(numpage)
@@ -305,7 +305,7 @@ def user_feed_messages(request, numpage, username=None):
             return "Unknown user, sorry."
     else:
         user = request.user
-    posts = Post.objects.filter(Q(user=user)|Q(recommends__user=user)|Q(user__subscribed_user__user=user))
+    posts = Post.objects.comments_count().filter(Q(user=user)|Q(recommends__user=user)|Q(user__subscribed_user__user=user))
     return _render_posts(posts, numpage)
 
 def show_tags_command(request):

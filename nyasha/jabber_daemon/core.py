@@ -323,6 +323,7 @@ class Client(JabberClient):
         '''
         stream = self.get_stream()
         stream.send(Presence(status=""))
+        settings.JABBER_BOT_SETTINGS['stream'] = stream
         #stream.send(Presence(to_jid=JID("torrents.ru_nixoids","conference.jabber.ru","Nia"),status="offline"))
         #for handler_data in VersionHandler(self).get_iq_get_handlers():
         #    self.stream.set_iq_get_handler(*handler_data)

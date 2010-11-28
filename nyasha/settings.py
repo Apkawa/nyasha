@@ -126,4 +126,5 @@ JABBER_BOT_SETTINGS = {
         'jid' : "test@jabber.ru",
         'password': "test",
         'resource':'Nyasha Bot',
+        'stream':None,
         }

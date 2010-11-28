@@ -14,12 +14,12 @@ auth_patterns = patterns('',
 
 urlpatterns = patterns('blog.views',
     # Example:
-    url(r'^$', 'main'),
     url(r'^help/$', 'help', name='help'),
     url(r'^(?P<post_pk>[\d]+)/$', 'post_view', name='post_view'),
     url(r'^add/$', 'post_add', name='post_add'),
     url(r'^(?P<post_pk>[\d]+)/reply/$', 'reply_add', name='reply_add'),
     url(r'^(?P<post_pk>[\d]+)/reply/(?P<reply_to>[\d]+)/$', 'reply_add', name='reply_add'),
+    url(r'^$', 'user_blog', name='main'),
     url(r'^(?P<username>[\w]+)/', include(personal_patterns)),
 
     # Uncomment the admin/doc line below to enable admin documentation:

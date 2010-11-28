@@ -4,6 +4,8 @@ from django.conf import settings
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
+handler500 = 'blog.views.handler500'
+
 
 urlpatterns = patterns('',
     # Example:
@@ -21,3 +23,9 @@ urlpatterns += patterns('',
         {'document_root': settings.MEDIA_ROOT}),
 
 )
+
+urlpatterns += patterns('',
+    (r'^error/500/$', handler500 ),
+    (r'^error/404/$', handler404 ),
+)
+

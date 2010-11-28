@@ -3,11 +3,11 @@
 import re
 from django.core.cache import cache
 from django.http import HttpResponse, Http404
-from django.db.models import Count
+from django.db.models import Count,Q
 
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_list_or_404, redirect, get_object_or_404
 
 from django.utils.encoding import smart_unicode
 
@@ -23,20 +23,42 @@ from utils.form_processor import FormProcessor
 
 from forms import PostForm
 
-def send_broadcast(to_subscribe, message, sender, exclude_user=()):
-    subscribes = Subscribed.get_subscribes_by_obj(to_subscribe).select_related('user').exclude(user__in=exclude_user)
-    for s in subscribes:
-        response_mes = Message(
-                from_jid=settings.JABBER_BOT_SETTINGS['jid'], to_jid=s.user.email,
-                stanza_type='chat', body=message)
-        sender(response_mes)
+def handler500(request, template_name='500.html'):
 
-def send_alert(to_user, message, sender):
+    """
+    500 error handler.
+
+    Templates: `500.html`
+    Context:
+        MEDIA_URL
+            Path of static media (e.g. "media.example.org")
+    """
+    from django import http
+    from django.template import Context, loader
+    t = loader.get_template(template_name) # You need to create a 500.html template.
+    return http.HttpResponseServerError(t.render(Context({
+        'MEDIA_URL': settings.MEDIA_URL
+    })))
+
+
+
+
+def send_alert(to_user, message, sender=None):
+    if not sender:
+        sender = settings.JABBER_BOT_SETTINGS['stream'].send
     response_mes = Message(
             from_jid=settings.JABBER_BOT_SETTINGS['jid'], to_jid=to_user.email,
             stanza_type='chat', body=message)
     sender(response_mes)
 
+def send_broadcast(to_subscribe, message, sender, exclude_user=()):
+    subscribes = Subscribed.get_subscribes_by_obj(to_subscribe).select_related('user').exclude(user__in=exclude_user)
+    for s in subscribes:
+        #response_mes = Message(
+        #from_jid=settings.JABBER_BOT_SETTINGS['jid'], to_jid=s.user.email,
+        #        stanza_type='chat', body=message)
+        #sender(response_mes)
+        send_alert(to_user=s.user, message=message)
 
 MAX_TAG_COUNT = 5
 SPLIT_MESSAGE_REGEXP = re.compile('^\s*(?:\*\S+\s+){,%s}'%MAX_TAG_COUNT)
@@ -57,7 +79,6 @@ def post_in_blog(message, user, from_client='web'):
     post.tags = [Tag.objects.get_or_create(name=tag_name)[0] for tag_name in tags]
     Subscribed.objects.create(user=user, subscribed_post=post)
     return post
-
 
 def render_post(post, with_comments=False, template='jabber/post.txt'):
     post.replies_count = post.comments.count()
@@ -81,7 +102,6 @@ def login_user(request, user):
     login(request, user)
     return user
 
-
 def jabber_login(request, token):
     user_pk = cache.get(token)
     if not user_pk:
@@ -91,18 +111,41 @@ def jabber_login(request, token):
     cache.delete(token)
     return redirect('/')
 
-
 def main(request):
-    posts = Post.objects.comments_count().filter().select_related('user','user__profile')
     context = {}
-    context['posts'] = posts
     return render_template(request, 'blog/main.html', context)
 
+def user_blog(request, username=None):
+    user = username and get_object_or_404(User, username=username)
+    tagname = request.GET.get('tag')
+    tag = tagname and get_object_or_404(Tag, name=tagname)
+
+
+    posts = Post.objects.comments_count().select_related('user','user__profile')
+    if user:
+        posts = posts.filter(user=user
+                ).filter(
+                        Q(user=user)\
+                        |Q(recommends__user=user)\
+                        |Q(user__subscribed_user__user=user)
+                    )
+    if tag:
+        posts = posts.filter(tags=tag)
+
+    posts = Tag.attach_tags(posts)
+    context = {}
+    context['user_blog'] = user
+    context['posts'] = posts
+    return render_template(request, 'blog/user_blog.html', context)
+
 def post_view(request, post_pk):
-    post = get_object_or_404(Post.objects.comments_count(), pk=post_pk)
+    posts = get_list_or_404(Post.objects.comments_count(), pk=post_pk)
+    posts = Tag.attach_tags(posts)
+    post = posts[0]
     context = {}
     context['post'] = post
-    context['comments'] = post.comments.filter().select_related('user','user__profile')
+    context['user_blog'] = post.user
+    context['comments'] = post.comments.filter().order_by('id').select_related('user','user__profile')
     return render_template(request, 'blog/post_view.html', context)
 
 @login_required
@@ -148,18 +191,6 @@ def reply_add(request, post_pk, reply_to=None):
     context = {}
     context['form'] = form_p.form
     return render_template(request, 'blog/post_add.html', context)
-
-
-def user_blog(request, username):
-    user = get_object_or_404(User, username=username)
-
-    posts = Post.objects.comments_count().filter(user=user).select_related('user__profile'
-            )
-    #.annotate(Count('comments'))
-    context = {}
-    context['user_blog']= user
-    context['posts'] = posts
-    return render_template(request, 'blog/user_blog.html', context)
 
 
 def help(request):

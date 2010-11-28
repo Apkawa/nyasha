@@ -1,9 +1,17 @@
 {% extends "blog/base.html" %}
 {% block content %}
-    {% with user_blog.get_profile as user_profile %}
-    <h2>@{{ user_blog.username }} ({{ user_profile.name|default:_("noname") }})</h2>
-    {% if user_profile.avatar %}<img src="{{ user_profile.avatar.url }}"/>{% endif %}
+    {% if user_blog %}
+        {% with user_blog.get_profile as user_profile %}
+            <h2>@{{ user_blog.username }} ({{ user_profile.name|default:_("noname") }})</h2>
+            {% if user_profile.avatar %}
+                <img src="{{ user_profile.avatar.url }}"/>
+            {% else %}
+                <img src="{{ MEDIA_URL }}avatar/default/100.png" width="100" height="100">
+            {% endif %}
         {% endwith %}
+    {% else %}
+        <h2>{{ _("last messages")|capfirst }}</h2>
+    {% endif %}
     <div id="posts_wrapper">
         {% include "blog/_posts_piece.html" %}
     </div>

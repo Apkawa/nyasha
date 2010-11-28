@@ -1,0 +1,16 @@
+<div id="comment_{{ comment.number }} }}" class="comment">
+        <a name="{{ comment.number }}"/>
+    <div class="comment_header">
+        {% if comment.user.profile.avatar %}
+        <img src="{{ comment.user.profile.avatar.url_22 }}"/>
+        {% else %}
+        <img src="{{ MEDIA_URL }}avatar/default/22.png" width="22" height="22">
+        {% endif %}
+        <a href="{% url user_blog comment.user.username%}">@{{ comment.user.username }}</a>
+    </div>
+    <div class="comment_content">
+        {{ comment.body }}
+    </div>
+    <div class="comment_bottom">{% if user.is_authenticated %}<a href="{% url reply_add comment.post_id comment.number %}">{{ _("reply to")|capfirst }}</a> {% endif %}
+        <a href="{% url post_view comment.post_id %}#{{ comment.number }}">{{ comment.get_number }}</a> {{ comment.datetime|date:"SHORT_DATETIME_FORMAT" }}  {% if comment.reply_to_id %} reply to <a href="#{{ comment.reply_to.number }}">/{{ comment.reply_to.number }}</a>{% endif %}</div>
+</div>
