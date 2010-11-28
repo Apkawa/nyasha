@@ -40,6 +40,18 @@ def prepare_body(body):
     body = re.sub(r'(?:^|\s)#([\d]+)\b', r'<a href="/\g<1>">#\g<1></a>', body)
     return body
 
+class PostManager(NotDeletedManager):
+    def comments_count(self, name=None):
+        name = name or 'comments_count'
+        query = self.get_query_set()
+        return query.extra(select={name: '''
+                SELECT COUNT(*)
+                FROM "blog_comment" AS "c"
+                INNER JOIN "blog_post" AS "p" ON ("c"."post_id" = "p"."id")
+                WHERE (NOT (("c"."is_deleted" = 1 OR "p"."is_deleted" = 1 ))
+                AND "c"."post_id" =  "blog_post"."id")
+                '''})
+
 class Post(NotDeletedModel):
     user = models.ForeignKey('auth.User')
     body = models.TextField()
@@ -49,6 +61,8 @@ class Post(NotDeletedModel):
     from_client = models.CharField(max_length=256, blank=True, default='web')
 
     tags = models.ManyToManyField("Tag")
+
+    objects = PostManager()
 
     class Meta:
         get_latest_by = 'id'
@@ -73,7 +87,8 @@ class Post(NotDeletedModel):
 
 class CommentManager(models.Manager):
     def get_query_set(self):
-        return super(CommentManager, self).get_query_set().exclude(models.Q(is_deleted=True)|models.Q(post__is_deleted=True))
+        return super(CommentManager, self).get_query_set().exclude(
+                models.Q(is_deleted=True)|models.Q(post__is_deleted=True))
 
 class Comment(NotDeletedModel):
     user = models.ForeignKey('auth.User')

@@ -136,7 +136,6 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
 .menu-h a { text-decoration: none; display: block; }
 .menu-h a:hover { text-decoration: underline; }
 
-.page { background: url("http://rcd.org.ru/tmedia/images/bg_1.gif"); border: 1px solid #444;}
 
 .a-left { text-align: left; }
 .a-center { text-align: center; }
@@ -149,7 +148,9 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
 
 #header { }
 #content {}
-#footer { opacity: 0.3; }
+#footer { 
+/*    opacity: 0.3; */
+}
 
 #fl { display: none;}
 #toggle_filelist { cursor: pointer;}

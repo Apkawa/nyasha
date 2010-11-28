@@ -3,6 +3,7 @@
 import re
 from django.core.cache import cache
 from django.http import HttpResponse, Http404
+from django.db.models import Count
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -92,16 +93,16 @@ def jabber_login(request, token):
 
 
 def main(request):
-    posts = Post.objects.filter()
+    posts = Post.objects.comments_count().filter().select_related('user','user__profile')
     context = {}
     context['posts'] = posts
     return render_template(request, 'blog/main.html', context)
 
 def post_view(request, post_pk):
-    post = get_object_or_404(Post, pk=post_pk)
+    post = get_object_or_404(Post.objects.comments_count(), pk=post_pk)
     context = {}
     context['post'] = post
-    context['comments'] = post.comments.filter()
+    context['comments'] = post.comments.filter().select_related('user','user__profile')
     return render_template(request, 'blog/post_view.html', context)
 
 @login_required
@@ -152,7 +153,9 @@ def reply_add(request, post_pk, reply_to=None):
 def user_blog(request, username):
     user = get_object_or_404(User, username=username)
 
-    posts = Post.objects.filter(user=user)
+    posts = Post.objects.comments_count().filter(user=user).select_related('user__profile'
+            )
+    #.annotate(Count('comments'))
     context = {}
     context['user_blog']= user
     context['posts'] = posts
