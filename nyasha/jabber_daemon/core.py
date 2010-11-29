@@ -86,7 +86,7 @@ class Command(object):
     __kwargs = {}
     
     def __init__(self, regexp, command, doc='', extra_kwargs=None):
-        self.regexp = re.compile(regexp)
+        self.regexp = re.compile(regexp, re.MULTILINE)
         self.command = command
         if not isinstance(command, basestring):
             self.command_handler = command
@@ -235,26 +235,33 @@ class BasePresenceHandler(BaseHandler):
     def presence(self, stanza):
         """Handle 'available' (without 'type') and 'unavailable' <presence/>."""
         msg=u"%s has become " % (stanza.get_from())
-        t=stanza.get_type()
+        t = stanza.get_type() or "available"
+        print t
         if t=="unavailable":
             msg+=u"unavailable"
         else:
             msg+=u"available"
 
+        func = getattr(self, t, None)
+        if func:
+            return func(stanza)
+
         show=stanza.get_show()
         if show:
             msg+=u"(%s)" % (show,)
 
+
         status=stanza.get_status()
         if status:
             msg+=u": "+status
-        #print msg
+        print msg
 
     def presence_control(self,stanza):
         """Handle subscription control <presence/> stanzas -- acknowledge
         them."""
         msg = unicode(stanza.get_from())
         t = stanza.get_type()
+        print t
 
         func = getattr(self, t, None)
         if func:

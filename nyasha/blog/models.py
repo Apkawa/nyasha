@@ -30,18 +30,6 @@ class NotDeletedModel(models.Model):
         self.__class__.objects.filter(pk=self.pk).update(is_deleted=True)
 
 
-def prepare_body(body):
-    '''
-    @todo  запилить нормальный парсинг.
-    '''
-    from django.utils.html import escape
-    import re
-    body = escape(body)
-    body = re.sub(r'(?:^|\s)@([\w]+)\b', r'<a href="/\g<1>">@\g<1></a>', body)
-    body = re.sub(r'(?:^|\s)/([\d]+)\b', r'<a href="#\g<1>">/\g<1></a>', body)
-    body = re.sub(r'(?:^|\s)#([\d]+)/([\d])\b', r'<a href="/\g<1>#\g<2>">#\g<1>/\g<2></a>', body)
-    body = re.sub(r'(?:^|\s)#([\d]+)\b', r'<a href="/\g<1>">#\g<1></a>', body)
-    return body
 
 class PostManager(NotDeletedManager):
     def comments_count(self, name=None):
@@ -73,7 +61,6 @@ class Post(NotDeletedModel):
         unique_together = ("id", "user")
 
     def save(self, *args, **kwargs):
-        self.body_html = prepare_body(self.body)
         super(Post, self).save(*args, **kwargs)
 
     def get_number(self):
@@ -117,7 +104,6 @@ class Comment(NotDeletedModel):
             self.number = last_comment_for_post.number + 1
         except IndexError:
             self.number = 1
-        self.body_html = prepare_body(self.body)
         super(Comment, self).save(*args, **kwargs)
 
     def delete(self):

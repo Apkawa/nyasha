@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block menu %}
-            {% if user.is_authenticated %}
-                <div id="user">
-{% if user.get_profile.avatar %}
-    <img class="small_avatar" src="{{ user.get_profile.avatar.url_22 }}"/>
-{% else %}
-    <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/22.png" width="22" height="22">
-{% endif %}
-                <a href="{% url user_blog user.username %}">{{ user }}</a>
-                    <a href="{% url logout %}">{{ _("logout")|capfirst }}</a>
-                </div>
-            <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
-            {% endif %} <a href="{% url help %}">{{ _("help")|capfirst }}</a>
+    {% if user.is_authenticated %}
+            <div id="user">
+            {% if user.get_profile.avatar %}
+            <img class="small_avatar" src="{{ user.get_profile.avatar.url_42 }}"/>
+            {% else %}
+            <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/42.png" width="42" height="42">
+            {% endif %}
+            <a href="{% url user_blog user.username %}">{{ user }}</a>
+            <a href="{% url logout %}">{{ _("logout")|capfirst }}</a>
+            </div>
+        <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
+    {% endif %} <a href="{% url help %}">{{ _("help")|capfirst }}</a>
 
 {% endblock menu %}

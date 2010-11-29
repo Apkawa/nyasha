@@ -90,9 +90,10 @@ def render_post(post, with_comments=False, template='jabber/post.txt'):
         context['comments'] = post.comments.all()
     return render_to_string(template, context)
 
-def render_comment(comment, template='jabber/comment.txt'):
+def render_comment(comment, reply_to=None, template='jabber/comment.txt'):
     context = {}
     context['comment'] = comment
+    context['reply_to'] = reply_to
     return render_to_string(template, context)
 
 def login_user(request, user):

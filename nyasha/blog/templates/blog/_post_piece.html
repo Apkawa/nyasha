@@ -1,3 +1,4 @@
+{% load nya_blog %}
 <div id="post_{{ post.pk }}" class="post span-15 kawaii">
     <div class="post_header">
         {% if post.user.profile.avatar %}
@@ -15,7 +16,7 @@
         {% for tag in post.post_tags %}<a href="{{ url_tag }}?tag={{ tag.name }}">*{{ tag.name }}</a> {% endfor %}
     </div>
     <div class="post_content">
-        {{ post.body_html|safe|linebreaksbr|wordwrap:42 }}
+        {{ post.body|nya_markup|safe|linebreaksbr }}
     </div>
     <div class="post_bottom">{% if user.is_authenticated %}<a href="{% url reply_add post.id %}">{{ _("reply to")|capfirst }}</a>{% endif %}
         <a href="{% url post_view post.pk %}">{{ post.get_number }}</a> posted from {{ post.from_client }}, {{ post.datetime|date:"SHORT_DATETIME_FORMAT" }}; 

@@ -99,12 +99,13 @@ def comment_add_command(request, post_pk, message, comment_number=None):
         return "Message not found."
     if reply_to:
         try:
-            reply_to = post.comments.get(number=reply_to).pk
+            reply_to = post.comments.get(number=reply_to)
         except Comment.DoesNotExist:
             return "Message not found."
 
-    comment = Comment.objects.create(post=post, reply_to_id=reply_to, user=user, body=message, from_client=request.from_jid.resource)
-    send_broadcast(post, render_comment(comment), sender=request.get_sender(), exclude_user=(user,))
+    comment = Comment.objects.create(post=post, reply_to=reply_to, user=user, body=message,
+            from_client=request.from_jid.resource)
+    send_broadcast(post, render_comment(comment, reply_to=reply_to or post), sender=request.get_sender(), exclude_user=(user,))
     subscribe, create = Subscribed.objects.get_or_create(user=user, subscribed_post=post)
 
     text = '''Reply posted\n%s %s'''%(comment.get_number(), comment.get_full_url())

@@ -1,3 +1,5 @@
-@{{ comment.user.username }}:
+{% if reply_to %}Reply by {% endif %}@{{ comment.user.username }}:{% if reply_to %}
+> {{ reply_to.body|safe|truncatewords:7 }} 
+{% endif %}
 {{ comment.body|safe }}
 #{{ comment.post_id }}/{{ comment.number }} {{ comment.get_full_url }}

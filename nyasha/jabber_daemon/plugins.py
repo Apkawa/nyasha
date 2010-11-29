@@ -67,6 +67,12 @@ class PresenceHandler(BasePresenceHandler):
         user = get_user_from_jid(from_jid)
         return presence.make_accept_response()
 
+class StatusHandler(BaseIqHandler):
+    features = ("jabber:iq:last",)
+    def get_iq(self, iq):
+        print iq
+
+
 
 class BasePlugin(object):
     def test_command(self, args):
