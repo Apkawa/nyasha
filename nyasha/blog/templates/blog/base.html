@@ -3,9 +3,9 @@
     {% if user.is_authenticated %}
             <div id="user">
             {% if user.get_profile.avatar %}
-            <img class="small_avatar" src="{{ user.get_profile.avatar.url_42 }}"/>
+            <img class="small_avatar" src="{{ user.get_profile.avatar.url_42 }}" alt=""/>
             {% else %}
-            <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/42.png" width="42" height="42">
+            <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/42.png" width="42" height="42" alt=""/>
             {% endif %}
             <a href="{% url user_blog user.username %}">{{ user }}</a>
             <a href="{% url logout %}">{{ _("logout")|capfirst }}</a>

@@ -167,6 +167,12 @@ def avatar_upload_to(instance, filename):
 
 AVATAR_SIZES = [22, 42]
 class Profile(models.Model):
+    STATUS_CHOICES = (
+            ('a', 'available'),
+            ('u', 'unavailable'),
+            ('aw', 'away'),
+            ('s', 'sleep'),
+            )
     user = models.OneToOneField('auth.User')
 
     #vcard 
@@ -174,8 +180,14 @@ class Profile(models.Model):
     name = models.CharField(max_length=128, blank=True)
     comment = models.TextField(blank=True)
 
+
     avatar = AvatarImageField(upload_to=avatar_upload_to, thumb_sizes=AVATAR_SIZES, blank=True)
 
+    #System
+
+    status = models.CharField(max_length='2', choices=STATUS_CHOICES, default='a')
+    status_desc = models.CharField(max_length=256, null=True, blank=True)
+    is_disabled = models.BooleanField("For OFF", default=False)
 
     def update_from_vcard(self, vcard):
         if vcard.photo:
