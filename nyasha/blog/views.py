@@ -54,7 +54,8 @@ def send_alert(to_user, message, sender=None):
     sender(response_mes)
 
 def send_broadcast(to_subscribe, message, sender, exclude_user=()):
-    subscribes = Subscribed.get_subscribes_by_obj(to_subscribe).select_related('user').exclude(user__in=exclude_user)
+    subscribes = Subscribed.get_subscribes_by_obj(to_subscribe
+            ).select_related('user').exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
     for s in subscribes:
         #response_mes = Message(
         #from_jid=settings.JABBER_BOT_SETTINGS['jid'], to_jid=s.user.email,

@@ -187,7 +187,7 @@ class Profile(models.Model):
 
     status = models.CharField(max_length='2', choices=STATUS_CHOICES, default='a')
     status_desc = models.CharField(max_length=256, null=True, blank=True)
-    is_disabled = models.BooleanField("For OFF", default=False)
+    is_off = models.BooleanField("For OFF", default=False)
 
     def update_from_vcard(self, vcard):
         if vcard.photo:

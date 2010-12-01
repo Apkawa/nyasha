@@ -361,3 +361,12 @@ def login_command(request):
     token = sha1('%s-%s-%i'%(request.user.pk, settings.SECRET_KEY, randint(10, 99999))).hexdigest()
     cache.set(token, request.user.pk, timeout=60*3)#за 3 минуты должны залогиниться
     return 'http://%s%s [expire 3 minutes]'%(settings.SERVER_DOMAIN, reverse('jabber_login', kwargs={'token':token}))
+
+def off_on_command(request, off=True):
+    profile = request.user.get_profile()
+    profile.is_off = off
+    profile.save()
+    if off:
+        return "Delivery of messages is disabled."
+    else:
+        return "Delivery of messages is enabled."
