@@ -30,9 +30,9 @@
 {% endblock content %}
 
 {% block right_sidebar %}
-    <div class="sidebar_wrapper">
         {% if user_blog %}
+    <div class="sidebar_wrapper">
              {% include "blog/_user_blog_sidebar.html" %}
-        {% endif %}
     </div>
+        {% endif %}
 {% endblock right_sidebar %}

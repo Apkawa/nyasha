@@ -108,6 +108,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'south',
     'mptt',
+    'compress',
     #'djangosphinx',
 
     #
@@ -121,6 +122,41 @@ AUTH_PROFILE_MODULE = 'blog.Profile'
 SERVER_DOMAIN = '127.0.0.1:8000'
 #CACHE_BACKEND = 'locmem://'
 CACHE_BACKEND = 'file:///tmp/django_cache'
+
+COMPRESS = True
+COMPRESS_VERSION = True
+COMPRESS_AUTO = False
+COMPRESS_CSS_FILTERS = COMPRESS_JS_FILTERS = ("compress.filters.yui.YUICompressorFilter",)
+COMPRESS_YUI_BINARY = 'yuicompressor'
+
+COMPRESS_CSS = {
+    'generic': {
+        'source_filenames': ('css/blueprint/screen.css', 'css/base.css'),
+        'output_filename': 'css/c/generic.r?.css',
+        'extra_context': {
+            'media': 'screen,projection',
+        },
+    },
+
+    'print': {
+        'source_filenames': ('css/blueprint/print.css',),
+        'output_filename': 'css/c/print.r?.css',
+        'extra_context': {
+            'media': 'print',
+        },
+    },
+    
+    # other CSS groups goes here
+}
+
+
+COMPRESS_JS = {
+        #V    'all': {
+        #'source_filenames': ('js/jquery-1.2.3.js', 'js/jquery-preload.js', 'js/jquery.pngFix.js',
+        #'js/my_script.js', 'js/my_other_script.js'),
+        #'output_filename': 'js/all_compressed.js',
+        #}
+}
 
 
 
