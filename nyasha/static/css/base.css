@@ -90,6 +90,10 @@
     -webkit-border-radius: 12px;
     -moz-border-radius: 12px;
     border-radius: 12px;
+
+    float:left;
+    padding: 10px;
+    vertical-align: middle;
 }
 
 
@@ -105,4 +109,41 @@
 #user {
     position: relative;
     float: right;
+}
+
+
+.form_wrap {
+    margin-top: 15px;
+}
+
+.form_wrap table, 
+.form_wrap tr, 
+.form_wrap td, 
+.form_wrap th {
+    border: none;
+}
+
+.user_row { 
+    background-color: rgba(155,155,155, 0.1);
+    border-bottom: 1px solid #333;
+}
+
+.user_info {
+    margin-bottom: 3px;
+    border: 1px solid #555;
+    background-color: #333;
+    border-top:none;
+    margin-bottom:12px;
+
+    -webkit-border-bottom-right-radius: 22px;
+    -webkit-border-bottom-left-radius: 22px;
+    -moz-border-radius-bottomright: 22px;
+    -moz-border-radius-bottomleft: 22px;
+    border-bottom-right-radius: 22px;
+    border-bottom-left-radius: 22px;
+}
+
+
+.user_info h2 {
+    padding: 5px;
 }

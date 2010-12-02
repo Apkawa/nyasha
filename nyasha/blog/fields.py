@@ -8,7 +8,8 @@ add_introspection_rules([], ["^blog\.fields\.AvatarImageField"])
 
 
 class AvatarStorage(FileSystemStorage):
-    def __init__(self, thumb_sizes=None, **kwargs):
+    def __init__(self, size=None, thumb_sizes=None, **kwargs):
+        self.size = size or None
         self.thumb_sizes = thumb_sizes or []
         super(AvatarStorage, self).__init__(**kwargs)
 
@@ -23,16 +24,22 @@ class AvatarStorage(FileSystemStorage):
             self.delete(name)
         return name
 
-    def _save_thumb(self, name, size):
+    def _save_thumb(self, name, size, thumb=True):
         i = Image.open(self.path(name))
-        i.thumbnail([size, size])
-        name = self.path(self.get_thumb_name(name, size))
-        i.save(open(name, 'w'), 'jpeg')
+        i.thumbnail([size, size], Image.ANTIALIAS)
+        if thumb:
+            name = self.path(self.get_thumb_name(name, size))
+        else:
+            name = self.path(name)
+        i.save(open(name, 'w'), 'png')
         return name
 
 
     def _save(self, name, content):
         result =  super(AvatarStorage, self)._save(name, content)
+        if self.size:
+            self._save_thumb(name, self.size, thumb=False)
+
         for size in self.thumb_sizes:
             self._save_thumb(name, size)
         return result
@@ -75,9 +82,10 @@ class AvatarImageFileField(ImageFieldFile):
 class AvatarImageField(models.ImageField):
     attr_class = AvatarImageFileField
 
-    def __init__(self, thumb_sizes=None, **kwargs):
+    def __init__(self, size=None, thumb_sizes=None, **kwargs):
         if 'storage' not in kwargs:
-            kwargs['storage'] = AvatarStorage(thumb_sizes=thumb_sizes)
+            kwargs['storage'] = AvatarStorage(size=size, thumb_sizes=thumb_sizes)
+        self.size = size or None
         self.thumb_sizes = thumb_sizes or []
         super(AvatarImageField, self).__init__(**kwargs)
 

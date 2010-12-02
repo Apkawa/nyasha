@@ -1,0 +1,15 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    <div class="form_wrap prepend-2 span-10">
+    {% for u in users %}
+        <div class="user_row">
+        {% if u.profile.avatar %}
+            <img class="small_avatar" src="{{ u.profile.avatar.url_42 }}" alt=""/>
+        {% else %}
+            <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/42.png" width="42" height="42" alt=""/>
+        {% endif %}
+        <a href="{% url user_blog u.username %}">@{{ u.username }}</a> ({{ u.my_readers_count }} readers)
+        </div>
+    {% endfor %}
+    </div>
+{% endblock content %}

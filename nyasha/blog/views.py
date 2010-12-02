@@ -23,7 +23,7 @@ from jabber_daemon.core import Message
 from utils.shortcuts import render_template
 from utils.form_processor import FormProcessor
 
-from forms import PostForm
+from forms import PostForm, ProfileEditForm
 
 def handler500(request, template_name='500.html'):
 
@@ -228,4 +228,43 @@ def help(request):
     context = {}
     context['settings'] = settings
     return render_template(request, 'blog/help.html', context)
+
+
+@login_required
+def profile_edit(request):
+    user = request.user
+    profile = user.get_profile()
+    form_p = FormProcessor(ProfileEditForm, request, instance=profile)
+    form_p.process()
+    if form_p.is_valid():
+        profile = form_p.form.save()
+        
+        return redirect('profile_edit')
+
+    context = {}
+    context['user_profile'] = profile
+    context['profile_form'] = form_p.form
+    return render_template(request, 'blog/profile_edit.html', context)
+
+
+def user_list(request, my_readers=False, i_read=False, username=None):
+    if username:
+        user = get_object_or_404(User, username=username)
+    else:
+        user = request.user
+        if not user.is_authenticated():
+            i_read = False
+            my_readers  = False
+
+    users = User.objects.filter().select_related("profile").exclude(username='admin')
+
+    if i_read:
+        users = User.objects.filter(subscribed_user__user=user, subscribed_user__is_deleted=False)
+    elif my_readers:
+        users = User.objects.filter(me_subscribe__subscribed_user=user, me_subscribe__is_deleted=False)
+
+    users = Profile.attach_user_info(users).order_by('-my_readers_count')[:100]
+    context = {}
+    context['users'] = users
+    return render_template(request, 'blog/user_list.html', context)
 

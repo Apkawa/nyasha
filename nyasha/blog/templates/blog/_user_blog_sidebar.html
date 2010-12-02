@@ -4,8 +4,8 @@
     </div>
     <div class="sidebar_content">
         <ul>
-        <li>{{ _("i read")|capfirst }} {{ user_blog.i_read_count }}</li>
-        <li>{{ _("my readers")|capfirst }} {{ user_blog.my_readers_count }}</li>
+            <li><a href="{% url i_read_list user_blog.username %}">{{ _("i read")|capfirst }} {{ user_blog.i_read_count }}</a></li>
+            <li><a href="{% url my_readers_list user_blog.username %}">{{ _("my readers")|capfirst }} {{ user_blog.my_readers_count }}</a></li>
         <li>{{ _("posts")|capfirst }} {{ user_blog.posts_count }}</li>
         <li>{{ _("comments")|capfirst }} {{ user_blog.comments_count }}</li>
     </ul>

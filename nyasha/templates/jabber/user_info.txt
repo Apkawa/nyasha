@@ -1,3 +1,4 @@
+Blog: {{ userprofile.get_full_url }}
 Jabber ID: {{ user.email }}
 Full name: {{ userprofile.name }}
 From: {{ userprofile.from }}

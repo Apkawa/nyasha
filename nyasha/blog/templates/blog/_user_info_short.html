@@ -1,8 +1,9 @@
-<div id="user_info">
-    <h2>@{{ user_profile.user.username }} ({{ user_profile.name|default:_("noname") }})</h2>
+<div class="user_info span-15">
         {% if user_profile.avatar %}
             <img class="large_avatar" src="{{ user_profile.avatar.url }}" alt=""/>
         {% else %}
             <img class="large_avatar" src="{{ MEDIA_URL }}avatar/default/100.png" width="100" height="100" alt=""/>
         {% endif %}
+    <h2>@{{ user_profile.user.username }} ({{ user_profile.name|default:_("noname") }})</h2>
+        {{ user_profile.comment }}
 </div>

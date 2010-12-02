@@ -12,6 +12,7 @@ from django.db.models.signals import post_save
 
 from fields import AvatarImageField
 
+from mptt.models import MPTTModel
 
 class NotDeletedManager(models.Manager):
     def get_query_set(self):
@@ -80,12 +81,12 @@ class CommentManager(models.Manager):
         return super(CommentManager, self).get_query_set().exclude(
                 models.Q(is_deleted=True)|models.Q(post__is_deleted=True))
 
-class Comment(NotDeletedModel):
+class Comment(MPTTModel, NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name='comments')
     body = models.TextField()
     body_html = models.TextField()
     post = models.ForeignKey('Post', related_name='comments')
-    reply_to = models.ForeignKey('self', null=True, blank=True)
+    reply_to = models.ForeignKey('self', null=True, blank=True, related_name="children")
 
     number = models.IntegerField()
     datetime = models.DateTimeField(auto_now_add=True)
@@ -97,6 +98,11 @@ class Comment(NotDeletedModel):
     class Meta:
         get_latest_by = 'id'
         unique_together = ("post", "number")
+
+    class MPTTMeta:
+        level_attr = 'mptt_level'
+        order_insertion_by=['post']
+        parent_attr = 'reply_to'
 
     def save(self, *args, **kwargs):
         try:
@@ -181,13 +187,20 @@ class Profile(models.Model):
     comment = models.TextField(blank=True)
 
 
-    avatar = AvatarImageField(upload_to=avatar_upload_to, thumb_sizes=AVATAR_SIZES, blank=True)
+    avatar = AvatarImageField(upload_to=avatar_upload_to, size=100, thumb_sizes=AVATAR_SIZES, blank=True)
 
     #System
 
-    status = models.CharField(max_length='2', choices=STATUS_CHOICES, default='a')
-    status_desc = models.CharField(max_length=256, null=True, blank=True)
-    is_off = models.BooleanField("For OFF", default=False)
+    status = models.CharField(max_length='2', choices=STATUS_CHOICES, default='a', editable=False)
+    status_desc = models.CharField(max_length=256, null=True, blank=True, editable=False)
+    is_off = models.BooleanField("For OFF", default=False, editable=False)
+
+    @models.permalink
+    def get_url(self):
+        return ('user_blog', (),{'username':self.user})
+
+    def get_full_url(self):
+        return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_url())
 
     def update_from_vcard(self, vcard):
         if vcard.photo:

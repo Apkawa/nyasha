@@ -5,6 +5,8 @@ import views
 # admin.autodiscover()
 personal_patterns = patterns('blog.views',
         url(r'^$', 'user_blog', name='user_blog'),
+        url(r'^my_readers/$', 'user_list', name='my_readers_list', kwargs={'my_readers':True}),
+        url(r'^i_read/$', 'user_list', name='i_read_list', kwargs={'i_read':True}),
         )
 
 auth_patterns = patterns('',
@@ -20,7 +22,13 @@ urlpatterns = patterns('blog.views',
     url(r'^(?P<post_pk>[\d]+)/reply/$', 'reply_add', name='reply_add'),
     url(r'^(?P<post_pk>[\d]+)/reply/(?P<reply_to>[\d]+)/$', 'reply_add', name='reply_add'),
     url(r'^$', 'user_blog', name='main'),
-    url(r'^(?P<username>[\w]+)/', include(personal_patterns)),
+    url(r'^u/(?P<username>[\w]+)/', include(personal_patterns)),
+    url(r'^profile/edit/$', 'profile_edit', name='profile_edit'),
+
+    #Top
+    url(r'^users/$', 'user_list', name='user_list'),
+    url(r'^users/my_readers/$', 'user_list', name='my_readers_list', kwargs={'my_readers':True}),
+    url(r'^users/i_read/$', 'user_list', name='i_read_list', kwargs={'i_read':True}),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^auth/',include(auth_patterns)),

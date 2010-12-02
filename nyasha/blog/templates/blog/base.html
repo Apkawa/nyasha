@@ -7,10 +7,14 @@
             {% else %}
             <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/42.png" width="42" height="42" alt=""/>
             {% endif %}
-            <a href="{% url user_blog user.username %}">{{ user }}</a>
+            <a href="{% url user_blog user.username %}">@{{ user }}</a>
+            <a href="{% url profile_edit %}">{{ _("edit profile")|capfirst }}</a>
             <a href="{% url logout %}">{{ _("logout")|capfirst }}</a>
             </div>
+        
         <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
-    {% endif %} <a href="{% url help %}">{{ _("help")|capfirst }}</a>
+    {% endif %}
+    <a href="{% url user_list %}">{{ _("user top")|capfirst }}</a>
+    <a href="{% url help %}">{{ _("help")|capfirst }}</a>
 
 {% endblock menu %}
