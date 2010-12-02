@@ -1,5 +1,6 @@
 {% extends "blog/base.html" %}
 {% block content %}
+    <div id="content_header" class="span-15">
     {% if user_blog %}
         {% with user_blog.get_profile as user_profile %}
             {% include "blog/_user_info_short.html" %}
@@ -7,6 +8,7 @@
     {% else %}
         <h2>{{ _("last messages")|capfirst }}</h2>
     {% endif %}
+    </div>
     <div id="posts_wrapper">
         {% include "blog/_posts_piece.html" %}
 
@@ -28,7 +30,9 @@
 {% endblock content %}
 
 {% block right_sidebar %}
-    {% if user_blog %}
-         {% include "blog/_user_blog_sidebar.html" %}
-    {% endif %}
+    <div class="sidebar_wrapper">
+        {% if user_blog %}
+             {% include "blog/_user_blog_sidebar.html" %}
+        {% endif %}
+    </div>
 {% endblock right_sidebar %}

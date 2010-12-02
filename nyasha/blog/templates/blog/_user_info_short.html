@@ -1,4 +1,3 @@
-<div class="user_info span-15">
         {% if user_profile.avatar %}
             <img class="large_avatar" src="{{ user_profile.avatar.url }}" alt=""/>
         {% else %}
@@ -6,4 +5,3 @@
         {% endif %}
     <h2>@{{ user_profile.user.username }} ({{ user_profile.name|default:_("noname") }})</h2>
         {{ user_profile.comment }}
-</div>

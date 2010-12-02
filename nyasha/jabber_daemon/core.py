@@ -303,7 +303,7 @@ class Client(JabberClient):
     class as base. That class provides basic stream setup (including
     authentication) and Service Discovery server. It also does server address
     and port discovery based on the JID provided."""
-    pong_timeout = 60
+    pong_timeout = 120
     last_ping_time = None
 
     def __init__(self, jid, password, resource='Bot', tls_cacerts=None):

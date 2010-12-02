@@ -19,6 +19,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 from models import Post, Subscribed, Tag, Comment, Profile
 from jabber_daemon.core import Message
+from jabber_daemon.models import SendQueue
 
 from utils.shortcuts import render_template
 from utils.form_processor import FormProcessor
@@ -61,7 +62,8 @@ def send_broadcast(to_subscribe, message, sender, exclude_user=()):
         #from_jid=settings.JABBER_BOT_SETTINGS['jid'], to_jid=s.user.email,
         #        stanza_type='chat', body=message)
         #sender(response_mes)
-        send_alert(to_user=s.user, message=message)
+        #send_alert(to_user=s.user, message=message)
+        SendQueue.send(s.user.email, message)
 
 MAX_TAG_COUNT = 5
 SPLIT_MESSAGE_REGEXP = re.compile('^\s*(?:\*\S+\s+){,%s}'%MAX_TAG_COUNT)

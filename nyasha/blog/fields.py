@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os, Image
 from django.core.files.storage import FileSystemStorage
 from django.db import models
@@ -29,11 +30,17 @@ class AvatarStorage(FileSystemStorage):
         i.thumbnail([size, size], Image.ANTIALIAS)
         if thumb:
             name = self.path(self.get_thumb_name(name, size))
+            i.save(open(name, 'w'), 'png')
         else:
+            #Хитрый хак
             name = self.path(name)
-        i.save(open(name, 'w'), 'png')
-        return name
+            import tempfile
+            import shutil
+            tmp = tempfile.NamedTemporaryFile()
+            i.save(tmp, 'png')
+            shutil.move(tmp.name, name)
 
+        return name
 
     def _save(self, name, content):
         result =  super(AvatarStorage, self)._save(name, content)

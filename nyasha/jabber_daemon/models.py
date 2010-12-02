@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.conf import settings
+from core import Message
 
 
 class SendQueue(models.Model):
@@ -27,6 +28,16 @@ class SendQueue(models.Model):
     is_raw = models.BooleanField(default=False)
 
     @classmethod
-    def send(cls, to_jid, message, from_jid=settings.JABBER_BOT_SETTINGS['jid']):
-        send = cls.create(to_jid=to_jid, from_jid=from_jid, message=message)
+    def send(cls, to_jid, message, from_jid=settings.JABBER_BOT_SETTINGS['jid'], stream=None):
+        if not stream:
+            stream = settings.JABBER_BOT_SETTINGS['stream']
+
+        if stream:
+            response_mes = Message(
+                    from_jid=from_jid, to_jid=to_jid,
+                    stanza_type='chat', body=message)
+            stream.send(response_mes)
+        else:
+            queue = cls.create(to_jid=to_jid, from_jid=from_jid, message=message)
+
 

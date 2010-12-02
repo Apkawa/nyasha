@@ -1,18 +1,23 @@
 {% extends "blog/base.html" %}
 {% block content %}
+    <div id="content_header" class="span-15">
     {% with post.user.get_profile as user_profile %}
         {% include "blog/_user_info_short.html" %}
     {% endwith %}
+    </div>
     {% include "blog/_post_piece.html" %}
-    <h3>{{ _("Replies")|capfirst }} ({{ post.comments_count }})</h3>
+    <h2>{{ _("Replies")|capfirst }} ({{ post.comments_count }})</h2>
     {% for comment in comments %}
         {% include "blog/_comment_piece.html" %}
     {% empty %}
+        
     {% endfor %}
 {% endblock content %}
 
 {% block right_sidebar %}
+    <div class="sidebar_wrapper">
     {% if user_blog %}
          {% include "blog/_user_blog_sidebar.html" %}
     {% endif %}
+</div>
 {% endblock right_sidebar %}
