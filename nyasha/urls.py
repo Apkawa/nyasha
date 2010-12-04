@@ -5,6 +5,7 @@ from django.conf import settings
 # from django.contrib import admin
 # admin.autodiscover()
 handler500 = 'blog.views.handler500'
+handler404 = 'blog.views.handler404'
 
 
 urlpatterns = patterns('',

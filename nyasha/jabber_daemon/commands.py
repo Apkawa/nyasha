@@ -142,16 +142,17 @@ def recommend_post_command(request, post_pk):
         post = Post.objects.get(pk=post_pk)
     except Post.DoesNotExist:
         return "Message not found."
-
-    if post.user_id == request.user.pk:
+    user = request.user
+    if post.user_id == user.pk:
         return '''You can't recommend your own messages.'''
 
     recommend, created = Recommend.admin_objects.get_or_create(user=request.user, post=post)
     if created or recommend.is_deleted:
         if created:
             send_alert(post.user, 
-                    '@%s recommend %s'%(request.user.username, post.get_number()),
+                    '@%s recommend your post %s'%(request.user.username, post.get_number()),
                     sender=request.get_sender())
+            send_broadcast(user, render_post(post, recommend_by=user), exclude_user=[user])
 
         if recommend.is_deleted:
             recommend.is_deleted = False

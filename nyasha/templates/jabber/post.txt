@@ -1,4 +1,5 @@
-@{{ post.user.username }}: {% for tag in post.post_tags %}*{{ tag.name }} {% endfor %}
+{% if recommend_by %}Recommended by @{{ recommend_by.username}}:
+{% endif %}@{{ post.user.username }}: {% for tag in post.post_tags %}*{{ tag.name }} {% endfor %}
 {{ post.body|safe }}
 #{{ post.pk }} ({{ post.comments_count }} replies) {{ post.get_full_url }} {% if comments %} 
 {% for comment in comments %}{% include "jabber/comment.txt" %}{% endfor %}{% endif %}

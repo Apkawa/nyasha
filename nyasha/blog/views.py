@@ -27,7 +27,6 @@ from utils.form_processor import FormProcessor
 from forms import PostForm, ProfileEditForm
 
 def handler500(request, template_name='500.html'):
-
     """
     500 error handler.
 
@@ -36,18 +35,21 @@ def handler500(request, template_name='500.html'):
         MEDIA_URL
             Path of static media (e.g. "media.example.org")
     """
-    from django import http
-    from django.template import Context, loader
-    t = loader.get_template(template_name) # You need to create a 500.html template.
-    return http.HttpResponseServerError(t.render(Context({
-        'MEDIA_URL': settings.MEDIA_URL
-    })))
+    resp = render_template(request, template_name)
+    resp.status_code = 500
+    return resp
 
+def handler404(request, template_name='404.html'):
+    """
+    """
+    resp = render_template(request, template_name)
+    resp.status_code = 404
+    return resp
 
 
 
 def send_alert(to_user, message, sender=None):
-    SendQueue.send_message(s.user.email, message)
+    SendQueue.send_message(to_user.email, message)
 
 def send_broadcast(to_subscribe, message, sender=None, exclude_user=()):
     subscribes = Subscribed.get_subscribes_by_obj(to_subscribe
@@ -75,10 +77,11 @@ def post_in_blog(message, user, from_client='web'):
     Subscribed.objects.create(user=user, subscribed_post=post)
     return post
 
-def render_post(post, with_comments=False, template='jabber/post.txt'):
+def render_post(post, with_comments=False, recommend_by=None, template='jabber/post.txt'):
     post.comments_count = post.comments.count()
     context = {}
     context['post'] = post
+    context['recommend_by'] = recommend_by
     if with_comments:
         context['comments'] = post.comments.all()
     return render_to_string(template, context)
