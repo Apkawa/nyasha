@@ -5,7 +5,7 @@ from django.conf import settings
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
-from utils.daemon import PeriodDaemon, run_pool
+from utils.daemon import BaseDaemon, run_pool
 from jabber_daemon.core import Client, TimeoutException
 
 
@@ -13,7 +13,7 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('-P', '--pause', default=60, dest='pause', type='float',
             help='Pause in seconds'),
-        make_option('-p', '--pidfile', default='/tmp/send1c.pid',
+        make_option('-p', '--pidfile', default='/tmp/jabber_daemon.pid',
               dest='pidfile', type='string', help='PiD file'),
         make_option('-u', '--user', default='root',
               dest='user', type='string', help='Daemon user'),
@@ -49,10 +49,13 @@ class Command(BaseCommand):
             except KeyboardInterrupt:
                 c.disconnect()
                 break
-        pass
+
     def handle(self, *args, **options):
-        #cbd = JabberDaemon(workers=options.get('workers'))
-        #cbd.runserver(*args, **options)
+        if options.get('daemon'):
+            print "nya!"
+            cbd = JabberDaemon(workers=options.get('workers'))
+            cbd.runserver(*args, **options)
+            return
         if options.get('reload'):
             from utils.autoreload import main
             main(self.run_jabber_client)
@@ -63,22 +66,33 @@ class Command(BaseCommand):
         return 'Statistic daemon'
 
 
-class JabberDaemon(PeriodDaemon):
+class JabberDaemon(BaseDaemon):
     def __init__(self, workers=1, *args, **kwargs):
         super(JabberDaemon, self).__init__(*args, **kwargs)
         self.workers = workers
 
     @staticmethod
     def run_worker():
-        jid = ""
-        password = ""
-        c = Client(jid, password)
+        jid = settings.JABBER_BOT_SETTINGS['jid']
+        password = settings.JABBER_BOT_SETTINGS['password']
+        resource = settings.JABBER_BOT_SETTINGS['resource']
+        print jid
+        c = Client(jid, password, resource)
         c.connect()
-        try:
-            c.loop(1)
-        except KeyboardInterrupt:
-            c.disconnect()
+        while True:
+            try:
+                c.loop(1)
+                break
+            except TimeoutException:
+                c.disconnect()
+                c.connect()
+                continue
+            except KeyboardInterrupt:
+                c.disconnect()
+                break
 
-    def each_time_action(self, start_time, end_time, options=None):
+    def start_server(self, options=None):
         run_pool(workers=self.workers, array=[],
                  target=self.run_worker)
+        while True:
+            pass
