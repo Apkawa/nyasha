@@ -133,8 +133,8 @@ def user_blog(request, username=None):
     if user:
         posts = posts.filter(
                         Q(user=user)\
-                        |Q(recommends__user=user)\
-                        |Q(user__subscribed_user__user=user)
+                        |Q(recommends__user=user)
+                        #|Q(user__subscribed_user__user=user)
                     ).distinct()
         #TODO: написать нормальный запрос
 
@@ -153,10 +153,14 @@ def user_blog(request, username=None):
     posts = page.object_list
     posts = Tag.attach_tags(posts)
 
+    tag_cloud = Tag.get_cloud(user)
+
+
     context = {}
     context['user_blog'] = user
     context['posts'] = posts
     context['page'] = page
+    context['tag_cloud'] = tag_cloud
     return render_template(request, 'blog/user_blog.html', context)
 
 def post_view(request, post_pk):
@@ -184,11 +188,14 @@ def post_view(request, post_pk):
     else:
         comments = Comment.tree.filter(is_deleted=False, post=post).select_related('user','user__profile','reply_to')
 
+    tag_cloud = Tag.get_cloud(post.user_id)
+
     context = {}
     context['post'] = post
     context['user_blog'] = post_user
     context['comments'] = comments
     context['is_tree'] = is_tree
+    context['tag_cloud'] = tag_cloud
     return render_template(request, 'blog/post_view.html', context)
 
 @login_required
@@ -231,6 +238,7 @@ def reply_add(request, post_pk, reply_to=None):
         #TODO:
         send_broadcast(post, render_comment(comment, reply_to=reply_to or post), exclude_user=[user])
         #send_broadcast(user, render_comment(comment), exclude_user=[user])
+        subscribe, create = Subscribed.objects.get_or_create(user=user, subscribed_post=post)
         return redirect('post_view', post_pk=post.pk)
 
     context = {}

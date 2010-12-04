@@ -309,7 +309,11 @@ def user_feed_messages(request, numpage, username=None):
             return "Unknown user, sorry."
     else:
         user = request.user
-    posts = Post.objects.comments_count().filter(Q(user=user)|Q(recommends__user=user)|Q(user__subscribed_user__user=user)).distinct()
+
+    posts = Post.objects.comments_count().filter(Q(user=user)\
+            |Q(recommends__user=user)
+            #|Q(user__subscribed_user__user=user)
+            ).distinct()
     return _render_posts(posts, numpage)
 
 def show_tags_command(request):

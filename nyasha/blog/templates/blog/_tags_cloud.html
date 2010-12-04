@@ -1,0 +1,11 @@
+<div class="sidebar_block">
+    <div class="sidebar_header">
+        <h2>{{ _("tag cloud")|capfirst }}</h2>
+    </div>
+    {% url user_blog user_blog.username as user_blog_url %}
+    <div class="sidebar_content">
+        {% for tag in tag_cloud %}
+        <a href="{{user_blog_url}}?tag={{ tag.name }}">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+</div>

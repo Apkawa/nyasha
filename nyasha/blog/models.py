@@ -147,6 +147,14 @@ class Tag(models.Model):
 
         return post_queryset
 
+    @classmethod
+    def get_cloud(cls, user):
+        tags = Tag.objects.filter().values('name').annotate(count=models.Count('post'))
+        if user:
+            tags = tags.filter(post__user=user)
+        tags = tags.extra(where=['(SELECT COUNT(*) FROM "blog_post_tags" WHERE "tag_id" = "blog_tag"."id") > 2'])
+        return tags
+
 
 
 
