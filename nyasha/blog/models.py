@@ -10,6 +10,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+from django.utils.encoding import smart_str
+
 from fields import AvatarImageField
 
 from mptt.models import MPTTModel
@@ -170,7 +172,7 @@ class Subscribed(NotDeletedModel):
 
 
 def avatar_upload_to(instance, filename):
-    filename = sha1(instance.user.email).hexdigest()
+    filename = sha1(smart_str(instance.user.email)).hexdigest()
     return 'avatar/o/%s'%filename
 
 AVATAR_SIZES = [22, 42]

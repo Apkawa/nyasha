@@ -4,7 +4,7 @@
         {% if post.user.profile.avatar %}
         <img class="small_avatar" src="{{ post.user.profile.avatar.url_22 }}" alt=""/>
         {% else %}
-        <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/22.png" alt="" width="22" height="22">
+        <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/22.png" alt="" width="22" height="22"/>
         {% endif %}
         <a href="{% url user_blog post.user.username %}">@{{ post.user.username }}</a>: 
         {% if user_blog %}

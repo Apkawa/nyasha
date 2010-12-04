@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import time
 from functools import wraps
+from datetime import datetime
 
 from core import BaseMessageHandler, BaseIqHandler, BasePresenceHandler 
 from core import BaseHandler
@@ -7,11 +9,15 @@ from core import BaseRoomManager, BaseRoomHandler
 
 from core import Message, Presence, Iq, JID, Request
 
+from core import TimeoutException
+
 from command_resolver import command_patterns
 
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.cache import cache
+
 from blog.views import post_in_blog, send_broadcast, render_post
 from blog.models import Subscribed
 
@@ -130,6 +136,44 @@ class LastHandler(BaseIqHandler):
 
 
 
+def send_ping(client):
+    def pong_handler(stanza):
+        #print'*'*20
+        #print stanza
+        pass
+
+    def pong_timeout_handler(*args, **kwargs):
+        print 'PONG TIMEOUT!'
+        print args, kwargs
+        raise TimeoutException
+
+    time_delta = int(time.time() - send_ping._last_ping_time)
+    if time_delta < 120:
+        return
+
+    client_jid = JID(settings.JABBER_BOT_SETTINGS['jid'])
+
+    ping = Iq(to_jid=client_jid.domain, from_jid=client_jid, stanza_type='get')
+    ping.new_query('urn:xmpp:ping', name='ping')
+
+    client.get_stream().set_response_handlers(ping, res_handler=pong_handler,
+            err_handler=lambda x: x, timeout_handler=pong_timeout_handler, timeout=120)
+    client.get_stream().send(ping)
+
+    send_ping._last_ping_time = time.time()
+
+send_ping._last_ping_time = 0
+
+
+def send_deffered_messages(client):
+    from models import SendQueue
+    messages = SendQueue.objects.filter(is_send=True)
+    stream = client.get_stream()
+    for msg in messages:
+        msg.send(stream)
+    messages.update(is_send=False, datetime_send=datetime.now())
+
+
 PLUGINS = [
         PrivateMessageHandler,
         PresenceHandler,
@@ -138,5 +182,10 @@ PLUGINS = [
         #LastHandler,
         #AnyMessageHandler,
         #ExampleMessageHandler,
-
         ]
+
+LOOP_TASK = [
+        send_ping,
+        send_deffered_messages,
+        ]
+

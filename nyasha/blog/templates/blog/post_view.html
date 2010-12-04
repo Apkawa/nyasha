@@ -1,4 +1,5 @@
 {% extends "blog/base.html" %}
+{% load mptt_tags %}
 {% block content %}
     <div id="content_header" class="span-15">
     {% with post.user.get_profile as user_profile %}
@@ -6,12 +7,32 @@
     {% endwith %}
     </div>
     {% include "blog/_post_piece.html" %}
-    <h2>{{ _("Replies")|capfirst }} ({{ post.comments_count }})</h2>
-    {% for comment in comments %}
-        {% include "blog/_comment_piece.html" %}
-    {% empty %}
+    <h2 class="span-4">{{ _("Replies")|capfirst }} ({{ post.comments_count }})</h2>
+    <div id="toggle_mode" class="prepend-9 span-1 last">
+    <form method="get" action="">
+        <input type="hidden" name="tree" value="{% if not is_tree %}1{% endif %}"/>
+        <button>{% if not is_tree %}{{ _("tree")|capfirst }}{% else %}{{ _("linear")|capfirst }}{% endif %}</button>
+    </form>
+    </div>
+    <div id="comments_wrap" class="span-15">
+    {% if is_tree %}
+        {% for comment, structure in comments|tree_info %}
+            {% if structure.new_level %}<ul><li>{% else %}</li><li>{% endif %}
+                {% include "blog/_comment_piece.html" %}
+            {% for level in structure.closed_levels %}</li></ul>{% endfor %}
+        {% endfor %}
+    {% else %}
+        <ul>
+        {% for comment in comments %}
+            <li>
+                {% include "blog/_comment_piece.html" %}
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    </div>
+
         
-    {% endfor %}
 {% endblock content %}
 
 {% block right_sidebar %}

@@ -330,6 +330,7 @@ class Client(JabberClient):
 
         # add the separate components
         self.interface_providers = self.get_plugins()
+        self.loop_tasks = self.get_loop_tasks()
 
         #self.interface_providers.append(PresenceHandler)
         #Presence(to_jid=JID("torrents.ru_nixoids","conference.jabber.ru","Nia"))
@@ -349,6 +350,10 @@ class Client(JabberClient):
     def get_plugins(self):
         import plugins
         return [p(self) for p in plugins.PLUGINS]
+    
+    def get_loop_tasks(self):
+        import plugins
+        return plugins.LOOP_TASK
 
     def send_ping(self):
         client_jid = JID(settings.JABBER_BOT_SETTINGS['jid'])
@@ -380,19 +385,25 @@ class Client(JabberClient):
 
         This usually will be replaced by something more sophisticated. E.g.
         handling of other input sources."""
-        self.send_ping()
+        #self.send_ping()
         while 1:
             stream=self.get_stream()
             if not stream:
                 break
 
-            time_delta = int(time.time() - self.last_ping_time)
-            if time_delta > self.pong_timeout:
-                self.send_ping()
+            #time_delta = int(time.time() - self.last_ping_time)
+            #if time_delta > self.pong_timeout:
+                #    self.send_ping()
+
+            self.run_loop_tasks()
 
             act=stream.loop_iter(timeout)
             if not act:
                 self.idle()
+
+    def run_loop_tasks(self):
+        for task in self.loop_tasks:
+            task(self)
 
 
 

@@ -119,6 +119,15 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
 .f-right { float: right; }
 
 
+#header {
+    margin-top: 10px;
+}
+#header h1>a {
+    color: #CCC !important;
+    font-size: 120%;
+    text-decoration: none;
+}
+
 .page { 
     background: url("/static/images/bg_1.gif"); 
     border: 1px solid #444;
@@ -183,6 +192,7 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
     margin-bottom: 3px;
     border: 1px solid #555;
     background-color: #333;
+    width: 100%;
 }
 .comment_header {
     border-bottom: 1px solid #444;
@@ -287,4 +297,19 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
     border-bottom: 1px solid #555;
     margin-bottom: 5px;
     
+}
+
+#comments_wrap ul {
+    list-style-type: none;
+    padding: 0px;
+    margin-left: 12px;
+    margin-right: 0px;
+}
+
+#comments_wrap > ul {
+    margin-left: 0px;
+}
+
+#comments_wrap ul > li {
+    border-left: 1px dotted #444;
 }

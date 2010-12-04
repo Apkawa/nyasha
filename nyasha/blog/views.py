@@ -47,23 +47,13 @@ def handler500(request, template_name='500.html'):
 
 
 def send_alert(to_user, message, sender=None):
-    if not sender:
-        sender = settings.JABBER_BOT_SETTINGS['stream'].send
-    response_mes = Message(
-            from_jid=settings.JABBER_BOT_SETTINGS['jid'], to_jid=to_user.email,
-            stanza_type='chat', body=message)
-    sender(response_mes)
+    SendQueue.send_message(s.user.email, message)
 
-def send_broadcast(to_subscribe, message, sender, exclude_user=()):
+def send_broadcast(to_subscribe, message, sender=None, exclude_user=()):
     subscribes = Subscribed.get_subscribes_by_obj(to_subscribe
             ).select_related('user').exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
     for s in subscribes:
-        #response_mes = Message(
-        #from_jid=settings.JABBER_BOT_SETTINGS['jid'], to_jid=s.user.email,
-        #        stanza_type='chat', body=message)
-        #sender(response_mes)
-        #send_alert(to_user=s.user, message=message)
-        SendQueue.send(s.user.email, message)
+        SendQueue.send_message(s.user.email, message)
 
 MAX_TAG_COUNT = 5
 SPLIT_MESSAGE_REGEXP = re.compile('^\s*(?:\*\S+\s+){,%s}'%MAX_TAG_COUNT)
@@ -167,6 +157,17 @@ def user_blog(request, username=None):
     return render_template(request, 'blog/user_blog.html', context)
 
 def post_view(request, post_pk):
+    if 'tree' in request.GET:
+        is_tree = bool(request.GET.get('tree'))
+        res = redirect('post_view', post_pk=post_pk)
+        if is_tree:
+            res.set_cookie('comments_tree', is_tree)
+        else:
+            res.delete_cookie('comments_tree')
+        return res
+
+    is_tree = request.COOKIES.get('comments_tree')
+
     posts = get_list_or_404(Post.objects.comments_count(), pk=post_pk)
     posts = Tag.attach_tags(posts)
 
@@ -175,10 +176,16 @@ def post_view(request, post_pk):
     users = Profile.attach_user_info(User.objects.filter(pk=post.user_id))
     post_user = users[0]
 
+    if not is_tree:
+        comments = post.comments.filter().order_by('id').select_related('user','user__profile','reply_to')
+    else:
+        comments = Comment.tree.filter(is_deleted=False, post=post).select_related('user','user__profile','reply_to')
+
     context = {}
     context['post'] = post
     context['user_blog'] = post_user
-    context['comments'] = post.comments.filter().order_by('id').select_related('user','user__profile','reply_to')
+    context['comments'] = comments
+    context['is_tree'] = is_tree
     return render_template(request, 'blog/post_view.html', context)
 
 @login_required
@@ -191,10 +198,11 @@ def post_add(request):
         data = form_p.data
         message  = data['body']
         if not command_patterns.find_command(message):
-            post = post_in_blog(message, request.user, 'web')
+            user = request.user
+            post = post_in_blog(message, user, 'web')
             #TODO:
-            #send_broadcast(post, render_post(post), sender=self.send, exclude_user=[user])
-            #send_broadcast(user, render_post(post), sender=self.send, exclude_user=[user])
+            send_broadcast(post, render_post(post), exclude_user=[user])
+            send_broadcast(user, render_post(post), exclude_user=[user])
             return redirect('post_view', post_pk=post.pk)
         return redirect('post_add')
 
@@ -212,13 +220,14 @@ def reply_add(request, post_pk, reply_to=None):
     form_p = FormProcessor(PostForm, request)
     form_p.process()
     if form_p.is_valid():
+        user = request.user
         data = form_p.data
         message  = data['body']
         comment = Comment(user=request.user, post=post, reply_to=reply_to, body=message)
         comment.save()
         #TODO:
-        #send_broadcast(post, render_post(post), sender=self.send, exclude_user=[user])
-        #send_broadcast(user, render_post(post), sender=self.send, exclude_user=[user])
+        send_broadcast(post, render_comment(comment, reply_to=reply_to or post), exclude_user=[user])
+        #send_broadcast(user, render_comment(comment), exclude_user=[user])
         return redirect('post_view', post_pk=post.pk)
 
     context = {}

@@ -1,11 +1,11 @@
 {% load nya_blog %}
-<div id="comment_{{ comment.number }} }}" class="comment span-15 kawaii">
+<div id="comment_{{ comment.number }}" class="comment kawaii">
         <a name="{{ comment.number }}"/>
     <div class="comment_header">
         {% if comment.user.profile.avatar %}
         <img class="small_avatar" src="{{ comment.user.profile.avatar.url_22 }}" alt=""/>
         {% else %}
-        <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/22.png" width="22" height="22" alt="">
+        <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/22.png" width="22" height="22" alt=""/>
         {% endif %}
         <a href="{% url user_blog comment.user.username%}">@{{ comment.user.username }}</a>
     </div>
