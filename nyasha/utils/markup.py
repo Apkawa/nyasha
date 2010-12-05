@@ -23,6 +23,12 @@ def is_youtube_url(url):
     match = youtube_re.match(url)
     return match and match.groups()[0]
 
+vimeo_re = re.compile(r'http://vimeo.com/([\d]+)')
+def is_vimeo_url(url):
+    match = vimeo_re.match(url)
+    print url, match
+    return match and match.groups()[0]
+
 
 
 def imgurlize(text, trim_url_limit=None, nofollow=False, autoescape=False, imgclass=''):
@@ -61,15 +67,18 @@ def imgurlize(text, trim_url_limit=None, nofollow=False, autoescape=False, imgcl
                     (middle.endswith('.org') or middle.endswith('.net') or middle.endswith('.com'))):
                 url = urlquote('http://%s' % middle, safe='/&=:;#?+*')
 
-            is_youtube = is_img = None
+            is_youtube = is_img = is_vimeo = None
             if url:
                 is_youtube = is_youtube_url(url)
                 is_img = is_img_url(url)
-            if url and (is_img or is_youtube):
+                is_vimeo = is_vimeo_url(url)
+            if url and (is_img or is_youtube or is_vimeo):
                 trimmed = trim_url(middle)
                 if autoescape and not safe_input:
                     lead, trail = escape(lead), escape(trail)
                     url, trimmed = escape(url), escape(trimmed)
+
+
                 if is_img:
                     middle = '<a href="%s"><img class="%s" src="%s" alt=""/></a>' % (url, imgclass, url)
                 elif is_youtube:
@@ -79,8 +88,20 @@ def imgurlize(text, trim_url_limit=None, nofollow=False, autoescape=False, imgcl
                     <param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/%(key)s?fs=1&amp;hl=ru_RU" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object>
                     <noscript>%(url)s</noscript>
                     '''
+
                     url = '<a href="%s"%s>%s</a>' % (url, nofollow_attr, trimmed)
                     middle = template%{'url':url, 'key':is_youtube}
+                elif is_vimeo:
+                    template = '''
+                    <object width="480" height="385">
+                    <param name="allowfullscreen" value="true" />
+                    <param name="allowscriptaccess" value="always" />
+                    <param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=%(key)s&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=1&amp;color=00ADEF&amp;fullscreen=1&amp;autoplay=0&amp;loop=0" />
+                    <embed src="http://vimeo.com/moogaloop.swf?clip_id=%(key)s&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=1&amp;color=00ADEF&amp;fullscreen=1&amp;autoplay=0&amp;loop=0" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="480" height="385"></embed></object>
+                    <noscript>%(url)s</noscript>
+                    '''
+                    url = '<a href="%s"%s>%s</a>' % (url, nofollow_attr, trimmed)
+                    middle = template%{'url': url, 'key':is_vimeo}
 
                 words[i] = mark_safe('%s%s%s' % (lead, middle, trail))
             else:

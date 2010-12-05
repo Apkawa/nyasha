@@ -114,7 +114,6 @@ INSTALLED_APPS = (
     #
     'blog',
     'jabber_daemon',
-    'django_cpserver',
 )
 
 AUTH_PROFILE_MODULE = 'blog.Profile'
