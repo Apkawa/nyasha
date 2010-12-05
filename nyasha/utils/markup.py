@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#REFACTORME: Отрефакторить до няшнокавайного состояния
 import os
 
 import re
@@ -12,9 +13,15 @@ from django.utils.http import urlquote
 from django.utils.html import punctuation_re, word_split_re
 
 
+
 def is_img_url(url):
     ext = os.path.splitext(url)[1]
     return ext[1:].lower() in ['jpg','jpeg','png','gif', 'bmp']
+
+youtube_re = re.compile(r'http://www.youtube.com/watch\?v=([\w-]+)')
+def is_youtube_url(url):
+    match = youtube_re.match(url)
+    return match and match.groups()[0]
 
 
 
@@ -53,16 +60,28 @@ def imgurlize(text, trim_url_limit=None, nofollow=False, autoescape=False, imgcl
                     middle and middle[0] in string.ascii_letters + string.digits and \
                     (middle.endswith('.org') or middle.endswith('.net') or middle.endswith('.com'))):
                 url = urlquote('http://%s' % middle, safe='/&=:;#?+*')
-            #elif '@' in middle and not ':' in middle and simple_email_re.match(middle):
-            #    url = 'mailto:%s' % middle
-            #    nofollow_attr = ''
-            # Make link.
-            if url and is_img_url(url):
+
+            is_youtube = is_img = None
+            if url:
+                is_youtube = is_youtube_url(url)
+                is_img = is_img_url(url)
+            if url and (is_img or is_youtube):
                 trimmed = trim_url(middle)
                 if autoescape and not safe_input:
                     lead, trail = escape(lead), escape(trail)
                     url, trimmed = escape(url), escape(trimmed)
-                middle = '<a href="%s"><img class="%s" src="%s" alt=""/></a>' % (url, imgclass, url)
+                if is_img:
+                    middle = '<a href="%s"><img class="%s" src="%s" alt=""/></a>' % (url, imgclass, url)
+                elif is_youtube:
+                    template = '''
+                    <object width="480" height="385">
+                    <param name="movie" value="http://www.youtube.com/v/%(key)s?fs=1&amp;hl=ru_RU"></param>
+                    <param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/%(key)s?fs=1&amp;hl=ru_RU" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object>
+                    <noscript>%(url)s</noscript>
+                    '''
+                    url = '<a href="%s"%s>%s</a>' % (url, nofollow_attr, trimmed)
+                    middle = template%{'url':url, 'key':is_youtube}
+
                 words[i] = mark_safe('%s%s%s' % (lead, middle, trail))
             else:
                 if safe_input:
