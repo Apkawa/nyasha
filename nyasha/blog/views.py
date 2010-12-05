@@ -184,9 +184,13 @@ def post_view(request, post_pk):
     post_user = users[0]
 
     if not is_tree:
-        comments = post.comments.filter().order_by('id').select_related('user','user__profile','reply_to')
+        comments = post.comments.filter().order_by('id')
     else:
-        comments = Comment.tree.filter(is_deleted=False, post=post).select_related('user','user__profile','reply_to')
+        comments = Comment.tree.filter(is_deleted=False, post=post)
+
+    comments = comments.select_related('user','user__profile','reply_to')
+
+    recommends = post.recommends.filter().select_related('user')
 
     tag_cloud = Tag.get_cloud(post.user_id)
 
@@ -196,6 +200,7 @@ def post_view(request, post_pk):
     context['comments'] = comments
     context['is_tree'] = is_tree
     context['tag_cloud'] = tag_cloud
+    context['recommends'] = recommends
     return render_template(request, 'blog/post_view.html', context)
 
 @login_required

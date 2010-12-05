@@ -152,7 +152,7 @@ def recommend_post_command(request, post_pk):
             send_alert(post.user, 
                     '@%s recommend your post %s'%(request.user.username, post.get_number()),
                     sender=request.get_sender())
-            send_broadcast(user, render_post(post, recommend_by=user), exclude_user=[user])
+            send_broadcast(user, render_post(post, recommend_by=user), exclude_user=[user, post.user])
 
         if recommend.is_deleted:
             recommend.is_deleted = False

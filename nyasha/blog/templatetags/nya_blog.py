@@ -12,3 +12,9 @@ register = template.Library()
 def nya_markup(value):
     return nya_parser(value)
 
+
+
+def get_images(value):
+    pass
+
+

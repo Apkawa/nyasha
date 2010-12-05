@@ -313,3 +313,8 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
 #comments_wrap ul > li {
     border-left: 1px dotted #444;
 }
+
+img.parsed_img {
+    max-width: 500px;
+    max-height: 500px;
+}

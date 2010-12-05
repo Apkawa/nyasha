@@ -7,6 +7,13 @@
     {% endwith %}
     </div>
     {% include "blog/_post_piece.html" %}
+    <div>
+        {% if recommends %}
+            {{ _("recommends")|capfirst }}: {% for r in recommends %}
+                <a href="{% url user_blog r.user.username %}">@{{ user.username }}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
     <h2 class="span-4">{{ _("Replies")|capfirst }} ({{ post.comments_count }})</h2>
     <div id="toggle_mode" class="prepend-9 span-1 last">
     <form method="get" action="">
