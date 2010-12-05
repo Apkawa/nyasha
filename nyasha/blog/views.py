@@ -26,6 +26,9 @@ from utils.form_processor import FormProcessor
 
 from forms import PostForm, ProfileEditForm
 
+from django.views.decorators.cache import cache_page
+
+
 def handler500(request, template_name='500.html'):
     """
     500 error handler.
@@ -115,6 +118,7 @@ def main(request):
     return render_template(request, 'blog/main.html', context)
 
 PER_PAGE = 10
+@cache_page(60)
 def user_blog(request, username=None):
     users = Profile.attach_user_info(User.objects.filter(username=username))
     user = username and get_object_or_404(users, username=username)
@@ -163,6 +167,7 @@ def user_blog(request, username=None):
     context['tag_cloud'] = tag_cloud
     return render_template(request, 'blog/user_blog.html', context)
 
+@cache_page(60)
 def post_view(request, post_pk):
     if 'tree' in request.GET:
         is_tree = bool(request.GET.get('tree'))
@@ -274,6 +279,7 @@ def profile_edit(request):
     return render_template(request, 'blog/profile_edit.html', context)
 
 
+@cache_page(60)
 def user_list(request, my_readers=False, i_read=False, username=None):
     if username:
         user = get_object_or_404(User, username=username)
