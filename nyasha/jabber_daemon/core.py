@@ -9,6 +9,7 @@ from pprint import pprint
 from pyxmpp.all import JID, Iq, Presence, Message, StreamError
 from pyxmpp.jabber.client import JabberClient
 from pyxmpp.jabber.vcard import VCard as OldVCard
+from pyxmpp.jabber.vcard import VCard #as OldVCard
 
 from pyxmpp.jabber.muc import MucRoomManager, MucRoomHandler
 
@@ -21,14 +22,14 @@ from pyxmpp.exceptions import StreamError
 from django.conf import settings
 
 
-class VCard(OldVCard):
+class _VCard(OldVCard):
     def __repr__(self):
         FN = self.content["FN"] and self.content["FN"].value
         
         return "<vCard of %r>" % (FN)
 
-VCard.components['N'] = (VCard.components['N'],"optional")
-VCard.components['FN'] = (VCard.components['FN'],"optional")
+#VCard.components['N'] = (VCard.components['N'],"optional")
+#VCard.components['FN'] = (VCard.components['FN'],"optional")
 
 class Request(object):
     def __init__(self, stanza, stream, user=None, context=None, *args, **kwargs):

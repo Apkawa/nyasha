@@ -49,6 +49,11 @@ class Command(BaseCommand):
             except KeyboardInterrupt:
                 c.disconnect()
                 break
+            except Exception, error:
+                #
+                c.disconnect()
+                c.connect()
+                continue
 
     def handle(self, *args, **options):
         if options.get('daemon'):
@@ -66,33 +71,3 @@ class Command(BaseCommand):
         return 'Statistic daemon'
 
 
-class JabberDaemon(BaseDaemon):
-    def __init__(self, workers=1, *args, **kwargs):
-        super(JabberDaemon, self).__init__(*args, **kwargs)
-        self.workers = workers
-
-    @staticmethod
-    def run_worker():
-        jid = settings.JABBER_BOT_SETTINGS['jid']
-        password = settings.JABBER_BOT_SETTINGS['password']
-        resource = settings.JABBER_BOT_SETTINGS['resource']
-        print jid
-        c = Client(jid, password, resource)
-        c.connect()
-        while True:
-            try:
-                c.loop(1)
-                break
-            except TimeoutException:
-                c.disconnect()
-                c.connect()
-                continue
-            except KeyboardInterrupt:
-                c.disconnect()
-                break
-
-    def start_server(self, options=None):
-        run_pool(workers=self.workers, array=[],
-                 target=self.run_worker)
-        while True:
-            pass
