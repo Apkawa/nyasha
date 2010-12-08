@@ -135,7 +135,7 @@ class Tag(models.Model):
     @classmethod
     def attach_tags(cls, post_queryset):
         post_tags = Post.tags.through.objects.filter(
-                post__in=list(post_queryset.values_list('pk', flat=True))#гнуснохак для мускуля
+                post__in=list(post_queryset)#гнуснохак для мускуля
                 ).select_related('tag')
         post_tags_dict = {}
         for pt in post_tags:
