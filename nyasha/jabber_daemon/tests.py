@@ -18,7 +18,7 @@ class TestRequest(Request):
     def get_sender(self):
         return lambda x: x
 
-def get_test_request(message, from_jid='test@user.ru', to_jid=settings.JABBER_BOT_SETTINGS['jid']):
+def get_test_request(message, from_jid='test@user.ru/Home', to_jid=settings.JABBER_BOT_SETTINGS['jid']):
     stanza = type('TestStanza', (object,), {'body':message, 'from_jid':JID(from_jid), 'to_jid': JID(to_jid)})
     user = get_user_from_jid(from_jid)
 
@@ -27,7 +27,7 @@ def get_test_request(message, from_jid='test@user.ru', to_jid=settings.JABBER_BO
 TEST_COMMANDS = (
         ('HELP',''),
         ('PING','PONG'),
-        ('NICK','@test@user.ru'),
+        ('NICK','@testuserru'),
         ('NICK test','@test'),
         ('#1',''),
         ('#1/1',''),

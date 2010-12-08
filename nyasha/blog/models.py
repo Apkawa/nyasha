@@ -42,10 +42,10 @@ class PostManager(NotDeletedManager):
         query = self.get_query_set()
         return query.extra(select={name: '''
                 SELECT COUNT(*)
-                FROM "blog_comment" AS "c"
-                INNER JOIN "blog_post" AS "p" ON ("c"."post_id" = "p"."id")
-                WHERE (NOT (("c"."is_deleted" = True OR "p"."is_deleted" = True ))
-                AND "c"."post_id" =  "blog_post"."id")
+                FROM blog_comment AS c
+                INNER JOIN blog_post AS p ON (c.post_id = p.id)
+                WHERE (NOT ((c.is_deleted = True OR p.is_deleted = True ))
+                AND c.post_id = blog_post.id)
                 '''})
 
 class Post(NotDeletedModel):
@@ -54,7 +54,7 @@ class Post(NotDeletedModel):
     body_html = models.TextField()
 
     datetime = models.DateTimeField(auto_now_add=True)
-    from_client = models.CharField(max_length=256, blank=True, default='web')
+    from_client = models.CharField(max_length=256, null=True, blank=True, default='web')
 
     tags = models.ManyToManyField("Tag")
 
@@ -94,7 +94,7 @@ class Comment(MPTTModel, NotDeletedModel):
 
     number = models.IntegerField()
     datetime = models.DateTimeField(auto_now_add=True)
-    from_client = models.CharField(max_length=256, blank=True, default='web')
+    from_client = models.CharField(max_length=256, null=True, blank=True, default='web')
 
 
     objects = CommentManager()
@@ -134,7 +134,9 @@ class Tag(models.Model):
 
     @classmethod
     def attach_tags(cls, post_queryset):
-        post_tags = Post.tags.through.objects.filter(post__in=post_queryset).select_related('tag')
+        post_tags = Post.tags.through.objects.filter(
+                post__in=list(post_queryset.values_list('pk', flat=True))#гнуснохак для мускуля
+                ).select_related('tag')
         post_tags_dict = {}
         for pt in post_tags:
             post_pk = pt.post_id
@@ -152,7 +154,7 @@ class Tag(models.Model):
         tags = Tag.objects.filter().values('name').annotate(count=models.Count('post'))
         if user:
             tags = tags.filter(post__user=user)
-        tags = tags.extra(where=['(SELECT COUNT(*) FROM "blog_post_tags" WHERE "tag_id" = "blog_tag"."id") > 2'])
+        tags = tags.extra(where=['(SELECT COUNT(*) FROM blog_post_tags WHERE tag_id = blog_tag.id) > 2'])
         return tags
 
 
@@ -233,26 +235,26 @@ class Profile(models.Model):
     @classmethod
     def attach_user_info(self, user_queryset):
         users = user_queryset.extra(select={'posts_count': '''
-                    SELECT COUNT(*) FROM "blog_post" 
-                    WHERE (NOT ("blog_post"."is_deleted" = true ) 
-                    AND "blog_post"."user_id" = "auth_user"."id")
+                    SELECT COUNT(*) FROM blog_post
+                    WHERE (NOT (blog_post.is_deleted = true )
+                    AND blog_post.user_id = auth_user.id)
                     ''',
                     'comments_count':'''
-                    SELECT COUNT(*) FROM "blog_comment" 
-                    INNER JOIN "blog_post" ON ("blog_comment"."post_id" = "blog_post"."id") 
-                    WHERE (NOT (("blog_comment"."is_deleted" = true OR "blog_post"."is_deleted" = true )) 
-                    AND "blog_comment"."user_id" =  "auth_user"."id")
+                    SELECT COUNT(*) FROM blog_comment
+                    INNER JOIN blog_post ON (blog_comment.post_id = blog_post.id)
+                    WHERE (NOT ((blog_comment.is_deleted = true OR blog_post.is_deleted = true ))
+                    AND blog_comment.user_id = auth_user.id)
                     ''',
                     'i_read_count':'''
-                    SELECT COUNT(*) FROM "blog_subscribed" 
-                    WHERE (NOT ("blog_subscribed"."is_deleted" = true ) 
-                    AND "blog_subscribed"."user_id" = "auth_user"."id"
-                    AND "blog_subscribed"."subscribed_user_id" IS NOT NULL)
-                    ''', 
+                    SELECT COUNT(*) FROM blog_subscribed
+                    WHERE (NOT (blog_subscribed.is_deleted = true )
+                    AND blog_subscribed.user_id = auth_user.id
+                    AND blog_subscribed.subscribed_user_id IS NOT NULL)
+                    ''',
                     'my_readers_count':'''
-                    SELECT COUNT(*) FROM "blog_subscribed" 
-                    WHERE (NOT ("blog_subscribed"."is_deleted" = true ) 
-                    AND "blog_subscribed"."subscribed_user_id" = "auth_user"."id" )
+                    SELECT COUNT(*) FROM blog_subscribed
+                    WHERE (NOT (blog_subscribed.is_deleted = true ) 
+                    AND blog_subscribed.subscribed_user_id = auth_user.id )
                     '''})
         '''
         for user in users:
