@@ -126,7 +126,7 @@ COMPRESS = True
 COMPRESS_VERSION = True
 COMPRESS_AUTO = False
 COMPRESS_CSS_FILTERS = COMPRESS_JS_FILTERS = ("compress.filters.yui.YUICompressorFilter",)
-COMPRESS_YUI_BINARY = 'yuicompressor'
+COMPRESS_YUI_BINARY = 'java -jar libs/yuicompressor-2.4.2.jar'
 
 COMPRESS_CSS = {
     'generic': {
