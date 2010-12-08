@@ -96,11 +96,6 @@ class Command(BaseCommand):
             except KeyboardInterrupt:
                 c.disconnect()
                 break
-            except Exception, error:
-                #
-                c.disconnect()
-                c.connect()
-                continue
 
     def handle(self, *args, **options):
         if options.get('daemon'):
@@ -110,7 +105,13 @@ class Command(BaseCommand):
             return
         if options.get('reload'):
             from utils.autoreload import main
-            main(self.run_jabber_client)
+            while True:
+                try:
+                    main(self.run_jabber_client)
+                except KeyboardInterrupt:
+                    break
+                except Exception, error:
+                    continue
         else:
             self.run_jabber_client()
         

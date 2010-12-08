@@ -3,7 +3,10 @@ from django.db import models
 from django.conf import settings
 from django.core.cache import cache
 
+from django.utils.encoding import smart_str, smart_unicode
+
 from core import Message
+
 
 
 class SendQueue(models.Model):
@@ -43,7 +46,7 @@ class SendQueue(models.Model):
 
         if stream:
             response_mes = Message(
-                    from_jid=from_jid, to_jid=to_jid,
+                    from_jid=smart_unicode(from_jid), to_jid=smart_unicode(to_jid),
                     stanza_type='chat', body=message)
             stream.send(response_mes)
         else:
