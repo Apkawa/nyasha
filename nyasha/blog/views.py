@@ -82,6 +82,7 @@ def post_in_blog(message, user, from_client='web'):
 
 def render_post(post, with_comments=False, recommend_by=None, template='jabber/post.txt'):
     post.comments_count = post.comments.count()
+    post.post_tags = post.tags.all()
     context = {}
     context['post'] = post
     context['recommend_by'] = recommend_by
