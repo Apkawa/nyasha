@@ -2,7 +2,6 @@
 {% load cache %}
 {% load nya_blog %}
 {% block content %}
-    {% cache 150 user_blog page.number %}
     <div id="content_header" class="span-15">
     {% if user_blog %}
         {% with user_blog.get_profile as user_profile %}
@@ -28,7 +27,6 @@
         {% endif %}
     </div>
     </div>
-    {% endcache %}
 {% endblock content %}
 
 {% block right_sidebar %}
