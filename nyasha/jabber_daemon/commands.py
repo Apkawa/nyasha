@@ -73,9 +73,10 @@ def show_message_command(request, post_pk, comment_number=None, show_comments=No
     context = {}
     if not comment_number:
         try:
-            post = Post.objects.select_related('user').get(pk=post_pk)
+            posts = Tag.attach_tags(Post.objects.select_related('user').filter(pk=post_pk))
+            post = posts[0]
             body = render_post(post, with_comments=bool(show_comments))
-        except Post.DoesNotExist:
+        except IndexError:
             return "Message not found."
     else:
         try:

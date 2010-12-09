@@ -146,7 +146,6 @@ class Tag(models.Model):
 
         for post in post_queryset:
             post.post_tags = post_tags_dict.get(post.pk, ())
-
         return post_queryset
 
     @classmethod
