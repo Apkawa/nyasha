@@ -121,16 +121,16 @@ def main(request):
 PER_PAGE = 10
 #@cache_page(60)
 def user_blog(request, username=None):
+    page = request.GET.get('page', 1)
+    tagname = request.GET.get('tag')
+
     users = Profile.attach_user_info(User.objects.filter(username=username))
     user = username and get_object_or_404(users, username=username)
-    page = request.GET.get('page', 1)
     try:
         page = int(page)
     except ValueError:
         return redirect('.')
 
-
-    tagname = request.GET.get('tag')
     tag = tagname and get_object_or_404(Tag, name=tagname)
 
 
@@ -158,14 +158,10 @@ def user_blog(request, username=None):
     posts = page.object_list
     posts = Tag.attach_tags(posts)
 
-    tag_cloud = Tag.get_cloud(user)
-
-
     context = {}
     context['user_blog'] = user
     context['posts'] = posts
     context['page'] = page
-    context['tag_cloud'] = tag_cloud
     return render_template(request, 'blog/user_blog.html', context)
 
 #@cache_page(60)
@@ -198,14 +194,11 @@ def post_view(request, post_pk):
 
     recommends = post.recommends.filter().select_related('user')
 
-    tag_cloud = Tag.get_cloud(post.user_id)
-
     context = {}
     context['post'] = post
     context['user_blog'] = post_user
     context['comments'] = comments
     context['is_tree'] = is_tree
-    context['tag_cloud'] = tag_cloud
     context['recommends'] = recommends
     return render_template(request, 'blog/post_view.html', context)
 

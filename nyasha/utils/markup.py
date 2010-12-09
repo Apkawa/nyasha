@@ -26,7 +26,6 @@ def is_youtube_url(url):
 vimeo_re = re.compile(r'http://vimeo.com/([\d]+)')
 def is_vimeo_url(url):
     match = vimeo_re.match(url)
-    print url, match
     return match and match.groups()[0]
 
 
@@ -128,8 +127,8 @@ def nya_parser(string):
     body = escape(body)
     body = imgurlize(body, imgclass="parsed_img")
     body = urlize(body, 42)
-    body = re.sub(r'(?:^|\s)@([\w]+)\b', r'<a href="/\g<1>">@\g<1></a>', body)
-    body = re.sub(r'(?:^|\s)/([\d]+)\b', r'<a href="#\g<1>">/\g<1></a>', body)
-    body = re.sub(r'(?:^|\s)#([\d]+)/([\d])\b', r'<a href="/\g<1>#\g<2>">#\g<1>/\g<2></a>', body)
-    body = re.sub(r'(?:^|\s)#([\d]+)\b', r'<a href="/\g<1>">#\g<1></a>', body)
+    body = re.sub(r'(?:^|\s)@([\w]+)\b', r' <a href="/u/\g<1>">@\g<1></a> ', body)
+    body = re.sub(r'(?:^|\s)/([\d]+)\b', r' <a href="#\g<1>">/\g<1></a> ', body)
+    body = re.sub(r'(?:^|\s)#([\d]+)/([\d])\b', r' <a href="/\g<1>#\g<2>">#\g<1>/\g<2></a> ', body)
+    body = re.sub(r'(?:^|\s)#([\d]+)\b', r' <a href="/\g<1>">#\g<1></a> ', body)
     return body

@@ -1,5 +1,6 @@
 {% extends "blog/base.html" %}
 {% load mptt_tags %}
+{% load nya_blog %}
 {% block content %}
     <div id="content_header" class="span-15">
     {% with post.user.get_profile as user_profile %}
@@ -48,7 +49,5 @@
          {% include "blog/_user_blog_sidebar.html" %}
     </div>
     {% endif %}
-    <div class="sidebar_wrapper">
-        {% include "blog/_tags_cloud.html" %}
-    </div>
+        {% tags_cloud user_blog %}
 {% endblock right_sidebar %}

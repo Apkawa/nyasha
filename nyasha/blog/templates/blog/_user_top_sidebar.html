@@ -1,0 +1,22 @@
+{% load cache %}
+{% cache 120 "users_sidebar" %}
+<div class="sidebar_wrapper">
+    <div class="sidebar_block">
+        <div class="sidebar_header">
+            <h2>{{ _("users")|capfirst }}</h2>
+        </div>
+        <div class="sidebar_content">
+            {% for u in users %}
+                <div class="user_row">
+                {% if u.profile.avatar %}
+                    <img class="small_avatar" src="{{ u.profile.avatar.url_42 }}" alt=""/>
+                {% else %}
+                    <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/42.png" width="42" height="42" alt=""/>
+                {% endif %}
+                <a href="{% url user_blog u.username %}">@{{ u.username }}</a> <span class="my_readers_count">({{ u.my_readers_count }})</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endcache %}
