@@ -1,7 +1,7 @@
 {% extends root_template %}
-{% block menu %}
+{% block user_panel %}
     {% if user.is_authenticated %}
-            <div id="user">
+            <div id="user_panel">
             {% if user.get_profile.avatar %}
             <img class="small_avatar" src="{{ user.get_profile.avatar.url_42 }}" alt=""/>
             {% else %}
@@ -12,6 +12,10 @@
             <a href="{% url logout %}">{{ _("logout")|capfirst }}</a>
             </div>
         
+    {% endif %}
+{% endblock %}
+{% block menu %}
+    {% if user.is_authenticated %}
         <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
     {% endif %}
     <a href="{% url user_list %}">{{ _("user top")|capfirst }}</a>

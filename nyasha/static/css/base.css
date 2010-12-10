@@ -122,10 +122,30 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
 #header {
     margin-top: 10px;
 }
-#header h1>a {
+#header_brand {
+    font-size: 4.2em;
+    font-weight: bold;
+}
+#header_brand > a {
     color: #CCC !important;
     font-size: 120%;
     text-decoration: none;
+}
+
+.menu-wrapper {
+    vertical-align: bottom;
+
+}
+#menu-block {
+    background-color: rgba(0,0,0,0.42);
+    border: 1px solid #555;
+    border-bottom: none;
+    -webkit-border-top-left-radius: 22px;
+    -webkit-border-top-right-radius: 22px;
+    -moz-border-radius-topleft: 22px;
+    -moz-border-radius-topright: 22px;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
 }
 
 .page { 
@@ -151,6 +171,26 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
     -moz-border-radius-bottomright: 12px;
     border-top-right-radius: 12px;
     border-bottom-right-radius: 12px;
+}
+#content_header {
+    margin-bottom: 3px;
+    border: 1px solid #555;
+    background-color: #333;
+    border-top:none;
+    margin-bottom:12px;
+
+    -webkit-border-bottom-right-radius: 22px;
+    -webkit-border-bottom-left-radius: 22px;
+    -moz-border-radius-bottomright: 22px;
+    -moz-border-radius-bottomleft: 22px;
+    border-bottom-right-radius: 22px;
+    border-bottom-left-radius: 22px;
+}
+
+
+#content_header h2 {
+    text-align: center;
+    padding: 5px;
 }
 
 #posts_wrapper {
@@ -238,9 +278,18 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
     float: right;
 }
 
-#user {
-    position: relative;
-    float: right;
+#user_panel {
+    background-color: rgba(0,0,0,0.42);
+    border: 1px solid #555;
+    border-top: none;
+    margin-top: -11px;
+    padding: 10px;
+    -webkit-border-bottom-right-radius: 22px;
+    -webkit-border-bottom-left-radius: 22px;
+    -moz-border-radius-bottomright: 22px;
+    -moz-border-radius-bottomleft: 22px;
+    border-bottom-right-radius: 22px;
+    border-bottom-left-radius: 22px;
 }
 
 
@@ -260,26 +309,6 @@ input:focus, textarea:focus { background: #111; border-color: #ccc;}
     border-bottom: 1px solid #333;
 }
 
-#content_header {
-    margin-bottom: 3px;
-    border: 1px solid #555;
-    background-color: #333;
-    border-top:none;
-    margin-bottom:12px;
-
-    -webkit-border-bottom-right-radius: 22px;
-    -webkit-border-bottom-left-radius: 22px;
-    -moz-border-radius-bottomright: 22px;
-    -moz-border-radius-bottomleft: 22px;
-    border-bottom-right-radius: 22px;
-    border-bottom-left-radius: 22px;
-}
-
-
-#content_header h2 {
-    text-align: center;
-    padding: 5px;
-}
 
 
 #right_sidebar {
