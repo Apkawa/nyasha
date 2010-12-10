@@ -205,11 +205,11 @@ class Profile(models.Model):
 
     avatar = AvatarImageField(upload_to=avatar_upload_to, size=100, thumb_sizes=AVATAR_SIZES, blank=True)
 
+    is_off = models.BooleanField("OFF", default=False)
     #System
 
     status = models.CharField(max_length='2', choices=STATUS_CHOICES, default='a', editable=False)
     status_desc = models.CharField(max_length=256, null=True, blank=True, editable=False)
-    is_off = models.BooleanField("For OFF", default=False, editable=False)
 
     @models.permalink
     def get_url(self):

@@ -164,3 +164,5 @@ JABBER_BOT_SETTINGS = {
         'resource':'Nyasha Bot',
         'stream':None,
         }
+
+BROADCAST_SEND = True

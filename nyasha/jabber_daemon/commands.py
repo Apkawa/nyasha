@@ -97,6 +97,10 @@ def comment_add_command(request, post_pk, message, comment_number=None):
         post = Post.objects.get(pk=post_pk)
     except Post.DoesNotExist:
         return "Message not found."
+
+    if request.user.pk != post.user_id and post.tags.filter(name='readonly'):
+        return "Sorry, you can't reply to this post, it is *readonly."
+
     if reply_to:
         try:
             reply_to = post.comments.get(number=reply_to)
