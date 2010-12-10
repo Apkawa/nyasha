@@ -249,7 +249,6 @@ def reply_add(request, post_pk, reply_to=None):
     context['form'] = form_p.form
     return render_template(request, 'blog/post_add.html', context)
 
-
 def help(request):
     context = {}
     context['settings'] = settings
@@ -268,7 +267,6 @@ def profile_edit(request):
         if user.username != new_username:
             user.username = new_username
             user.save()
-
         return redirect('profile_edit')
 
     context = {}

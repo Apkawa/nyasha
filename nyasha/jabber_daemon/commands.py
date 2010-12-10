@@ -18,10 +18,6 @@ from random import randint
 
 from django.core.cache import cache
 
-
-
-
-
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
@@ -36,8 +32,9 @@ from blog.views import render_post, render_comment, send_broadcast, send_alert
 from django.db.models import Count, Q
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
+from utils.cache import cache_func
 
-
+@cache_func(3000)
 def help_command(request):
     from command_resolver import command_patterns
     return '\n'.join(c.doc or str(c) for c in command_patterns.get_commands())
@@ -64,6 +61,7 @@ def nick_command(request, new_nick=None):
         new_nick = request.user.username
     return '@%s'%new_nick
 
+@cache_func(30)
 def show_message_command(request, post_pk, comment_number=None, show_comments=None):
     '''
     #1234 - Show message
@@ -114,7 +112,6 @@ def comment_add_command(request, post_pk, message, comment_number=None):
 
     text = '''Reply posted\n%s %s'''%(comment.get_number(), comment.get_full_url())
 
-    #print post.body
     return text
 
 def add_tag_command(request, post_pk, tag):
