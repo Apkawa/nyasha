@@ -1,0 +1,24 @@
+<div class="sidebar_wrapper">
+    {% if user_blog %}
+        {% url rss_blog user_blog.username as rss_url %}
+        {% url atom_blog user_blog.username as atom_url %}
+    {% else %}
+        {% url atom_blog as atom_url %}
+        {% url rss_blog as rss_url %}
+    {% endif %}
+    <div class="sidebar_block">
+
+        <div class="sidebar_header">
+            <h2>{{ _("Feed")|capfirst }}</h2>
+        </div>
+        <div class="sidebar_content">
+            <span class="feed_link">
+                <a href="{{ rss_url }}{% if request.GET.tag %}?tag={{ request.GET.tag }}{% endif %}">
+                    <img src="{{ MEDIA_URL }}/images/icons/feed.png" alt="" />rss</a></span><br/>
+            <span class="feed_link">
+                <a href="{{ atom_url }}{% if request.GET.tag %}?tag={{ request.GET.tag }}{% endif %}">
+                    <img src="{{ MEDIA_URL }}/images/icons/feed.png" alt="" />atom</a></span>
+        </div>
+</div>
+</div>
+

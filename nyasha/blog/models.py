@@ -72,11 +72,11 @@ class Post(NotDeletedModel):
         return '#%s'%self.pk
 
     @models.permalink
-    def get_url(self):
+    def get_absolute_url(self):
         return ('post_view', (),{'post_pk':self.pk})
 
     def get_full_url(self):
-        return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_url())
+        return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_absolute_url())
 
 
 
@@ -123,11 +123,14 @@ class Comment(MPTTModel, NotDeletedModel):
         return '#%s/%s'%(self.post_id, self.number)
 
     @models.permalink
-    def get_url(self):
+    def get_post_url(self):
         return ('post_view', (),{'post_pk':self.post_id})
 
+    def get_absolute_url(self):
+        return '%s#%s'%(self.get_post_url(), self.number)
+
     def get_full_url(self):
-        return 'http://%s%s#%s'%(settings.SERVER_DOMAIN, self.get_url(), self.number)
+        return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_absolute_url())
 
 class Tag(models.Model):
     name = models.CharField(max_length=42, unique=True)

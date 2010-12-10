@@ -14,6 +14,17 @@ auth_patterns = patterns('',
         url(r'^logout/$','django.contrib.auth.views.logout', kwargs={'next_page':'/'}, name='logout'),
     )
 
+from feeds import BlogRssFeed, BlogAtomFeed
+rss_patterns = patterns('',
+        url(r'^last/$', BlogRssFeed(), name='rss_blog'),
+        url(r'^u/(?P<username>\w+)$', BlogRssFeed(), name='rss_blog'),
+        )
+
+atom_patterns = patterns('',
+        url(r'^last/$', BlogAtomFeed(), name='atom_blog'),
+        url(r'^u/(?P<username>\w+)$', BlogAtomFeed(), name='atom_blog'),
+        )
+
 urlpatterns = patterns('blog.views',
     # Example:
     url(r'^help/$', 'help', name='help'),
@@ -36,4 +47,6 @@ urlpatterns = patterns('blog.views',
 
     # Uncomment the next line to enable the admin:
     # (r'^admin/', include(admin.site.urls)),
+    url(r'^rss/', include(rss_patterns)),
+    url(r'^atom/', include(atom_patterns)),
 )
