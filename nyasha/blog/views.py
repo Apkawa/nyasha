@@ -318,10 +318,6 @@ def profile_edit(request):
     form_p.process()
     if form_p.is_valid():
         profile = form_p.form.save()
-        new_username = form_p.data['username']
-        if user.username != new_username:
-            user.username = new_username
-            user.save()
         return redirect('profile_edit')
 
     secret_hash = hashlib.sha1("%s%s"%(random.randint(42,424242), settings.SECRET_KEY)).hexdigest()
