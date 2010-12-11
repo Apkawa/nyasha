@@ -1,0 +1,25 @@
+{% load cache %}
+{% cache 60 "post_comment_sidebar" %}
+<div class="sidebar_wrapper">
+    <div class="sidebar_block">
+        <div class="sidebar_header">
+            <h2>{{ _("Posts and comments")|capfirst }}</h2>
+        </div>
+        <div class="sidebar_content">
+            {% for m in messages %}
+            <div class="user_row" style="overflow:hidden;">
+                    <a href="{% url user_blog m.user.username %}" title="@{{ m.user.username }}">
+                {% if m.user.profile.avatar %}
+                    <img class="small_avatar" src="{{ m.user.profile.avatar.url_22 }}" alt="@{{ m.user.username }}"/>
+                {% else %}
+                    <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/22.png" alt="@{{ m.user.username }}"/>
+                    {% endif %}</a>
+                <a href="{{ m.get_absolute_url }}">{{ m.get_number }}</a>
+                
+                {{ m.body|truncatewords:"6" }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endcache %}
