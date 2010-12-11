@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
 import re
+import random
+import hashlib
+import urllib
+
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
+
 from django.http import HttpResponse, Http404
 from django.db.models import Count,Q
 
@@ -17,10 +23,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 
-from models import Post, Subscribed, Tag, Comment, Profile
+from loginza.models import OpenID
+from models import Post, Subscribed, Tag, Comment, Profile, UserOpenID
 from jabber_daemon.core import Message
 from jabber_daemon.models import SendQueue
 
+from utils import get_randstr
 from utils.shortcuts import render_template
 from utils.form_processor import FormProcessor
 
@@ -28,6 +36,15 @@ from forms import PostForm, ProfileEditForm
 
 from django.views.decorators.cache import cache_page
 
+
+def send_alert(to_user, message, sender=None):
+    SendQueue.send_message(to_user.email, message)
+
+def send_broadcast(to_subscribe, message, sender=None, exclude_user=()):
+    subscribes = Subscribed.get_subscribes_by_obj(to_subscribe
+            ).select_related('user').exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
+    for s in subscribes:
+        SendQueue.send_message(s.user.email, message)
 
 def handler500(request, template_name='500.html'):
     """
@@ -51,14 +68,6 @@ def handler404(request, template_name='404.html'):
 
 
 
-def send_alert(to_user, message, sender=None):
-    SendQueue.send_message(to_user.email, message)
-
-def send_broadcast(to_subscribe, message, sender=None, exclude_user=()):
-    subscribes = Subscribed.get_subscribes_by_obj(to_subscribe
-            ).select_related('user').exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
-    for s in subscribes:
-        SendQueue.send_message(s.user.email, message)
 
 MAX_TAG_COUNT = 5
 SPLIT_MESSAGE_REGEXP = re.compile('^\s*(?:\*\S+\s+){,%s}'%MAX_TAG_COUNT)
@@ -113,6 +122,41 @@ def jabber_login(request, token):
     login_user(request, user)
     cache.delete(token)
     return redirect('/')
+
+def login(request):
+    if 'openid_pk' in request.session:
+        openid_pk = request.session['openid_pk']
+
+        is_new_user = False
+        openid = get_object_or_404(OpenID, pk=openid_pk)
+        try:
+            useropenid = UserOpenID.objects.get(openid=openid)
+            user = useropenid.user
+        except UserOpenID.DoesNotExist:
+            user = User.objects.create(username=get_randstr())
+            useropenid, create = UserOpenID.objects.get_or_create(user=user, openid=openid)
+            openid_profile_data = openid.get_profile_data()
+            if openid_profile_data and 'photo' in openid_profile_data:
+                profile = user.get_profile()
+                profile.update_avatar_from_data(urllib.urlopen(openid_profile_data['photo']).read())
+            is_new_user = True
+
+        login_user(request, user)
+        del request.session['openid_pk']
+        if is_new_user:
+            return redirect("profile_edit")
+        return redirect('/')
+
+
+    secret_hash = hashlib.sha1("%s%s"%(random.randint(42,424242), settings.SECRET_KEY)).hexdigest()
+    request.session['openid_secret_hash'] = secret_hash
+    context = {}
+    context['secret_hash'] = secret_hash
+    context['settings'] = settings
+    return render_template(request, 'blog/login.html', context)
+
+
+
 
 def main(request):
     context = {}

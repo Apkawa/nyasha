@@ -1,7 +1,6 @@
-{% extends "blog/base.html" %}
-{% block content %}
-<div class="form_wrap span-15">
-    <form action="." method="POST" enctype="multipart/form-data">
+{% extends "blog/base_page.html" %}
+{% block page %}
+    <form class='form_wrap' action="." method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <table>
             <tbody>
@@ -25,5 +24,4 @@
             </tbody>
         </table>
     </form>
-</div>
-{% endblock content %}
+{% endblock page %}

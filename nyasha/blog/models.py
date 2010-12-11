@@ -218,6 +218,10 @@ class Profile(models.Model):
     def get_full_url(self):
         return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_url())
 
+    def update_avatar_from_data(self, data):
+        tf = tempfile.NamedTemporaryFile()
+        self.avatar.save(tf.name, ContentFile(data))
+
     def update_from_vcard(self, vcard):
         if vcard.photo:
             tf = tempfile.NamedTemporaryFile()
@@ -258,16 +262,6 @@ class Profile(models.Model):
                     WHERE (NOT (blog_subscribed.is_deleted = true ) 
                     AND blog_subscribed.subscribed_user_id = auth_user.id )
                     '''})
-        '''
-        for user in users:
-            if not user.my_readers_count:
-                flood_level = 0
-            elif user.my_readers_count > user.i_read_count:
-                flood_level = float(user.my_readers_count - user.i_read_count) / user.my_readers_count * 100
-            else:
-                flood_level = float(user.i_read_count - user.my_readers_count) / user.i_read_count * 100
-            user.flood_level = flood_level
-        '''
         return users
 
 
@@ -275,3 +269,17 @@ def create_user_profile(sender, instance, created, **kwargs):
    profile, created = Profile.objects.get_or_create(user=instance)
 
 post_save.connect(create_user_profile, sender=User)
+
+
+class UserOpenID(models.Model):
+    STATUS_CHOICES = (
+            ('d', 'disabled'),
+            ('a', 'active'),
+            )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='d')
+
+    user = models.ForeignKey('auth.User')
+    openid = models.ForeignKey('loginza.OpenID')
+
+    class Meta:
+        unique_together = ('user', 'openid')

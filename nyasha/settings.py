@@ -71,7 +71,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
@@ -112,6 +112,7 @@ INSTALLED_APPS = (
     #
     'blog',
     'jabber_daemon',
+    'loginza',
 )
 
 AUTH_PROFILE_MODULE = 'blog.Profile'

@@ -1,5 +1,5 @@
-{% extends "blog/base.html" %}
-{% block content %}
+{% extends "blog/base_page.html" %}
+{% block page %}
     <div class="form_wrap prepend-2 span-10">
     {% for u in users %}
         <div class="user_row">
@@ -12,4 +12,4 @@
         </div>
     {% endfor %}
     </div>
-{% endblock content %}
+{% endblock page %}

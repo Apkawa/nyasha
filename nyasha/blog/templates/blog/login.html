@@ -1,0 +1,27 @@
+{% extends "blog/base_page.html" %}
+{% block add_js %}
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function() {
+                                    
+                });
+    </script>
+    <script src="https://s3-eu-west-1.amazonaws.com/s1.loginza.ru/js/widget.js" type="text/javascript"></script>
+{% endblock add_js %}
+{% block page %}
+    <h2>Зайти в вебморду можно несколькими способами.</h2>
+    <ol>
+        <li><h3>Традиционный способ</h3> 
+            <p>Добавьте в ростер бота <strong>{{ settings.JABBER_BOT_SETTINGS.jid }}</strong></p>
+            <p>Отправьте ему сообщение <strong>LOGIN</strong>, он вернет вам уникальную ссылку для логина, которая будет действовать в течение 3 минут</p>
+        </li>
+        <li>
+        	<h3>Используя OpenID провайдер</h3>
+            <p>
+                Если профиля еще нет в системе, то автоматически сгенерируется новый.
+            </p>
+            <p>
+                <a href="https://loginza.ru/api/widget?lang=en&token_url={{ "http://"|urlencode }}{{ request.get_host|urlencode }}{% url openid_login secret_hash %}" class="loginza">Войти через OpenID</a>
+            </p>
+        </li>
+    </ol>
+{% endblock page %}

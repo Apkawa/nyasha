@@ -10,7 +10,9 @@ personal_patterns = patterns('blog.views',
         )
 
 auth_patterns = patterns('',
-        url(r'^login/(?P<token>[\w]{40})/', 'blog.views.jabber_login', name='jabber_login'),
+        url(r'^login/(?P<token>[\w]{40})/$', 'blog.views.jabber_login', name='jabber_login'),
+        url(r'^login/$', 'blog.views.login', name='login'),
+        url(r'^login/openid/(?P<secret_hash>\w+)/$', 'loginza.views.openid_login', name='openid_login'),
         url(r'^logout/$','django.contrib.auth.views.logout', kwargs={'next_page':'/'}, name='logout'),
     )
 
