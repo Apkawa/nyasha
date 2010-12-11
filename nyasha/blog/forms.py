@@ -30,9 +30,6 @@ class ProfileEditForm(forms.ModelForm):
             user.username = new_username
             user_save = True
         new_email = data['email']
-        if new_email and user.email != new_email:
-            user.email = new_email
-            user_save = True
 
         if user_save:
             user.save()

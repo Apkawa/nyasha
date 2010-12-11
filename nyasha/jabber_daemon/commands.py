@@ -321,6 +321,9 @@ def user_feed_messages(request, numpage, username=None):
     return _render_posts(posts, numpage)
 
 def personal_message_command(request, username, message):
+    message = message.strip()
+    if not message:
+        return "Empty message."
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:

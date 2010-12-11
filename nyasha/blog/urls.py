@@ -39,6 +39,8 @@ urlpatterns = patterns('blog.views',
     url(r'^u/(?P<username>[\w]+)/', include(personal_patterns)),
     url(r'^profile/edit/$', 'profile_edit', name='profile_edit'),
     url(r'^profile/openid/(?P<openid_pk>\d+)/$', 'openid_profile_delete', name='openid_profile_delete'),
+    url(r'^profile/confrim_jid/(?P<token>\w{,50})/$', 'confirm_jid', name='confirm_jid'),
+
 
     #Top
     url(r'^users/$', 'user_list', name='user_list'),

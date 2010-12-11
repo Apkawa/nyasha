@@ -320,6 +320,12 @@ def profile_edit(request):
     form_p.process()
     if form_p.is_valid():
         profile = form_p.form.save()
+        new_email = form_p.data.get('email')
+        if new_email and user.email != new_email:
+            token = hashlib.sha1('%s%s%s'%(new_email, settings.SECRET_KEY, random.randint(42, 424242))).hexdigest()
+            confirm_url = 'http://%s%s'%(request.get_host(), reverse('confirm_jid', kwargs={'token':token}))
+            cache.set(token, new_email, 60*5)
+            send_alert(user, '''Confirm url for change jid from %s to %s: \n%s'''%(user.email, new_email, confirm_url))
         return redirect('profile_edit')
 
     secret_hash = hashlib.sha1("%s%s"%(random.randint(42,424242), settings.SECRET_KEY)).hexdigest()
@@ -360,4 +366,16 @@ def user_list(request, my_readers=False, i_read=False, username=None):
     context = {}
     context['users'] = users
     return render_template(request, 'blog/user_list.html', context)
+
+
+@login_required
+def confirm_jid(request, token):
+    jid = cache.get(token)
+    if not jid:
+        raise Http404
+
+    user = request.user
+    user.email = jid
+    user.save()
+    return redirect('profile_edit')
 
