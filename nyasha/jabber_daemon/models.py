@@ -37,18 +37,12 @@ class SendQueue(models.Model):
         response_mes = Message(
                 from_jid=self.from_jid, to_jid=self.to_jid,
                 stanza_type='chat', body=self.message)
-        if not settings.BROADCAST_SEND:
-            print response_mes
-            return
         stream.send(response_mes)
 
     @classmethod
     def send_message(cls, to_jid, message, from_jid=settings.JABBER_BOT_SETTINGS['jid'], stream=None):
         if not stream:
             stream = settings.JABBER_BOT_SETTINGS.get('stream')
-        if not settings.BROADCAST_SEND:
-            print to_jid, ': ', message
-            return
         if stream:
             response_mes = Message(
                     from_jid=smart_unicode(from_jid), to_jid=smart_unicode(to_jid),

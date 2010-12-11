@@ -42,6 +42,8 @@ def send_alert(to_user, message, sender=None):
     SendQueue.send_message(to_user.email, message)
 
 def send_broadcast(to_subscribe, message, sender=None, exclude_user=()):
+    if not settings.BROADCAST_SEND:
+        return
     subscribes = Subscribed.get_subscribes_by_obj(to_subscribe
             ).select_related('user').exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
     for s in subscribes:

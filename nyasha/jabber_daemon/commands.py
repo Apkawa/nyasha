@@ -320,6 +320,18 @@ def user_feed_messages(request, numpage, username=None):
             ).distinct()
     return _render_posts(posts, numpage)
 
+def personal_message_command(request, username, message):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return "Unknown user, sorry."
+    context = {}
+    context['user'] = user
+    context['message'] = message
+    personal_message = render_to_string('jabber/personal_message.txt', context)
+    send_alert(user, personal_message)
+    return "Send personal message"
+
 @cache_func(30)
 def show_tags_command(request):
     '''

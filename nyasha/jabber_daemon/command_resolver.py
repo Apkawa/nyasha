@@ -45,6 +45,8 @@ command_patterns = cmd_patterns('jabber_daemon.commands',
         cmd(r'^VCARD$', 'vcard_command', doc='VCARD - Update "About" info from Jabber vCard'),
         cmd(r'^LOGIN$', 'login_command', doc='LOGIN - login in web ui'),
 
+        cmd(r'^PM @(?P<username>[\w]+)\s+(?P<message>.*)$', 'personal_message_command', doc='Send personal message'),
+
         cmd(r'^OFF$', 'off_on_command', doc='OFF - Disable subscriptions delivery'),
         cmd(r'^ON$', 'off_on_command', doc='ON - Enable subscriptions delivery', extra_kwargs={'off':False}),
 
