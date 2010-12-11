@@ -326,6 +326,7 @@ def personal_message_command(request, username, message):
     except User.DoesNotExist:
         return "Unknown user, sorry."
     context = {}
+    context['from_user'] = request.user
     context['user'] = user
     context['message'] = message
     personal_message = render_to_string('jabber/personal_message.txt', context)

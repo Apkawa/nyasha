@@ -1,1 +1,1 @@
-PM @{{ user.username }}: {{ message }}
+PM @{{ from_user.username }}: {{ message }}
