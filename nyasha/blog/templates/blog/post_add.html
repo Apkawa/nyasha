@@ -1,5 +1,8 @@
-{% extends "blog/base.html" %}
-{% block content %}
+{% extends "blog/base_page.html" %}
+{% block page_head %}
+    <h1>Add post/comment</h1>
+{% endblock page_head %}
+{% block page %}
     <div class="form_wrap span_15">
     <form action="." method="POST">
         {% csrf_token %}
@@ -16,4 +19,4 @@
     </table>
     </form>
 </div>
-{% endblock content %}
+{% endblock page %}

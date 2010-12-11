@@ -1,5 +1,9 @@
 {% extends "blog/base.html" %}
 {% block content %}
+    <div id="content_header" class="span-15 a-center">
+        {% block page_head %}
+        {% endblock page_head %}
+    </div>
     <div class="span-15" id="page">
         <div style="padding: 10px;">
         {% block page %}

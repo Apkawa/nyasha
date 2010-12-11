@@ -2,6 +2,9 @@
 {% block add_js %}
     <script src="https://s3-eu-west-1.amazonaws.com/s1.loginza.ru/js/widget.js" type="text/javascript"></script>
 {% endblock add_js %}
+{% block page_head %}
+    <h1>{{ _("your profile")|capfirst }}</h1>
+{% endblock page_head %}
 {% block page %}
     <form class='form_wrap' action="." method="POST" enctype="multipart/form-data">
         {% csrf_token %}

@@ -218,12 +218,14 @@ def subscribe_show_command(request):
     subscribe_list = '\n'.join(["@%s"%s for s in subscribed_query])
     return "You are subscribed to users:\n%s"%subscribe_list 
 
-def subscribe_toggle_command(request, post_pk=None, username=None, delete=False):
+def subscribe_toggle_command(request, post_pk=None, username=None, tagname=None, delete=False):
     '''
     S #123 - Subscribe to message replies
     S @username - Subscribe to user's blog
+    S *tag - Subscribe to tag
     U #123 - Unsubscribe from comments
     U @username - Unsubscribe from user's blog
+    U *tag - Unsubscribe from tag
     '''
     kw = {}
     kw['user'] = request.user
@@ -241,6 +243,13 @@ def subscribe_toggle_command(request, post_pk=None, username=None, delete=False)
         except User.DoesNotExist:
             return "Unknown user, sorry."
 
+    if tagname:
+        try:
+            tag = Tag.objects.get(name=tagname)
+            kw['subscribed_tag'] = tag
+        except Tag.DoesNotExist:
+            return "Tag not found."
+
     if not delete:
         subscribe, created = Subscribed.admin_objects.get_or_create(**kw)
         if not created and not subscribe.is_deleted:
@@ -255,6 +264,8 @@ def subscribe_toggle_command(request, post_pk=None, username=None, delete=False)
                 return 'Subscribed to @%s!'%username
             elif post_pk:
                 return 'Subscribed (%i replies).'%post.comments.count()
+            elif tagname:
+                return 'Subscribed to *%s.'%tagname
     elif delete:
         Subscribed.objects.filter(**kw).update(is_deleted=True)
         return 'Unsubscribed!'

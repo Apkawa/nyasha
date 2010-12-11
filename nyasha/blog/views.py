@@ -265,8 +265,11 @@ def post_add(request):
             user = request.user
             post = post_in_blog(message, user, 'web')
             #TODO:
-            send_broadcast(post, render_post(post), exclude_user=[user])
-            send_broadcast(user, render_post(post), exclude_user=[user])
+            post_body = render_post(post)
+            send_broadcast(post, post_body, exclude_user=[user])
+            send_broadcast(user, post_body, exclude_user=[user])
+            for tag in post.tags.all():
+                send_broadcast(tag, post_body, exclude_user=[user])
             return redirect('post_view', post_pk=post.pk)
         return redirect('post_add')
 
@@ -321,11 +324,15 @@ def profile_edit(request):
     if form_p.is_valid():
         profile = form_p.form.save()
         new_email = form_p.data.get('email')
-        if new_email and user.email != new_email:
+        if not user.email and new_email:
+            user.email = new_email
+            user.save()
+        elif new_email and user.email != new_email:
             token = hashlib.sha1('%s%s%s'%(new_email, settings.SECRET_KEY, random.randint(42, 424242))).hexdigest()
             confirm_url = 'http://%s%s'%(request.get_host(), reverse('confirm_jid', kwargs={'token':token}))
             cache.set(token, new_email, 60*5)
             send_alert(user, '''Confirm url for change jid from %s to %s: \n%s'''%(user.email, new_email, confirm_url))
+
         return redirect('profile_edit')
 
     secret_hash = hashlib.sha1("%s%s"%(random.randint(42,424242), settings.SECRET_KEY)).hexdigest()

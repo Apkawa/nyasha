@@ -173,14 +173,17 @@ class Subscribed(NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name="me_subscribe")
     subscribed_user = models.ForeignKey('auth.User', related_name='subscribed_user', blank=True, null=True)
     subscribed_post = models.ForeignKey('Post', related_name='subscribed_post', blank=True, null=True)
+    subscribed_tag = models.ForeignKey('Tag', related_name='subscribed_tag', blank=True, null=True)
     datetime = models.DateTimeField(auto_now=True)
 
     @classmethod
-    def get_subscribes_by_obj(self, obj):
+    def get_subscribes_by_obj(cls, obj):
         if isinstance(obj, Post):
             return obj.subscribed_post.filter()
         elif isinstance(obj, User):
             return obj.subscribed_user.filter()
+        elif isinstance(obj, Tag):
+            return obj.subscribed_tag.filter()
 
 
 def avatar_upload_to(instance, filename):
