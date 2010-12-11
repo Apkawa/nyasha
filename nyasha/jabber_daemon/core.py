@@ -48,6 +48,9 @@ class Request(object):
     def get_sender(self):
         return self.stream.send
 
+    def __repr__(self):
+        return '<%s object %s -> %s: %s'%(self.__class__.__name__, self.from_jid, self.to_jid, self.body)
+
 
 class CommandPatterns(object):
     __namespace = None

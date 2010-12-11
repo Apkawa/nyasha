@@ -18,7 +18,7 @@ class OpenID(models.Model):
              ('lastfm', 'lastfm'),
              ('verisign', 'verisign'),
              ('aol', 'aol'),
-             ('steam', 'steam'),
+             #('steam', 'steam'),
              ('openid', 'openid'),
              ]
 

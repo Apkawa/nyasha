@@ -1,4 +1,7 @@
 {% extends "blog/base_page.html" %}
+{% block add_js %}
+    <script src="https://s3-eu-west-1.amazonaws.com/s1.loginza.ru/js/widget.js" type="text/javascript"></script>
+{% endblock add_js %}
 {% block page %}
     <form class='form_wrap' action="." method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -24,4 +27,29 @@
             </tbody>
         </table>
     </form>
+    <div>
+        <h3>{{ _("Current openid logins")|capfirst }}</h3>
+    {% for uopenid in user.useropenids.all %}
+        {% with uopenid.openid as openid %}
+            <img src="http://loginza.ru/img/providers/{{ openid.provider }}.png" alt="" />
+            {% with openid.get_profile_data as profile_data %}
+                {{ profile_data.nickname }}
+            {% endwith %}
+            <a href="{% url openid_profile_delete openid.pk %}">[x]</a>
+        {% endwith %}
+    {% endfor %}
+</div>
+    <div id="add_openid_login">
+        <h3>{{ _("add other openid login")|capfirst }}</h3>
+        <table class="noborder">
+                {% for provider_key, provider_name in providers %}
+                    <!-- {% cycle 'one' 'two' 'three' as row_cycle %} -->
+                    {% if row_cycle == 'one' %}
+                        <tr>
+                    {% endif %}
+                    <td><a href="https://loginza.ru/api/widget?lang=en&provider={{ provider_key }}&token_url={% filter urlencode %}http://{{ request.get_host }}{% url openid_login provider_key secret_hash %}?redirect_url={% url profile_edit %}{% endfilter %}" class="loginza"><img src="https://s3-eu-west-1.amazonaws.com/s1.loginza.ru/img/widget/{{ provider_key }}.png" alt="Войти через {{ provider_name }}" /></a></td>
+                    {% if row_cycle == 'three' %}</tr>{% endif %}
+            {% endfor %}
+        </table>
+    </div>
 {% endblock page %}

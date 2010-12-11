@@ -20,7 +20,23 @@
                 Если профиля еще нет в системе, то автоматически сгенерируется новый.
             </p>
             <p>
-                <a href="https://loginza.ru/api/widget?lang=en&token_url={{ "http://"|urlencode }}{{ request.get_host|urlencode }}{% url openid_login secret_hash %}" class="loginza">Войти через OpenID</a>
+                {% for provider_key, provider_name in providers %}
+            {% endfor %}
+            <table class="noborder">
+                {% for provider_key, provider_name in providers %}
+                    <!-- {% cycle 'one' 'two' 'three' as row_cycle %} -->
+                    {% if row_cycle == 'one' %}
+                        <tr>
+                    {% endif %}
+                    <td>
+                    <a href="https://loginza.ru/api/widget?lang=en&provider={{ provider_key }}&token_url={% filter urlencode %}http://{{ request.get_host }}{% url openid_login provider_key secret_hash %}?redirect_url={% url login %}{% endfilter %}" class="loginza">
+                        <img src="https://s3-eu-west-1.amazonaws.com/s1.loginza.ru/img/widget/{{ provider_key }}.png" alt="Войти через {{ provider_name }}" />
+                
+                    </a>
+                    </td>
+                    {% if row_cycle == 'three' %}</tr>{% endif %}
+            {% endfor %}
+        </table>
             </p>
         </li>
     </ol>

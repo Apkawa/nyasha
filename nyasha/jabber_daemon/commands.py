@@ -27,12 +27,11 @@ from django.conf import settings
 
 from core import Iq, VCard
 from blog.models import Post, Comment, Subscribed, Recommend, Tag
-from blog.views import render_post, render_comment, send_broadcast, send_alert
+from blog.views import render_post, render_comment, send_broadcast, send_alert, cache_func
 
 from django.db.models import Count, Q
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
-from utils.cache import cache_func
 
 @cache_func(3000)
 def help_command(request):
@@ -281,12 +280,15 @@ def _render_posts(queryset, numpage=1,  per_page=10):
     body = render_to_string('jabber/posts.txt', context)[:-1]
     return body
 
+@cache_func(30)
 def last_messages(request):
     return _render_posts(Post.objects.comments_count().filter())
 
+@cache_func(30)
 def last_messages_by_tag(request, tag):
     return _render_posts(Post.objects.comments_count().filter(tags__name=tag))
 
+@cache_func(30)
 def last_messages_by_user(request, username, tag=None):
     '''
     # - Show last messages from your feed (## - second page, ...)
@@ -301,6 +303,7 @@ def last_messages_by_user(request, username, tag=None):
         kw['tags__name'] = tag
     return _render_posts(Post.objects.comments_count().filter(**kw))
 
+@cache_func(30)
 def user_feed_messages(request, numpage, username=None):
     numpage = len(numpage)
     if username:
@@ -317,6 +320,7 @@ def user_feed_messages(request, numpage, username=None):
             ).distinct()
     return _render_posts(posts, numpage)
 
+@cache_func(30)
 def show_tags_command(request):
     '''
     * - Show your tags
@@ -325,6 +329,7 @@ def show_tags_command(request):
     return "Your tags: (tag - messages)\n\n%s"%'\n'.join("*%s - %s"%(t['name'],t['count']) for t in tags)
 
 
+@cache_func(30)
 def user_info(request, username):
     try:
         user = User.objects.get(username=username)
@@ -335,7 +340,6 @@ def user_info(request, username):
     context['userprofile'] = user.get_profile()
     context['last_messages_and_recommendations'] = Post.objects.filter(Q(recommends__user=user)|Q(user=user)).order_by('-id')[:10]
     return render_to_string('jabber/user_info.txt', context)
-
 
 def vcard_command(request):
     def vcard_success(stanza):

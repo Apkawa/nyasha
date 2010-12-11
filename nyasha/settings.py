@@ -119,7 +119,8 @@ AUTH_PROFILE_MODULE = 'blog.Profile'
 
 SERVER_DOMAIN = '127.0.0.1:8000'
 #CACHE_BACKEND = 'locmem://'
-CACHE_BACKEND = 'file:///tmp/django_cache'
+#CACHE_BACKEND = 'file:///tmp/django_cache'
+CACHE_BACKEND = 'memcached://127.0.0.1:11211'
 
 COMPRESS = True
 COMPRESS_VERSION = True

@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
-from functools import wraps, update_wrapper, WRAPPER_ASSIGNMENTS
-from django.core.cache import cache
 
 
 
 def base_make_key(func, *args, **kwargs):
-    return "%s%s%s"%(func.__name__, args, kwargs)
+
+    key = "%s%s%s"%(func.__name__, args, kwargs)
+    print key
+    return hash(key)
 
 def cache_func(*args, **kwargs):
     def make_decorator(expire=30, cache_key_func=base_make_key):
+        from functools import wraps
         def decorator(func):
             @wraps(func)
             def wrapped_func(request, *args, **kwargs):
+                from django.core.cache import cache
 
                 cache_key = cache_key_func(func, request, *args, **kwargs)
+                print cache_key
                 result = cache.get(cache_key)
                 if not result:
                     print result

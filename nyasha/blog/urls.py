@@ -13,6 +13,7 @@ auth_patterns = patterns('',
         url(r'^login/(?P<token>[\w]{40})/$', 'blog.views.jabber_login', name='jabber_login'),
         url(r'^login/$', 'blog.views.login', name='login'),
         url(r'^login/openid/(?P<secret_hash>\w+)/$', 'loginza.views.openid_login', name='openid_login'),
+        url(r'^login/openid/(?P<provider>\w+)/(?P<secret_hash>\w+)/$', 'loginza.views.openid_login', name='openid_login'),
         url(r'^logout/$','django.contrib.auth.views.logout', kwargs={'next_page':'/'}, name='logout'),
     )
 
@@ -37,6 +38,7 @@ urlpatterns = patterns('blog.views',
     url(r'^$', 'user_blog', name='main'),
     url(r'^u/(?P<username>[\w]+)/', include(personal_patterns)),
     url(r'^profile/edit/$', 'profile_edit', name='profile_edit'),
+    url(r'^profile/openid/(?P<openid_pk>\d+)/$', 'openid_profile_delete', name='openid_profile_delete'),
 
     #Top
     url(r'^users/$', 'user_list', name='user_list'),

@@ -278,7 +278,7 @@ class UserOpenID(models.Model):
             )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='d')
 
-    user = models.ForeignKey('auth.User')
+    user = models.ForeignKey('auth.User', related_name="useropenids")
     openid = models.ForeignKey('loginza.OpenID')
 
     class Meta:

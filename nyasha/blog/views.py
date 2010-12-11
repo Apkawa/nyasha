@@ -32,9 +32,10 @@ from utils import get_randstr
 from utils.shortcuts import render_template
 from utils.form_processor import FormProcessor
 
+from utils.cache import cache_func
+
 from forms import PostForm, ProfileEditForm
 
-from django.views.decorators.cache import cache_page
 
 
 def send_alert(to_user, message, sender=None):
@@ -141,8 +142,8 @@ def login(request):
                 profile.update_avatar_from_data(urllib.urlopen(openid_profile_data['photo']).read())
             is_new_user = True
 
-        login_user(request, user)
         del request.session['openid_pk']
+        login_user(request, user)
         if is_new_user:
             return redirect("profile_edit")
         return redirect('/')
@@ -153,9 +154,12 @@ def login(request):
     context = {}
     context['secret_hash'] = secret_hash
     context['settings'] = settings
+    context['providers'] = OpenID.PROVIDER_CHOICES
     return render_template(request, 'blog/login.html', context)
 
-
+def _cache_key_func_for_view(func, request, *args, **kwargs):
+    key = "%s_%s_%s_%s_%s"%(func.__name__, request.user, args, kwargs, request.get_full_path())
+    return hash(key)
 
 
 def main(request):
@@ -163,7 +167,7 @@ def main(request):
     return render_template(request, 'blog/main.html', context)
 
 PER_PAGE = 10
-#@cache_page(60)
+@cache_func(30, cache_key_func=_cache_key_func_for_view)
 def user_blog(request, username=None):
     page = request.GET.get('page', 1)
     tagname = request.GET.get('tag')
@@ -208,7 +212,7 @@ def user_blog(request, username=None):
     context['page'] = page
     return render_template(request, 'blog/user_blog.html', context)
 
-#@cache_page(60)
+@cache_func(30, cache_key_func=_cache_key_func_for_view)
 def post_view(request, post_pk):
     if 'tree' in request.GET:
         is_tree = bool(request.GET.get('tree'))
@@ -302,6 +306,13 @@ def help(request):
 @login_required
 def profile_edit(request):
     user = request.user
+    if 'openid_pk' in request.session:
+        openid_pk = request.session['openid_pk']
+        openid = get_object_or_404(OpenID, pk=openid_pk)
+        useropenid, created = UserOpenID.objects.get_or_create(openid=openid, defaults={'user':user})
+        del request.session['openid_pk']
+        return redirect('profile_edit')
+
     profile = user.get_profile()
     form_p = FormProcessor(ProfileEditForm, request, instance=profile)
     form_p.process()
@@ -313,13 +324,24 @@ def profile_edit(request):
             user.save()
         return redirect('profile_edit')
 
+    secret_hash = hashlib.sha1("%s%s"%(random.randint(42,424242), settings.SECRET_KEY)).hexdigest()
+    request.session['openid_secret_hash'] = secret_hash
+
     context = {}
+    context['secret_hash'] = secret_hash
     context['user_profile'] = profile
     context['profile_form'] = form_p.form
+    context['providers'] = OpenID.PROVIDER_CHOICES
     return render_template(request, 'blog/profile_edit.html', context)
 
+@login_required
+def openid_profile_delete(request, openid_pk):
+    redirect_url = request.GET.get('redirect_url', request.META.get("HTTP_REFERER",'/'))
+    UserOpenID.objects.filter(openid=openid_pk, user=request.user).delete()
+    return redirect(redirect_url)
 
-#@cache_page(60)
+
+@cache_func(666, cache_key_func=_cache_key_func_for_view)
 def user_list(request, my_readers=False, i_read=False, username=None):
     if username:
         user = get_object_or_404(User, username=username)
