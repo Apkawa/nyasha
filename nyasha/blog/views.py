@@ -51,7 +51,7 @@ def send_broadcast(to_subscribe, message, sender=None, exclude_user=()):
         return
     subscribes = Subscribed.get_subscribes_by_obj(to_subscribe
             ).select_related('user').exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
-    send_subscribes_broadcast(subscribes)
+    send_subscribes_broadcast(subscribes, message)
 
 def handler500(request, template_name='500.html'):
     """

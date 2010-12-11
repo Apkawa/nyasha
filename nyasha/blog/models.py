@@ -193,6 +193,19 @@ class Subscribed(NotDeletedModel):
             subs = cls.objects.filter(subscribed_tag=tag)
         return subs.select_related('user')
 
+    @classmethod
+    def get_all_subscribes_by_post(cls, post):
+        subscribes = cls.objects.filter(
+                models.Q(subscribed_user=post.user)\
+                |models.Q(subscribed_post=post)\
+                |models.Q(subscribed_tag__in=post.tags.all())).exclude(
+                        user=post.user).exclude(
+                                user__profile__is_off=True)
+        subscribes.query.group_by = ['user_id']
+        return subscribes.select_related('user')
+
+
+
 
 
 
