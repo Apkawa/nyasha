@@ -185,6 +185,16 @@ class Subscribed(NotDeletedModel):
         elif isinstance(obj, Tag):
             return obj.subscribed_tag.filter()
 
+    @classmethod
+    def get_subscribes_by_tag(cls, tag):
+        if getattr(tag, '__iter__', False):
+            subs = cls.objects.filter(subscribed_tag__in=tag).distinct()
+        else:
+            subs = cls.objects.filter(subscribed_tag=tag)
+        return subs.select_related('user')
+
+
+
 
 def avatar_upload_to(instance, filename):
     filename = sha1(smart_str(instance.user.email)).hexdigest()

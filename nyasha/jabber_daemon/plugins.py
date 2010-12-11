@@ -59,8 +59,7 @@ class PrivateMessageHandler(BaseMessageHandler):
             post_body = render_post(post)
             send_broadcast(post, post_body, sender=self.send, exclude_user=[user])
             send_broadcast(user, post_body, sender=self.send, exclude_user=[user])
-            for tag in post.tags.all():
-                send_broadcast(tag, post_body, exclude_user=[user])
+            send_subscribes_broadcast(Subscribed.get_subscribes_by_tag(post.tags.filter()), post_body, exclude_user=[user])
             if post:
                 text = '''New message posted\n%s %s'''%(post.get_number(), post.get_full_url())
 

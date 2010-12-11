@@ -41,13 +41,16 @@ from forms import PostForm, ProfileEditForm
 def send_alert(to_user, message, sender=None):
     SendQueue.send_message(to_user.email, message)
 
+def send_subscribes_broadcast(subscribes_set, message):
+    for s in subscribes_set:
+        SendQueue.send_message(s.user.email, message)
+
 def send_broadcast(to_subscribe, message, sender=None, exclude_user=()):
     if not settings.BROADCAST_SEND:
         return
     subscribes = Subscribed.get_subscribes_by_obj(to_subscribe
             ).select_related('user').exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
-    for s in subscribes:
-        SendQueue.send_message(s.user.email, message)
+    send_subscribes_broadcast(subscribes)
 
 def handler500(request, template_name='500.html'):
     """
@@ -268,8 +271,7 @@ def post_add(request):
             post_body = render_post(post)
             send_broadcast(post, post_body, exclude_user=[user])
             send_broadcast(user, post_body, exclude_user=[user])
-            for tag in post.tags.all():
-                send_broadcast(tag, post_body, exclude_user=[user])
+            send_subscribes_broadcast(Subscribed.get_subscribes_by_tag(post.tags.filter()), post_body, exclude_user=[user])
             return redirect('post_view', post_pk=post.pk)
         return redirect('post_add')
 
