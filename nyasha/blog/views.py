@@ -270,9 +270,8 @@ def post_add(request):
             post = post_in_blog(message, user, 'web')
             #TODO:
             post_body = render_post(post)
-            send_broadcast(post, post_body, exclude_user=[user])
-            send_broadcast(user, post_body, exclude_user=[user])
-            send_subscribes_broadcast(Subscribed.get_subscribes_by_tag(post.tags.filter()), post_body, exclude_user=[user])
+            send_subscribes_broadcast(Subscribed.get_all_subscribes_by_post(post),
+                    post_body, exclude_user=[user])
             return redirect('post_view', post_pk=post.pk)
         return redirect('post_add')
 
