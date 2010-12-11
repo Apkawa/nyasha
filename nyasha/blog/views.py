@@ -41,7 +41,8 @@ from forms import PostForm, ProfileEditForm
 def send_alert(to_user, message, sender=None):
     SendQueue.send_message(to_user.email, message)
 
-def send_subscribes_broadcast(subscribes_set, message):
+def send_subscribes_broadcast(subscribes_set, message, exclude_user=()):
+    subscribes_set = subscribes_set.exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
     for s in subscribes_set:
         SendQueue.send_message(s.user.email, message)
 

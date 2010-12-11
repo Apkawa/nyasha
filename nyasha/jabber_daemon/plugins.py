@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.cache import cache
 
-from blog.views import post_in_blog, send_broadcast, render_post
+from blog.views import post_in_blog, send_broadcast, send_subscribes_broadcast, render_post
 from blog.models import Subscribed
 
 from django.db import connection
