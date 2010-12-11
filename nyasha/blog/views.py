@@ -270,7 +270,8 @@ def post_add(request):
         if not command_patterns.find_command(message):
             user = request.user
             post = post_in_blog(message, user, 'web')
-            #TODO:
+            if not post:
+                return redirect('post_add')
             post_body = render_post(post)
             send_subscribes_broadcast(Subscribed.get_all_subscribes_by_post(post),
                     post_body, exclude_user=[user])
