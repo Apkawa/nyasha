@@ -56,10 +56,12 @@ class PrivateMessageHandler(BaseMessageHandler):
         text = command_patterns.execute_command(request)
         if not text:
             post = post_in_blog(message_body, user, from_jid.resource)
-            post_body = render_post(post)
-            send_subscribes_broadcast(Subscribed.get_all_subscribes_by_post(post),
-                    post_body, exclude_user=[user])
-            if post:
+            if not post:
+                text = '''Stop flood'''
+            else:
+                post_body = render_post(post)
+                send_subscribes_broadcast(Subscribed.get_all_subscribes_by_post(post),
+                        post_body, exclude_user=[user])
                 text = '''New message posted\n%s %s'''%(post.get_number(), post.get_full_url())
 
         response_mes = Message(from_jid=message.to_jid,to_jid=message.from_jid, stanza_type=message.type, body=text)

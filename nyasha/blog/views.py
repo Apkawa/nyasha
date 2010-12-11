@@ -91,10 +91,12 @@ def parse_message(body):
 
 def post_in_blog(message, user, from_client='web'):
     tags, message = parse_message(message)
-    post = Post.objects.create(body=message, user=user, from_client=from_client)
-    post.tags = [Tag.objects.get_or_create(name=tag_name)[0] for tag_name in tags]
-    Subscribed.objects.create(user=user, subscribed_post=post)
-    return post
+
+    if not Post.objects.filter(body=message, user=user).exists():
+        post = Post.objects.create(body=message, user=user, from_client=from_client)
+        post.tags = [Tag.objects.get_or_create(name=tag_name)[0] for tag_name in tags]
+        Subscribed.objects.create(user=user, subscribed_post=post)
+        return post
 
 def render_post(post, with_comments=False, recommend_by=None, template='jabber/post.txt'):
     post.comments_count = post.comments.count()
