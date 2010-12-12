@@ -42,7 +42,9 @@ def send_alert(to_user, message, sender=None):
     SendQueue.send_message(to_user.email, message)
 
 def send_subscribes_broadcast(subscribes_set, message, exclude_user=()):
-    subscribes_set = subscribes_set.exclude(user__in=exclude_user).exclude(user__profile__is_off=True)
+    subscribes_set = subscribes_set.exclude(
+            user__in=exclude_user
+            ).exclude(user__profile__is_off=True)
     for s in subscribes_set:
         SendQueue.send_message(s.user.email, message)
 
@@ -189,20 +191,7 @@ def user_blog(request, username=None):
 
     tag = tagname and get_object_or_404(Tag, name=tagname)
 
-
-    posts = Post.objects.comments_count().select_related('user','user__profile')
-    if user:
-        posts = posts.filter(
-                        Q(user=user)\
-                        |Q(recommends__user=user)
-                        #|Q(user__subscribed_user__user=user)
-                    ).distinct()
-        #TODO: написать нормальный запрос
-
-    if tag:
-        posts = posts.filter(tags=tag)
-
-
+    posts = Post.objects.get_posts(user, tag)
 
     paginate = Paginator(posts, PER_PAGE)
 
@@ -212,7 +201,7 @@ def user_blog(request, username=None):
         page = paginate.page(paginate.num_pages)
 
     posts = page.object_list
-    posts = Tag.attach_tags(posts)
+    posts = posts.select_related_tag()
 
     context = {}
     context['user_blog'] = user
@@ -220,7 +209,7 @@ def user_blog(request, username=None):
     context['page'] = page
     return render_template(request, 'blog/user_blog.html', context)
 
-@cache_func(30, cache_key_func=_cache_key_func_for_view)
+
 def post_view(request, post_pk):
     if 'tree' in request.GET:
         is_tree = bool(request.GET.get('tree'))

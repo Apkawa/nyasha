@@ -20,6 +20,7 @@ from pyxmpp.exceptions import StreamError
 
 
 from django.conf import settings
+from django.utils.encoding import smart_str
 
 
 class _VCard(OldVCard):
@@ -49,7 +50,8 @@ class Request(object):
         return self.stream.send
 
     def __repr__(self):
-        return '<%s object %s -> %s: %s'%(self.__class__.__name__, self.from_jid, self.to_jid, self.body)
+        return '<%s object %s -> %s: %s'%(self.__class__.__name__,
+                smart_str(self.from_jid), smart_str(self.to_jid), smart_str(self.body))
 
 
 class CommandPatterns(object):

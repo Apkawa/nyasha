@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 def base_make_key(func, *args, **kwargs):
     key = "%s%s%s"%(func.__name__, args, kwargs)
     return hash(key)
@@ -15,7 +14,7 @@ def cache_func(*args, **kwargs):
                 from django.core.cache import cache
 
                 cache_key = cache_key_func(func, request, *args, **kwargs)
-                func.get_cache_key = (lambda: cache_key)
+                request.get_cache_key = lambda: cache_key
                 result = cache.get(cache_key)
                 if not result:
                     result = func(request, *args, **kwargs)

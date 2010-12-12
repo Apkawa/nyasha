@@ -15,12 +15,11 @@ from django.utils.encoding import smart_str
 from fields import AvatarImageField
 
 from mptt.models import MPTTModel
+
+from managers import NotDeletedManager, PostManager, CommentManager
 #from djangosphinx.models import SphinxSearch
 
 
-class NotDeletedManager(models.Manager):
-    def get_query_set(self):
-        return super(NotDeletedManager, self).get_query_set().exclude(is_deleted=True)
 
 class NotDeletedModel(models.Model):
     is_deleted = models.BooleanField(default=False)
@@ -33,20 +32,6 @@ class NotDeletedModel(models.Model):
 
     def delete(self):
         self.__class__.objects.filter(pk=self.pk).update(is_deleted=True)
-
-
-
-class PostManager(NotDeletedManager):
-    def comments_count(self, name=None):
-        name = name or 'comments_count'
-        query = self.get_query_set()
-        return query.extra(select={name: '''
-                SELECT COUNT(*)
-                FROM blog_comment AS c
-                INNER JOIN blog_post AS p ON (c.post_id = p.id)
-                WHERE (NOT ((c.is_deleted = True OR p.is_deleted = True ))
-                AND c.post_id = blog_post.id)
-                '''})
 
 class Post(NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name="posts")
@@ -78,12 +63,6 @@ class Post(NotDeletedModel):
     def get_full_url(self):
         return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_absolute_url())
 
-
-
-class CommentManager(models.Manager):
-    def get_query_set(self):
-        return super(CommentManager, self).get_query_set().exclude(
-                models.Q(is_deleted=True)|models.Q(post__is_deleted=True))
 
 class Comment(MPTTModel, NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name='comments')
@@ -158,9 +137,6 @@ class Tag(models.Model):
             tags = tags.filter(post__user=user)
         tags = tags.extra(where=['(SELECT COUNT(*) FROM blog_post_tags WHERE tag_id = blog_tag.id) > 2'])
         return tags
-
-
-
 
 class Recommend(NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name='recommends_user')

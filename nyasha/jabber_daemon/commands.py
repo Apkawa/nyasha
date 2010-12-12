@@ -50,7 +50,7 @@ def ping_command(request):
     '''
     return 'PONG'
 
-NICK_MAX_LENGTH = 42
+NICK_MAX_LENGTH = 22
 def nick_command(request, new_nick=None):
     '''
     NICK - show nick
@@ -309,10 +309,6 @@ def blacklist_toggle_command(request, username=None, tagname=None):
         return '%s removed from your blacklist.'%kw['cls'].__name__
 
 
-
-
-
-
 def _render_posts(queryset, numpage=1,  per_page=10):
     paginate = Paginator(queryset.select_related('user','user__profile'), per_page)
 
@@ -330,11 +326,11 @@ def _render_posts(queryset, numpage=1,  per_page=10):
 
 @cache_func(30)
 def last_messages(request):
-    return _render_posts(Post.objects.comments_count().filter())
+    return _render_posts(Post.objects.get_posts())
 
 @cache_func(30)
 def last_messages_by_tag(request, tag):
-    return _render_posts(Post.objects.comments_count().filter(tags__name=tag))
+    return _render_posts(Post.objects.get_posts().filter(tags__name=tag))
 
 @cache_func(30)
 def last_messages_by_user(request, username, tag=None):
@@ -349,7 +345,7 @@ def last_messages_by_user(request, username, tag=None):
     kw['user'] = user
     if tag:
         kw['tags__name'] = tag
-    return _render_posts(Post.objects.comments_count().filter(**kw))
+    return _render_posts(Post.objects.get_posts(user).filter(**kw))
 
 @cache_func(30)
 def user_feed_messages(request, numpage, username=None):
@@ -362,10 +358,7 @@ def user_feed_messages(request, numpage, username=None):
     else:
         user = request.user
 
-    posts = Post.objects.comments_count().filter(Q(user=user)\
-            |Q(recommends__user=user)
-            #|Q(user__subscribed_user__user=user)
-            ).distinct()
+    posts = Post.objects.get_posts(user)
     return _render_posts(posts, numpage)
 
 def personal_message_command(request, username, message):
@@ -376,6 +369,10 @@ def personal_message_command(request, username, message):
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         return "Unknown user, sorry."
+
+    if BlackList.objects.filter(user=user, blacklisted_user=request.user).exists():
+        return "Sorry, you can't send private message to this user"
+
     context = {}
     context['from_user'] = request.user
     context['user'] = user
