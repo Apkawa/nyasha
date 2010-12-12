@@ -113,14 +113,9 @@ def comment_add_command(request, post_pk, message, comment_number=None):
         except Comment.DoesNotExist:
             return "Message not found."
 
-
-    comment = Comment.objects.create(post=post, reply_to=reply_to, user=user, body=message,
-            from_client=request.from_jid.resource)
-    send_broadcast(post, render_comment(comment, reply_to=reply_to or post), sender=request.get_sender(), exclude_user=(user,))
-    subscribe, create = Subscribed.objects.get_or_create(user=user, subscribed_post=post)
+    comment = Comment.add_comment(post, user, message, reply_to, from_client=request.from_jid.resource)
 
     text = '''Reply posted\n%s %s'''%(comment.get_number(), comment.get_full_url())
-
     return text
 
 def add_tag_command(request, post_pk, tag):

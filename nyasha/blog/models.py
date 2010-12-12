@@ -17,6 +17,7 @@ from fields import AvatarImageField
 from mptt.models import MPTTModel
 
 from managers import NotDeletedManager, PostManager, CommentManager
+
 #from djangosphinx.models import SphinxSearch
 
 
@@ -62,7 +63,6 @@ class Post(NotDeletedModel):
 
     def get_full_url(self):
         return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_absolute_url())
-
 
 class Comment(MPTTModel, NotDeletedModel):
     user = models.ForeignKey('auth.User', related_name='comments')
@@ -110,6 +110,19 @@ class Comment(MPTTModel, NotDeletedModel):
 
     def get_full_url(self):
         return 'http://%s%s'%(settings.SERVER_DOMAIN, self.get_absolute_url())
+
+    @classmethod
+    def add_comment(cls, post, user, message, reply_to=None, from_client='web'):
+        from views import send_broadcast, render_comment
+        comment = Comment.objects.create(
+                post=post,
+                reply_to=reply_to,
+                user=user,
+                body=message,
+                from_client=from_client)
+        send_broadcast(post, render_comment(comment, reply_to=reply_to or post), exclude_user=(user,))
+        subscribe, create = Subscribed.objects.get_or_create(user=user, subscribed_post=post)
+        return comment
 
 class Tag(models.Model):
     name = models.CharField(max_length=42, unique=True)

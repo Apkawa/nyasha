@@ -12,6 +12,22 @@
     <div class="comment_content">
         {{ comment.body|nya_markup|safe|linebreaksbr }}
     </div>
-    <div class="comment_bottom">{% if user.is_authenticated %}<a href="{% url reply_add comment.post_id comment.number %}">{{ _("reply to")|capfirst }}</a> {% endif %}
+    <div class="comment_bottom">{% if user.is_authenticated %}<a href="{% url post_view comment.post_id %}?reply_to={{ comment.number }}">{{ _("reply to")|capfirst }}</a> {% endif %}
         <a href="{% url post_view comment.post_id %}#{{ comment.number }}">{{ comment.get_number }}</a> from {{ comment.from_client }}, {{ comment.datetime|timesince }},  {% if comment.reply_to_id %} reply to <a href="#{{ comment.reply_to.number }}">/{{ comment.reply_to.number }}</a>{% endif %}</div>
+    {% if reply_to and reply_to.pk == comment.pk %}
+        <div id="comment_reply">
+            <form action="{% url post_view comment.post_id %}?reply_to={{ comment.number }}" method="POST">
+                <table class="noborder">
+                    <tbody>
+                        <tr>
+                            <td>{{ reply_form.body }}</td>
+                        </tr>
+                        <tr>                        
+                            <td><button type="submit">{{ _("scated")|capfirst }}</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    {% endif %}
 </div>

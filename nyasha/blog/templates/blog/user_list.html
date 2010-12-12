@@ -1,4 +1,7 @@
 {% extends "blog/base_page.html" %}
+{% block page_head %}
+    <h1>{{ _("user top")|capfirst }}</h1>
+{% endblock page_head %}
 {% block page %}
     <div class="form_wrap prepend-2 span-10">
     {% for u in users %}

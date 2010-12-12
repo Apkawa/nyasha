@@ -27,6 +27,5 @@ def cache_func(*args, **kwargs):
         dec = make_decorator()(*args)
     else:
         dec = make_decorator(*args, **kwargs)
-        print dec
     return dec
 

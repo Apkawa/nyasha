@@ -125,6 +125,8 @@ def login_user(request, user):
     login(request, user)
     return user
 
+##################################################
+
 def jabber_login(request, token):
     user_pk = cache.get(token)
     if not user_pk:
@@ -170,7 +172,6 @@ def login(request):
 def _cache_key_func_for_view(func, request, *args, **kwargs):
     key = "%s_%s_%s_%s_%s"%(func.__name__, request.user, args, kwargs, request.get_full_path())
     return hash(key)
-
 
 def main(request):
     context = {}
@@ -239,12 +240,25 @@ def post_view(request, post_pk):
 
     recommends = post.recommends.filter().select_related('user')
 
+    reply_to = request.GET.get('reply_to')
+    if reply_to:
+        reply_to = get_object_or_404(Comment, post=post_pk, number=reply_to)
+
+    form_p = FormProcessor(PostForm, request)
+    form_p.process()
+    if form_p.is_valid():
+        message  = form_p.data['body']
+        Comment.add_comment(post, request.user, message, reply_to)
+        return redirect('post_view', post_pk=post.pk)
+
     context = {}
     context['post'] = post
     context['user_blog'] = post_user
     context['comments'] = comments
     context['is_tree'] = is_tree
     context['recommends'] = recommends
+    context['reply_form'] = form_p.form
+    context['reply_to'] = reply_to
     return render_template(request, 'blog/post_view.html', context)
 
 @login_required
@@ -284,12 +298,7 @@ def reply_add(request, post_pk, reply_to=None):
         user = request.user
         data = form_p.data
         message  = data['body']
-        comment = Comment(user=request.user, post=post, reply_to=reply_to, body=message)
-        comment.save()
-        #TODO:
-        send_broadcast(post, render_comment(comment, reply_to=reply_to or post), exclude_user=[user])
-        #send_broadcast(user, render_comment(comment), exclude_user=[user])
-        subscribe, create = Subscribed.objects.get_or_create(user=user, subscribed_post=post)
+        Comment.add_comment(post, user, message, reply_to)
         return redirect('post_view', post_pk=post.pk)
 
     context = {}

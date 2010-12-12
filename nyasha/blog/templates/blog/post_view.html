@@ -38,9 +38,27 @@
         {% endfor %}
         </ul>
     {% endif %}
+    {% if user.is_authenticated and not reply_to %}
+    <div id="content_footer">
+        <div id="comment_reply">
+            <a name="reply_to"></a>
+            <form action="{% url post_view post.pk %}" method="POST">
+                {% csrf_token %}
+                <table class="noborder">
+                    <tbody>
+                        <tr>
+                            <td>{{ reply_form.body }}</td>
+                        </tr>
+                        <tr>                        
+                            <td><button type="submit">{{ _("scated")|capfirst }}</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
     </div>
-
-        
+    {% endif %}
+    </div>
 {% endblock content %}
 
 {% block right_sidebar %}

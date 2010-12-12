@@ -17,10 +17,15 @@
         
 {% endblock %}
 {% block menu %}
+    <ul>
     {% if user.is_authenticated %}
-        <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
+        <li> <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
+</li>
     {% endif %}
+<li>    
     <a href="{% url user_list %}">{{ _("user top")|capfirst }}</a>
-    <a href="{% url help %}">{{ _("help")|capfirst }}</a>
+</li>
+<li><a href="{% url help %}">{{ _("help")|capfirst }}</a></li>
+    </ul>
 
 {% endblock menu %}
