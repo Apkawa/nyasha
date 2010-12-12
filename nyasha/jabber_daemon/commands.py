@@ -284,7 +284,12 @@ def subscribe_toggle_command(request, post_pk=None, username=None, tagname=None,
 
 def blacklist_toggle_command(request, username=None, tagname=None):
     if not username and not tagname:
-        return 'Your blacklist:'
+        blacklist = BlackList.objects.filter(user=request.user
+                ).order_by('-blacklisted_user').values('blacklisted_tag__name','blacklisted_user__username')
+        return 'Your blacklist:\n %s'%'\n'.join(
+                b['blacklisted_user__username'] and "@%s"%b['blacklisted_user__username'] or "*%s"%b['blacklisted_tag__name']
+                for b in blacklist
+                )
     kw = {}
     if username:
         kw['cls'] = User
