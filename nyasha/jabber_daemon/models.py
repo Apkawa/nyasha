@@ -35,7 +35,7 @@ class SendQueue(models.Model):
 
     def send(self, stream):
         response_mes = Message(
-                from_jid=self.from_jid, to_jid=self.to_jid,
+                from_jid=smart_unicode(self.from_jid), to_jid=smart_unicode(self.to_jid),
                 stanza_type='chat', body=self.message)
         stream.send(response_mes)
 
