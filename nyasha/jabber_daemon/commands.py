@@ -7,9 +7,6 @@ L @username - Subscribe without notifications
 BL - Show your blacklist
 BL @username - Add/delete user to/from your blacklist
 BL *tag - Add/delete tag to/from your blacklist
-PM @username text - Send personal message
-ON / OFF - Enable/disable subscriptions delivery
-VCARD - Update "About" info from Jabber vCard
 '''
 import re
 
@@ -26,11 +23,20 @@ from django.conf import settings
 
 
 from core import Iq, VCard
-from blog.models import Post, Comment, Subscribed, Recommend, Tag
+from blog.models import Post, Comment, Subscribed, Recommend, Tag, BlackList
 from blog.views import render_post, render_comment, send_broadcast, send_alert, cache_func
 
 from django.db.models import Count, Q
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
+
+
+def _get_object(cls, **kwargs):
+    try:
+        obj = cls.objects.get(**kwargs)
+        return obj
+    except cls.DoesNotExist:
+        message = getattr(cls, '_not_found_message', None) or "%s not found"%cls.__name__
+        return message
 
 
 @cache_func(3000)
@@ -98,11 +104,15 @@ def comment_add_command(request, post_pk, message, comment_number=None):
     if request.user.pk != post.user_id and post.tags.filter(name='readonly'):
         return "Sorry, you can't reply to this post, it is *readonly."
 
+    if BlackList.objects.filter(user=post.user_id, blacklisted_user=user).exists():
+        return "Sorry, you can't reply to this user posts."
+
     if reply_to:
         try:
             reply_to = post.comments.get(number=reply_to)
         except Comment.DoesNotExist:
             return "Message not found."
+
 
     comment = Comment.objects.create(post=post, reply_to=reply_to, user=user, body=message,
             from_client=request.from_jid.resource)
@@ -272,9 +282,31 @@ def subscribe_toggle_command(request, post_pk=None, username=None, tagname=None,
 
     return responce
 
-'''
-@ - Show recomendations and popular personal blogs
-'''
+def blacklist_toggle_command(request, username=None, tagname=None):
+    if not username and not tagname:
+        return 'Your blacklist:'
+    kw = {}
+    if username:
+        kw['cls'] = User
+        kw['username'] = username
+
+    elif tagname:
+        kw['cls'] = Tag
+        kw['name'] = tagname
+
+    obj = _get_object(**kw)
+    if isinstance(obj, basestring):
+        return obj
+
+    if BlackList.toggle_in_blacklist(obj, request.user):
+        return '%s added to your blacklist.'%kw['cls'].__name__
+    else:
+        return '%s removed from your blacklist.'%kw['cls'].__name__
+
+
+
+
+
 
 def _render_posts(queryset, numpage=1,  per_page=10):
     paginate = Paginator(queryset.select_related('user','user__profile'), per_page)

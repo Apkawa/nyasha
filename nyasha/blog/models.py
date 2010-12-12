@@ -181,32 +181,54 @@ class Subscribed(NotDeletedModel):
         if isinstance(obj, Post):
             return obj.subscribed_post.filter()
         elif isinstance(obj, User):
-            return obj.subscribed_user.filter()
+            return obj.subscribed_user.exclude(user__me_blacklist__blacklisted_user=obj)
         elif isinstance(obj, Tag):
-            return obj.subscribed_tag.filter()
+            return obj.subscribed_tag.exclude(user__me_blacklist__blacklisted_tag=obj)
 
     @classmethod
     def get_subscribes_by_tag(cls, tag):
         if getattr(tag, '__iter__', False):
-            subs = cls.objects.filter(subscribed_tag__in=tag).distinct()
+            subs = cls.objects.filter(subscribed_tag__in=tag
+                    ).exclude(user__me_blacklist__blacklisted_tag__in=tag).distinct()
         else:
-            subs = cls.objects.filter(subscribed_tag=tag)
+            subs = cls.objects.filter(subscribed_tag=tag).exclude(user__me_blacklist__blacklisted_tag=tag)
         return subs.select_related('user')
 
     @classmethod
     def get_all_subscribes_by_post(cls, post):
+        bl_user_tags = User.objects.filter(me_blacklist__blacklisted_tag__in=post.tags.all())
         subscribes = cls.objects.filter(
                 models.Q(subscribed_user=post.user)\
                 |models.Q(subscribed_post=post)\
                 |models.Q(subscribed_tag__in=post.tags.all())).exclude(
                         user=post.user).exclude(
-                                user__profile__is_off=True)
+                                user__profile__is_off=True
+                    ).exclude(user__me_blacklist__blacklisted_user=post.user
+                    ).exclude(user__in=bl_user_tags)
         subscribes.query.group_by = ['user_id']
         return subscribes.select_related('user')
 
 
 
+class BlackList(models.Model):
+    user = models.ForeignKey('auth.User', related_name="me_blacklist")
+    blacklisted_user = models.ForeignKey('auth.User', related_name='blacklisted_user', blank=True, null=True)
+    blacklisted_tag = models.ForeignKey('Tag', related_name='blacklisted_tag', blank=True, null=True)
+    datetime = models.DateTimeField(auto_now=True)
 
+    @classmethod
+    def toggle_in_blacklist(cls, obj, user):
+        kw = {}
+        if isinstance(obj, User):
+            kw['blacklisted_user'] = obj
+        elif isinstance(obj, Tag):
+            kw['blacklisted_tag'] = obj
+
+        bl_inst, created = cls.objects.get_or_create(user=user, **kw)
+        if not created:
+            bl_inst.delete()
+
+        return created
 
 
 def avatar_upload_to(instance, filename):

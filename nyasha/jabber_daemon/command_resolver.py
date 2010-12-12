@@ -37,6 +37,10 @@ command_patterns = cmd_patterns('jabber_daemon.commands',
             doc='U @username - Unsubscribe from user\'s blog'),
         cmd(r'^U[\s]+\*(?P<tagname>[\S]+)$' ,'subscribe_toggle_command', extra_kwargs={'delete':True},
             doc='U *tag - Unsubscribe from tag'),
+        #BL
+        cmd(r'^BL$', 'blacklist_toggle_command', doc='BL - Show your blacklist'),
+        cmd(r'^BL[\s]+@(?P<username>[\w]+)$','blacklist_toggle_command', doc='BL @username - Add/delete user to/from your blacklist'),
+        cmd(r'^BL[\s]+\*(?P<tagname>[\S]+)$','blacklist_toggle_command', doc='BL *tag - Add/delete tag to/from your blacklist'),
 
         cmd(r'^\*$', 'show_tags_command', doc='* - Show your tags'),
         cmd(r'^#\+$', 'last_messages', doc='#+ - Show last messages from public timeline'),
