@@ -84,6 +84,7 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 #'blog.context_processors.context_processor',
 )
 
+SHORT_DATETIME_FORMAT = 'Y-m-d H:M:S'
 
 ROOT_URLCONF = 'nyasha.urls'
 

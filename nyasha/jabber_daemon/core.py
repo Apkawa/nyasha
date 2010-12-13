@@ -312,6 +312,8 @@ class Client(JabberClient):
     pong_timeout = 120
     last_ping_time = None
 
+    allow_tasks = False
+
     def __init__(self, jid, password, resource='Bot', tls_cacerts=None):
         # if bare JID is provided add a resource -- it is required
         if isinstance(jid, basestring):
@@ -352,6 +354,7 @@ class Client(JabberClient):
         #for handler_data in VersionHandler(self).get_iq_get_handlers():
         #    self.stream.set_iq_get_handler(*handler_data)
         #Look Client._session_started()
+        self.allow_tasks = True
 
     def get_plugins(self):
         import plugins
@@ -408,8 +411,9 @@ class Client(JabberClient):
                 self.idle()
 
     def run_loop_tasks(self):
-        for task in self.loop_tasks:
-            task(self)
+        if self.allow_tasks:
+            for task in self.loop_tasks:
+                task(self)
 
 
 

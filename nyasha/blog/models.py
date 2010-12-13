@@ -197,8 +197,6 @@ class Subscribed(NotDeletedModel):
         subscribes.query.group_by = ['user_id']
         return subscribes.select_related('user')
 
-
-
 class BlackList(models.Model):
     user = models.ForeignKey('auth.User', related_name="me_blacklist")
     blacklisted_user = models.ForeignKey('auth.User', related_name='blacklisted_user', blank=True, null=True)

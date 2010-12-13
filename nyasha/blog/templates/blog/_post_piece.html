@@ -19,6 +19,6 @@
         {{ post.body|nya_markup|safe|linebreaksbr }}
     </div>
     <div class="post_bottom">{% if user.is_authenticated %}<a href="{% url post_view post.id %}#reply_to">{{ _("reply to")|capfirst }}</a>{% endif %}
-        <a href="{% url post_view post.pk %}">{{ post.get_number }}</a> posted from {{ post.from_client }}, {{ post.datetime|timesince }}; 
+        <a href="{% url post_view post.pk %}">{{ post.get_number }}</a> posted from {{ post.from_client }}, <span title="{{ post.datetime|date:"SHORT_DATETIME_FORMAT" }}">{{ post.datetime|timesince }}; </span>
         {% if post.comments_count %}<a href="{% url post_view post.pk %}">{{ post.comments_count }} {{ _("replies")|capfirst }} </a>{% else %}{{ post.comments_count }} replies {% endif %}</div>
 </div>
