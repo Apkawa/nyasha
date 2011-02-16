@@ -1,0 +1,637 @@
+- fields: {codename: add_logentry, content_type: 8, name: Can add log entry}
+  model: auth.permission
+  pk: 22
+- fields: {codename: change_logentry, content_type: 8, name: Can change log entry}
+  model: auth.permission
+  pk: 23
+- fields: {codename: delete_logentry, content_type: 8, name: Can delete log entry}
+  model: auth.permission
+  pk: 24
+- fields: {codename: add_group, content_type: 2, name: Can add group}
+  model: auth.permission
+  pk: 4
+- fields: {codename: change_group, content_type: 2, name: Can change group}
+  model: auth.permission
+  pk: 5
+- fields: {codename: delete_group, content_type: 2, name: Can delete group}
+  model: auth.permission
+  pk: 6
+- fields: {codename: add_message, content_type: 4, name: Can add message}
+  model: auth.permission
+  pk: 10
+- fields: {codename: change_message, content_type: 4, name: Can change message}
+  model: auth.permission
+  pk: 11
+- fields: {codename: delete_message, content_type: 4, name: Can delete message}
+  model: auth.permission
+  pk: 12
+- fields: {codename: add_permission, content_type: 1, name: Can add permission}
+  model: auth.permission
+  pk: 1
+- fields: {codename: change_permission, content_type: 1, name: Can change permission}
+  model: auth.permission
+  pk: 2
+- fields: {codename: delete_permission, content_type: 1, name: Can delete permission}
+  model: auth.permission
+  pk: 3
+- fields: {codename: add_user, content_type: 3, name: Can add user}
+  model: auth.permission
+  pk: 7
+- fields: {codename: change_user, content_type: 3, name: Can change user}
+  model: auth.permission
+  pk: 8
+- fields: {codename: delete_user, content_type: 3, name: Can delete user}
+  model: auth.permission
+  pk: 9
+- fields: {codename: add_blacklist, content_type: 21, name: Can add black list}
+  model: auth.permission
+  pk: 61
+- fields: {codename: change_blacklist, content_type: 21, name: Can change black list}
+  model: auth.permission
+  pk: 62
+- fields: {codename: delete_blacklist, content_type: 21, name: Can delete black list}
+  model: auth.permission
+  pk: 63
+- fields: {codename: add_comment, content_type: 11, name: Can add comment}
+  model: auth.permission
+  pk: 31
+- fields: {codename: change_comment, content_type: 11, name: Can change comment}
+  model: auth.permission
+  pk: 32
+- fields: {codename: delete_comment, content_type: 11, name: Can delete comment}
+  model: auth.permission
+  pk: 33
+- fields: {codename: add_post, content_type: 10, name: Can add post}
+  model: auth.permission
+  pk: 28
+- fields: {codename: change_post, content_type: 10, name: Can change post}
+  model: auth.permission
+  pk: 29
+- fields: {codename: delete_post, content_type: 10, name: Can delete post}
+  model: auth.permission
+  pk: 30
+- fields: {codename: add_profile, content_type: 18, name: Can add profile}
+  model: auth.permission
+  pk: 52
+- fields: {codename: change_profile, content_type: 18, name: Can change profile}
+  model: auth.permission
+  pk: 53
+- fields: {codename: delete_profile, content_type: 18, name: Can delete profile}
+  model: auth.permission
+  pk: 54
+- fields: {codename: add_recommend, content_type: 14, name: Can add recommend}
+  model: auth.permission
+  pk: 40
+- fields: {codename: change_recommend, content_type: 14, name: Can change recommend}
+  model: auth.permission
+  pk: 41
+- fields: {codename: delete_recommend, content_type: 14, name: Can delete recommend}
+  model: auth.permission
+  pk: 42
+- fields: {codename: add_subscribed, content_type: 13, name: Can add subscribed}
+  model: auth.permission
+  pk: 37
+- fields: {codename: change_subscribed, content_type: 13, name: Can change subscribed}
+  model: auth.permission
+  pk: 38
+- fields: {codename: delete_subscribed, content_type: 13, name: Can delete subscribed}
+  model: auth.permission
+  pk: 39
+- fields: {codename: add_tag, content_type: 17, name: Can add tag}
+  model: auth.permission
+  pk: 49
+- fields: {codename: change_tag, content_type: 17, name: Can change tag}
+  model: auth.permission
+  pk: 50
+- fields: {codename: delete_tag, content_type: 17, name: Can delete tag}
+  model: auth.permission
+  pk: 51
+- fields: {codename: add_useropenid, content_type: 22, name: Can add user open id}
+  model: auth.permission
+  pk: 64
+- fields: {codename: change_useropenid, content_type: 22, name: Can change user open
+      id}
+  model: auth.permission
+  pk: 65
+- fields: {codename: delete_useropenid, content_type: 22, name: Can delete user open
+      id}
+  model: auth.permission
+  pk: 66
+- fields: {codename: add_contenttype, content_type: 5, name: Can add content type}
+  model: auth.permission
+  pk: 13
+- fields: {codename: change_contenttype, content_type: 5, name: Can change content
+      type}
+  model: auth.permission
+  pk: 14
+- fields: {codename: delete_contenttype, content_type: 5, name: Can delete content
+      type}
+  model: auth.permission
+  pk: 15
+- fields: {codename: add_sendqueue, content_type: 19, name: Can add send queue}
+  model: auth.permission
+  pk: 55
+- fields: {codename: change_sendqueue, content_type: 19, name: Can change send queue}
+  model: auth.permission
+  pk: 56
+- fields: {codename: delete_sendqueue, content_type: 19, name: Can delete send queue}
+  model: auth.permission
+  pk: 57
+- fields: {codename: add_openid, content_type: 20, name: Can add open id}
+  model: auth.permission
+  pk: 58
+- fields: {codename: change_openid, content_type: 20, name: Can change open id}
+  model: auth.permission
+  pk: 59
+- fields: {codename: delete_openid, content_type: 20, name: Can delete open id}
+  model: auth.permission
+  pk: 60
+- fields: {codename: add_session, content_type: 6, name: Can add session}
+  model: auth.permission
+  pk: 16
+- fields: {codename: change_session, content_type: 6, name: Can change session}
+  model: auth.permission
+  pk: 17
+- fields: {codename: delete_session, content_type: 6, name: Can delete session}
+  model: auth.permission
+  pk: 18
+- fields: {codename: add_site, content_type: 7, name: Can add site}
+  model: auth.permission
+  pk: 19
+- fields: {codename: change_site, content_type: 7, name: Can change site}
+  model: auth.permission
+  pk: 20
+- fields: {codename: delete_site, content_type: 7, name: Can delete site}
+  model: auth.permission
+  pk: 21
+- fields: {codename: add_migrationhistory, content_type: 9, name: Can add migration
+      history}
+  model: auth.permission
+  pk: 25
+- fields: {codename: change_migrationhistory, content_type: 9, name: Can change migration
+      history}
+  model: auth.permission
+  pk: 26
+- fields: {codename: delete_migrationhistory, content_type: 9, name: Can delete migration
+      history}
+  model: auth.permission
+  pk: 27
+- fields: {codename: add_tag, content_type: 15, name: Can add tag}
+  model: auth.permission
+  pk: 43
+- fields: {codename: change_tag, content_type: 15, name: Can change tag}
+  model: auth.permission
+  pk: 44
+- fields: {codename: delete_tag, content_type: 15, name: Can delete tag}
+  model: auth.permission
+  pk: 45
+- fields: {codename: add_taggeditem, content_type: 16, name: Can add tagged item}
+  model: auth.permission
+  pk: 46
+- fields: {codename: change_taggeditem, content_type: 16, name: Can change tagged
+      item}
+  model: auth.permission
+  pk: 47
+- fields: {codename: delete_taggeditem, content_type: 16, name: Can delete tagged
+      item}
+  model: auth.permission
+  pk: 48
+- fields:
+    date_joined: 2010-11-20 23:37:51.804787
+    email: a@admin.com
+    first_name: ''
+    groups: []
+    is_active: true
+    is_staff: true
+    is_superuser: true
+    last_login: 2010-11-20 23:37:51.804787
+    last_name: ''
+    password: sha1$ffc5e$998e375f6b98bba418b721f2e1935f8b57f2cf7c
+    user_permissions: []
+    username: admin
+  model: auth.user
+  pk: 1
+- fields:
+    date_joined: 2010-11-21 00:23:43.616942
+    email: apkawa@jabber.ru
+    first_name: ''
+    groups: []
+    is_active: true
+    is_staff: false
+    is_superuser: false
+    last_login: 2010-12-02 11:38:53.988522
+    last_name: ''
+    password: ''
+    user_permissions: []
+    username: apkawa
+  model: auth.user
+  pk: 2
+- fields:
+    body: fg
+    body_html: fg
+    datetime: 2010-11-27 23:15:38.122847
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 27
+- fields:
+    body: gfg
+    body_html: gfg
+    datetime: 2010-11-27 23:15:38.199119
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 26
+- fields:
+    body: f
+    body_html: f
+    datetime: 2010-11-27 23:15:38.266853
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 25
+- fields:
+    body: g
+    body_html: g
+    datetime: 2010-11-27 23:15:38.342960
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 24
+- fields:
+    body: f
+    body_html: f
+    datetime: 2010-11-27 23:15:38.419101
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 23
+- fields:
+    body: g
+    body_html: g
+    datetime: 2010-11-27 23:15:38.495272
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 22
+- fields:
+    body: dfgf
+    body_html: dfgf
+    datetime: 2010-11-27 23:15:38.604793
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 21
+- fields:
+    body: g
+    body_html: g
+    datetime: 2010-11-27 23:15:38.755907
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 20
+- fields:
+    body: sg'f
+    body_html: sg'f
+    datetime: 2010-11-27 23:15:38.832767
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 19
+- fields:
+    body: sg'ksg'
+    body_html: sg'ksg'
+    datetime: 2010-11-27 23:15:38.899826
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 18
+- fields:
+    body: g'sjgfkjsf;lgkslkjg
+    body_html: g'sjgfkjsf;lgkslkjg
+    datetime: 2010-11-27 23:15:38.975873
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 17
+- fields:
+    body: fglkdhfgkljsl
+    body_html: fglkdhfgkljsl
+    datetime: 2010-11-27 23:15:39.052414
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 16
+- fields:
+    body: fgdjf
+    body_html: fgdjf
+    datetime: 2010-11-27 23:15:39.128620
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 15
+- fields:
+    body: dfgj
+    body_html: dfgj
+    datetime: 2010-11-27 23:15:39.237908
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 14
+- fields:
+    body: dfgjjf
+    body_html: dfgjjf
+    datetime: 2010-11-27 23:15:39.405577
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 13
+- fields:
+    body: fdjgjfgfjgj
+    body_html: fdjgjfgfjgj
+    datetime: 2010-11-27 23:15:39.494051
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 12
+- fields:
+    body: '#sdfjd'
+    body_html: '#sdfjd'
+    datetime: 2010-11-27 23:15:39.722373
+    from_client: web
+    is_deleted: false
+    tags: []
+    user: 2
+  model: blog.post
+  pk: 11
+- fields: {body: '*tag', body_html: '*tag', datetime: !!timestamp '2010-11-27 23:15:31.278975',
+    from_client: '', is_deleted: false, lft: 0, mptt_level: 0, number: 3, post: 10,
+    reply_to: null, rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 13
+- fields: {body: "\u0421\u043E\u0441\u043D\u0438 \u0445\u0443\u0439\u0446\u0430",
+    body_html: "\u0421\u043E\u0441\u043D\u0438 \u0445\u0443\u0439\u0446\u0430", datetime: !!timestamp '2010-11-27
+      23:15:31.346928', from_client: '', is_deleted: false, lft: 0, mptt_level: 0,
+    number: 2, post: 44, reply_to: null, rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 14
+- fields: {body: '', body_html: '', datetime: !!timestamp '2010-11-28 00:22:32.138272',
+    from_client: '', is_deleted: false, lft: 0, mptt_level: 0, number: 1, post: 48,
+    reply_to: null, rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 15
+- fields: {body: "\u0435\u0431\u0430\u043D\u0438 \u0433\u043E\u0432\u043D\u0435\u0446\
+      \u0430", body_html: "\u0435\u0431\u0430\u043D\u0438 \u0433\u043E\u0432\u043D\
+      \u0435\u0446\u0430", datetime: !!timestamp '2010-11-28 00:28:16.982065', from_client: web,
+    is_deleted: false, lft: 0, mptt_level: 0, number: 2, post: 48, reply_to: null,
+    rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 16
+- fields: {body: "\u041D\u0435\u0442, \u0442\u044B", body_html: "\u041D\u0435\u0442\
+      , \u0442\u044B", datetime: !!timestamp '2010-11-28 00:28:26.105495', from_client: web,
+    is_deleted: false, lft: 0, mptt_level: 0, number: 3, post: 48, reply_to: 16, rght: 0,
+    tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 17
+- fields: {body: 'yh yt ', body_html: 'yh yt ', datetime: !!timestamp '2010-11-28
+      00:35:25.294683', from_client: web, is_deleted: false, lft: 0, mptt_level: 0,
+    number: 4, post: 48, reply_to: null, rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 18
+- fields: {body: /1, body_html: <a href="#1">/1</a>, datetime: !!timestamp '2010-11-28
+      04:11:32.951469', from_client: web, is_deleted: false, lft: 0, mptt_level: 0,
+    number: 6, post: 48, reply_to: null, rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 20
+- fields: {body: /1, body_html: <a href="#1">/1</a>, datetime: !!timestamp '2010-11-28
+      04:11:58.160404', from_client: web, is_deleted: false, lft: 0, mptt_level: 0,
+    number: 7, post: 48, reply_to: null, rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 21
+- fields: {body: '@nya', body_html: <a href="/nya">@nya</a>, datetime: !!timestamp '2010-11-28
+      04:12:43.243221', from_client: web, is_deleted: false, lft: 0, mptt_level: 0,
+    number: 8, post: 48, reply_to: null, rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 22
+- fields: {body: '@nya   d', body_html: <a href="/nya">@nya</a>   d, datetime: !!timestamp '2010-11-28
+      04:13:31.246092', from_client: web, is_deleted: false, lft: 0, mptt_level: 0,
+    number: 9, post: 48, reply_to: null, rght: 0, tree_id: 0, user: 2}
+  model: blog.comment
+  pk: 23
+- fields: {name: nya}
+  model: blog.tag
+  pk: 1
+- fields: {name: tag}
+  model: blog.tag
+  pk: 2
+- fields: {name: tags}
+  model: blog.tag
+  pk: 3
+- fields: {name: ta}
+  model: blog.tag
+  pk: 4
+- fields: {name: taggggg}
+  model: blog.tag
+  pk: 5
+- fields: {name: tagd}
+  model: blog.tag
+  pk: 6
+- fields: {datetime: !!timestamp '2010-11-26 00:35:42.627606', is_deleted: false,
+    subscribed_post: 12, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 1
+- fields: {datetime: !!timestamp '2010-11-26 00:35:43.345365', is_deleted: false,
+    subscribed_post: 13, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 2
+- fields: {datetime: !!timestamp '2010-11-26 00:35:44.069823', is_deleted: false,
+    subscribed_post: 14, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 3
+- fields: {datetime: !!timestamp '2010-11-26 00:35:44.861111', is_deleted: false,
+    subscribed_post: 15, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 4
+- fields: {datetime: !!timestamp '2010-11-26 00:35:45.635971', is_deleted: false,
+    subscribed_post: 16, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 5
+- fields: {datetime: !!timestamp '2010-11-26 00:35:46.893895', is_deleted: false,
+    subscribed_post: 17, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 6
+- fields: {datetime: !!timestamp '2010-11-26 00:35:47.626508', is_deleted: false,
+    subscribed_post: 18, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 7
+- fields: {datetime: !!timestamp '2010-11-26 00:35:48.034763', is_deleted: false,
+    subscribed_post: 19, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 8
+- fields: {datetime: !!timestamp '2010-11-26 00:35:48.284631', is_deleted: false,
+    subscribed_post: 20, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 9
+- fields: {datetime: !!timestamp '2010-11-26 00:35:48.592914', is_deleted: false,
+    subscribed_post: 21, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 10
+- fields: {datetime: !!timestamp '2010-11-26 00:35:48.867849', is_deleted: false,
+    subscribed_post: 22, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 11
+- fields: {datetime: !!timestamp '2010-11-26 00:35:49.042740', is_deleted: false,
+    subscribed_post: 23, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 12
+- fields: {datetime: !!timestamp '2010-11-26 00:35:49.202961', is_deleted: false,
+    subscribed_post: 24, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 13
+- fields: {datetime: !!timestamp '2010-11-26 00:35:49.398077', is_deleted: false,
+    subscribed_post: 25, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 14
+- fields: {datetime: !!timestamp '2010-11-26 00:35:49.609075', is_deleted: false,
+    subscribed_post: 26, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 15
+- fields: {datetime: !!timestamp '2010-11-26 00:35:49.785270', is_deleted: false,
+    subscribed_post: 27, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 16
+- fields: {datetime: !!timestamp '2010-11-26 00:35:49.959368', is_deleted: false,
+    subscribed_post: 28, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 17
+- fields: {datetime: !!timestamp '2010-11-26 00:35:50.143796', is_deleted: false,
+    subscribed_post: 29, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 18
+- fields: {datetime: !!timestamp '2010-11-26 00:35:50.322131', is_deleted: false,
+    subscribed_post: 30, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 19
+- fields: {datetime: !!timestamp '2010-11-26 00:35:50.609133', is_deleted: false,
+    subscribed_post: 31, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 20
+- fields: {datetime: !!timestamp '2010-11-26 00:35:50.891738', is_deleted: false,
+    subscribed_post: 32, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 21
+- fields: {datetime: !!timestamp '2010-11-26 00:35:51.052241', is_deleted: false,
+    subscribed_post: 33, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 22
+- fields: {datetime: !!timestamp '2010-11-26 00:35:51.283031', is_deleted: false,
+    subscribed_post: 34, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 23
+- fields: {datetime: !!timestamp '2010-11-26 00:35:51.491115', is_deleted: false,
+    subscribed_post: 35, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 24
+- fields: {datetime: !!timestamp '2010-11-26 00:35:51.749155', is_deleted: false,
+    subscribed_post: 36, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 25
+- fields: {datetime: !!timestamp '2010-11-27 13:44:00.591688', is_deleted: false,
+    subscribed_post: 37, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 26
+- fields: {datetime: !!timestamp '2010-11-27 14:42:16.517458', is_deleted: false,
+    subscribed_post: 38, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 27
+- fields: {datetime: !!timestamp '2010-11-27 15:36:44.359242', is_deleted: false,
+    subscribed_post: 39, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 28
+- fields: {datetime: !!timestamp '2010-11-27 15:38:06.370239', is_deleted: false,
+    subscribed_post: 40, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 29
+- fields: {datetime: !!timestamp '2010-11-27 15:38:14.075389', is_deleted: false,
+    subscribed_post: 41, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 30
+- fields: {datetime: !!timestamp '2010-11-27 15:40:11.737089', is_deleted: false,
+    subscribed_post: 42, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 31
+- fields: {datetime: !!timestamp '2010-11-27 15:47:32.341013', is_deleted: false,
+    subscribed_post: 43, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 32
+- fields: {datetime: !!timestamp '2010-11-27 15:48:00.094221', is_deleted: false,
+    subscribed_post: 44, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 33
+- fields: {datetime: !!timestamp '2010-11-27 22:57:05.790771', is_deleted: false,
+    subscribed_post: 45, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 34
+- fields: {datetime: !!timestamp '2010-11-27 23:03:16.035627', is_deleted: false,
+    subscribed_post: 46, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 35
+- fields: {datetime: !!timestamp '2010-11-28 00:01:22.474987', is_deleted: false,
+    subscribed_post: 47, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 36
+- fields: {datetime: !!timestamp '2010-11-28 00:02:01.158612', is_deleted: false,
+    subscribed_post: 48, subscribed_tag: null, subscribed_user: null, user: 2}
+  model: blog.subscribed
+  pk: 37
+- fields: {avatar: '', comment: '', is_off: false, name: '', status: a, status_desc: null,
+    url: '', user: 1}
+  model: blog.profile
+  pk: 1
+- fields: {avatar: avatar/o/d89a3ff25a46f0682bc1e19662a8eadd881f2e25, comment: "\u041D\u0435\
+      \u0431\u044B\u043B\u043E \u043D\u0438 \u0435\u0434\u0438\u043D\u043E\u0433\u043E\
+      \ \u0440\u0430\u0437\u0440\u044B\u0432\u0430!", is_off: false, name: "\u0410\u0440\
+      \u043A\u0430\u0434\u0438\u0439", status: a, status_desc: null, url: 'http://wiki.apkawa.mine.nu',
+    user: 2}
+  model: blog.profile
+  pk: 2
+- fields: {avatar: '', comment: '', is_off: false, name: '', status: a, status_desc: null,
+    url: '', user: 3}
+  model: blog.profile
+  pk: 3
+- fields: {avatar: '', comment: '', is_off: false, name: '', status: a, status_desc: null,
+    url: '', user: 4}
+  model: blog.profile
+  pk: 4

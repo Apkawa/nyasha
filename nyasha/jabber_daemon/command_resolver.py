@@ -51,8 +51,8 @@ command_patterns = cmd_patterns('jabber_daemon.commands',
         cmd(r'^@(?P<username>[\w]+)$', 'user_info', doc='@username - User info'),
         #INFO
         cmd(r'^I @(?P<username>[\w]+)$', 'user_info', doc='I @username - User info'),
-        cmd(r'^I #(?P<post_pk>[\d]+)$', 'info_command', doc='I #1234 - Info for post'),
-        cmd(r'^I *(?P<tagname>[\S]+)$', 'info_command', doc='I *tagname - Info for tag'),
+        #cmd(r'^I #(?P<post_pk>[\d]+)$', 'info_command', doc='I #1234 - Info for post'),
+#cmd(r'^I *(?P<tagname>[\S]+)$', 'info_command', doc='I *tagname - Info for tag'),
 
         cmd(r'^VCARD$', 'vcard_command', doc='VCARD - Update "About" info from Jabber vCard'),
         cmd(r'^LOGIN$', 'login_command', doc='LOGIN - login in web ui'),
