@@ -3,6 +3,9 @@ import datetime
 import logging, sys, os, signal, time, errno, re
 import threading, Queue
 import time
+from optparse import make_option
+
+from django.core.management.base import BaseCommand
 
 
 class Pool(object):
@@ -97,12 +100,27 @@ def run_pool(workers=2, wait_time=0, array=[], target=None, args=[],
         print '%s tranasction past' % (part * 1000 + qu)
         print '%s transactions in seconds' % (qu * 1.0 / (end-start).seconds)
 
-
-
-class BaseDaemon(object):
+class BaseDaemon(BaseCommand):
     '''
     Template for daemons
     '''
+    option_list = BaseCommand.option_list + (
+        make_option('-P', '--pause', default=60, dest='pause', type='float',
+            help='Pause in seconds'),
+        make_option('-p', '--pidfile', default='/tmp/jabber_daemon.pid',
+              dest='pidfile', type='string', help='PiD file'),
+        make_option('-u', '--user', default='root',
+              dest='user', type='string', help='Daemon user'),
+        make_option('-g', '--group', default='root',
+              dest='group', type='string', help='Daemon group'),
+        make_option('-s', '--stop', action='store_true',
+              dest='stop', help='Stop daemond'),
+        make_option('-d', '--daemon', action='store_true',
+              dest='daemon', help='Daemonize'),
+        make_option('-w', '--workers', dest='workers', type='int',
+                    help='Number of Workers threads', default=1),
+    )
+
     def change_uid_gid(self, uid, gid=None):
         """Try to change UID and GID to the provided values.
         UID and GID are given as names like 'nobody' not integer.
@@ -200,6 +218,11 @@ class BaseDaemon(object):
 
         # Start the server
         self.start_server(options)
+
+    def handle(self, *args, **options):
+        if options.get('daemon'):
+            self.runserver(*args, **options)
+            return
 
 
 class PeriodDaemon(BaseDaemon):
