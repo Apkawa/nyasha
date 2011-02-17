@@ -9,6 +9,7 @@ Replace these with more appropriate tests for your application.
 from django.test import TestCase
 
 from views import parse_message 
+
 from django.contrib.auth.models import User
 from logic import UserInterface, UserInterfaceError
 
@@ -50,5 +51,19 @@ class UserInterfaceTest(TestCase):
 
     def test_get_not_exists_user(self):
         self.assertRaises(UserInterfaceError, UserInterface(self.user).get_user, "not_exist_user")
+
+
+
+
+class RESTFullTest(TestCase):
+    fixtures = ['fixtures/fixtures']
+    def test_generic(self):
+        from api import _resfull_controller
+        request_data = {'username':'apkawa'}
+        api_key = '#TODO api key'
+        obj_name = 'user'
+        method_name = 'get_user'
+        print _resfull_controller(request_data, api_key, obj_name, method_name)
+
 
 
