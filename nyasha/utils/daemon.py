@@ -117,8 +117,6 @@ class BaseDaemon(BaseCommand):
               dest='stop', help='Stop daemond'),
         make_option('-d', '--daemon', action='store_true',
               dest='daemon', help='Daemonize'),
-        make_option('-w', '--workers', dest='workers', type='int',
-                    help='Number of Workers threads', default=1),
     )
 
     def change_uid_gid(self, uid, gid=None):

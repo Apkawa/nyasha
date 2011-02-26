@@ -417,10 +417,13 @@ class Client(JabberClient):
 
 
 
-logger = logging.getLogger()
+logger = logging.getLogger('jabber_daemon.core')
 logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.DEBUG) # change to DEBUG for higher verbosity
-#logger.setLevel(logging.INFO) # change to DEBUG for higher verbosity
+#logger.setLevel(logging.DEBUG) # change to DEBUG for higher verbosity
+logger.setLevel(logging.INFO) # change to DEBUG for higher verbosity
+for name in ['pyxmpp.StreamSASLMixIn', 'pyxmpp.StreamTLSMixIn', 'pyxmpp.sasl.DigestMD5ClientAuthenticator']:
+    logging.getLogger(name).setLevel(logging.ERROR)
+
 
 def main():
     jid = JID("testnanodesu@jabber.ru")
