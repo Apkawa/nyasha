@@ -3,16 +3,17 @@ import logging
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-level = logging.ERROR
+level = logging.INFO
 if DEBUG:
     level = logging.DEBUG
+
 logging.basicConfig(level=level,
                     format='%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
                     datefmt='%d-%m-%Y %H:%M:%S',
-                    filename='/tmp/nyasha.log',
+                    filename=os.path.join(PROJECT_ROOT, 'nyasha.log'),
                     filemode='w')
 
 ADMINS = (
