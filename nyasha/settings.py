@@ -13,8 +13,8 @@ if DEBUG:
 logging.basicConfig(level=level,
                     format='%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
                     datefmt='%d-%m-%Y %H:%M:%S',
-                    filename=os.path.join(PROJECT_ROOT, 'nyasha.log'),
-                    filemode='w')
+                    filename=os.path.join(PROJECT_ROOT,'log', 'nyasha.log'),
+                    filemode='a')
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -86,6 +86,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'utils.logger.LoggingMiddleware',
 )
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.request",
