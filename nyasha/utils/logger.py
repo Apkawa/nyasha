@@ -11,10 +11,14 @@ def log_exception(func):
             raise error
     return wrap
 
-
 class LoggingMiddleware(object):
     def process_view(self, request, view_func, view_args, view_kwargs):
-        log = logging.getLogger("%s.%s"%(view_func.__module__, view_func.__name__))
+        
+        if not isinstance(view_func, object):
+            log = logging.getLogger("%s.%s"%(view_func.__module__, view_func.__name__))
+        else:
+            log = logging.getLogger("%s.%s"%(view_func.__module__, view_func.__class__.__name__))
+
         try:
             return view_func(request, *view_args,**view_kwargs)
         except Exception, exception:

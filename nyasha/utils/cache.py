@@ -3,7 +3,7 @@
 
 def base_make_key(func, *args, **kwargs):
     key = "%s%s%s"%(func.__name__, args, kwargs)
-    return hash(key)
+    return str(hash(key))
 
 def cache_func(*args, **kwargs):
     def make_decorator(expire=30, cache_key_func=base_make_key):
@@ -13,7 +13,7 @@ def cache_func(*args, **kwargs):
             def wrapped_func(request, *args, **kwargs):
                 from django.core.cache import cache
 
-                cache_key = cache_key_func(func, request, *args, **kwargs)
+                cache_key = str(cache_key_func(func, request, *args, **kwargs))
                 request.get_cache_key = lambda: cache_key
                 result = cache.get(cache_key)
                 if not result:
