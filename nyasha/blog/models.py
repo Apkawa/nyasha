@@ -277,24 +277,24 @@ class Profile(models.Model):
     def attach_user_info(self, user_queryset):
         users = user_queryset.extra(select={'posts_count': '''
                     SELECT COUNT(*) FROM blog_post
-                    WHERE (NOT (blog_post.is_deleted = true )
+                    WHERE (NOT (blog_post.is_deleted = 1 )
                     AND blog_post.user_id = auth_user.id)
                     ''',
                     'comments_count':'''
                     SELECT COUNT(*) FROM blog_comment
                     INNER JOIN blog_post ON (blog_comment.post_id = blog_post.id)
-                    WHERE (NOT ((blog_comment.is_deleted = true OR blog_post.is_deleted = true ))
+                    WHERE (NOT ((blog_comment.is_deleted = 1 OR blog_post.is_deleted = 1 ))
                     AND blog_comment.user_id = auth_user.id)
                     ''',
                     'i_read_count':'''
                     SELECT COUNT(*) FROM blog_subscribed
-                    WHERE (NOT (blog_subscribed.is_deleted = true )
+                    WHERE (NOT (blog_subscribed.is_deleted = 1 )
                     AND blog_subscribed.user_id = auth_user.id
                     AND blog_subscribed.subscribed_user_id IS NOT NULL)
                     ''',
                     'my_readers_count':'''
                     SELECT COUNT(*) FROM blog_subscribed
-                    WHERE (NOT (blog_subscribed.is_deleted = true ) 
+                    WHERE (NOT (blog_subscribed.is_deleted = 1 ) 
                     AND blog_subscribed.subscribed_user_id = auth_user.id )
                     '''})
         return users

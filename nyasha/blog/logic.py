@@ -16,6 +16,8 @@ class Interface(object):
     у него есть методы - добавить, удалить, подписаться, добавить тег
 
     Интерфейс может быть связан с моделью, а может быть просто аггрегатом 
+
+    Реализация неточная
     '''
     def __init__(self, user):
         '''
@@ -108,7 +110,6 @@ class BlogInterface(Interface):
     '''
     Класс, оборачивающий функциональность и предоставляет собой некоторый единый интерфейс
     '''
-
     def delete_last(self):
         from models import Blog, Post, Subscribed, Tag, BlackList
         user = self.user
@@ -132,7 +133,6 @@ class BlogInterface(Interface):
         else:
             return PostInterfaceError("Message not found.")
 
-
     def get_posts(self, username=None, tag_name=None, feed=None):
         '''
         get_posts() -> get last posts
@@ -153,8 +153,8 @@ class BlogInterface(Interface):
         if username:
             posts.filter(user=user)
 
-        if tag:
-            posts = posts.filter(tags__name=tag)
+        if tag_name:
+            posts = posts.filter(tags__name=tag_name)
 
         return posts
 

@@ -1,5 +1,6 @@
 import logging
 from functools import wraps
+from django.http import Http404
 
 def log_exception(func):
     @wraps(func)
@@ -13,7 +14,6 @@ def log_exception(func):
 
 class LoggingMiddleware(object):
     def process_view(self, request, view_func, view_args, view_kwargs):
-        
         if not isinstance(view_func, object):
             log = logging.getLogger("%s.%s"%(view_func.__module__, view_func.__name__))
         else:
@@ -21,7 +21,9 @@ class LoggingMiddleware(object):
 
         try:
             return view_func(request, *view_args,**view_kwargs)
-        except Exception, exception:
+        except Http404:
+            pass
+        except Exception:
             log.exception(request)
 
     def process_exception(self, request, exception):

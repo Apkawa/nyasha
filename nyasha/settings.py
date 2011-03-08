@@ -3,7 +3,7 @@ import logging
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 level = logging.INFO
@@ -19,7 +19,6 @@ logging.basicConfig(level=level,
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
-
 MANAGERS = ADMINS
 
 DATABASES = {
@@ -88,13 +87,14 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'utils.logger.LoggingMiddleware',
 )
+#
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
-"django.core.context_processors.request",
-"django.core.context_processors.debug",
-"django.core.context_processors.i18n",
-"django.core.context_processors.media",
-"django.contrib.messages.context_processors.messages",
-#'blog.context_processors.context_processor',
+                "django.core.context_processors.request",
+                "django.core.context_processors.debug",
+                "django.core.context_processors.i18n",
+                "django.core.context_processors.media",
+                "django.contrib.messages.context_processors.messages",
+                    #'blog.context_processors.context_processor',
 )
 
 SHORT_DATETIME_FORMAT = 'Y-m-d H:M:S'
@@ -133,14 +133,14 @@ AUTH_PROFILE_MODULE = 'blog.Profile'
 
 SERVER_DOMAIN = '127.0.0.1:8000'
 #CACHE_BACKEND = 'locmem://'
-#CACHE_BACKEND = 'file:///tmp/django_cache'
-CACHE_BACKEND = 'memcached://127.0.0.1:11211'
+CACHE_BACKEND = 'file:///tmp/django_cache'
+#CACHE_BACKEND = 'memcached://127.0.0.1:11211'
 
 COMPRESS = True
 COMPRESS_VERSION = True
 COMPRESS_AUTO = False
 COMPRESS_CSS_FILTERS = COMPRESS_JS_FILTERS = ("compress.filters.yui.YUICompressorFilter",)
-COMPRESS_YUI_BINARY = 'java -jar libs/yuicompressor-2.4.2.jar'
+COMPRESS_YUI_BINARY = 'java -jar %s'%os.path.join(PROJECT_ROOT, 'libs', 'yuicompressor-2.4.2.jar')
 
 COMPRESS_CSS = {
     'generic': {

@@ -99,5 +99,5 @@ def restfull_controller(request, api_key, obj_name, method_name):
         result_dict = _resfull_controller(request.REQUEST, api_key, obj_name, method_name)
     except RESTFullException, error:
         result_dict = {'ok':False, 'error':error.get_error_dict()}
-    json = json.dumps(result_dict)
-    return json
+    j = json.dumps(result_dict)
+    return j

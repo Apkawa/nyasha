@@ -8,14 +8,11 @@ import urllib
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 
-from django.http import HttpResponse, Http404
-from django.db.models import Count,Q
+from django.http import Http404
 
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.shortcuts import get_list_or_404, redirect, get_object_or_404
-
-from django.utils.encoding import smart_unicode
 
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -25,7 +22,6 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 from loginza.models import OpenID
 from models import Post, Subscribed, Tag, Comment, Profile, UserOpenID
-from jabber_daemon.core import Message
 from jabber_daemon.models import SendQueue
 
 from utils import get_randstr
