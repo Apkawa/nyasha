@@ -11,10 +11,60 @@ if DEBUG:
     level = logging.DEBUG
 
 logging.basicConfig(level=level,
-                    format='%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
-                    datefmt='%d-%m-%Y %H:%M:%S',
-                    filename=os.path.join(PROJECT_ROOT,'log', 'nyasha.log'),
-                    filemode='a')
+                   format='%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
+                   datefmt='%d-%m-%Y %H:%M:%S',
+                   filename=os.path.join(PROJECT_ROOT,'log', 'nyasha.log'),
+                   filemode='a')
+
+#for django >= 1.3 ^__^
+#LOGGING = {
+#    'version': 1,
+#    #'disable_existing_loggers': True,
+#    'formatters': {
+#        'base': {
+#            'format': '%(asctime)s %(name)-20s %(levelname)-8s %(message)s'
+#        },
+#        'simple': {
+#            'format': '%(levelname)-8s %(message)s'
+#        },
+#    },
+#    'filters': {
+#        'special': {
+#            '()': 'project.logging.SpecialFilter',
+#            'foo': 'bar',
+#        }
+#    },
+#    'handlers': {
+#        'null': {
+#            'level':'DEBUG',
+#            'class':'django.utils.log.NullHandler',
+#        },
+#        'console':{
+#            'level':'DEBUG',
+#            'class':'logging.StreamHandler',
+#            'formatter': 'simple'
+#        },
+#        'error': {
+#            'level':'ERROR',
+#            'class':'logging.handlers.RotatingFileHandler',
+#            'filename':os.path.join(PROJECT_ROOT,'log', 'error.log'),
+#            'formatter':'base',
+#            }
+#    },
+#    'loggers': {
+#        'django': {
+#            'handlers':['null'],
+#            'propagate': True,
+#            'level':'INFO',
+#        },
+#        'django.request': {
+#            'handlers': ['error'],
+#            'level': 'ERROR',
+#            'propagate': False,
+#        },
+#    }
+#}
+
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),

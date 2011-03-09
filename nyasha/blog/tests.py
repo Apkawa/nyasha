@@ -53,8 +53,6 @@ class UserInterfaceTest(TestCase):
         self.assertRaises(UserInterfaceError, UserInterface(self.user).get_user, "not_exist_user")
 
 
-
-
 class RESTFullTest(TestCase):
     fixtures = ['fixtures/fixtures']
     def test_generic(self):

@@ -24,6 +24,8 @@ from loginza.models import OpenID
 from models import Post, Subscribed, Tag, Comment, Profile, UserOpenID
 from jabber_daemon.models import SendQueue
 
+from logic import BlogInterface, PostInterface, UserInterface
+
 from utils import get_randstr
 from utils.shortcuts import render_template
 from utils.form_processor import FormProcessor
@@ -186,9 +188,8 @@ def user_blog(request, username=None):
     except ValueError:
         return redirect('.')
 
-    tag = tagname and get_object_or_404(Tag, name=tagname)
-
-    posts = Post.objects.get_posts(user, tag)
+    blog_interface = BlogInterface(request.user)
+    posts = blog_interface.get_posts(username=user, tag_name=tagname)
 
     paginate = Paginator(posts, PER_PAGE)
 
@@ -219,22 +220,8 @@ def post_view(request, post_pk):
 
     is_tree = request.COOKIES.get('comments_tree')
 
-    posts = get_list_or_404(Post.objects.comments_count(), pk=post_pk)
-    posts = Tag.attach_tags(posts)
-
-    post = posts[0]
-
-    users = Profile.attach_user_info(User.objects.filter(pk=post.user_id))
-    post_user = users[0]
-
-    if not is_tree:
-        comments = post.comments.filter().order_by('id')
-    else:
-        comments = Comment.tree.filter(is_deleted=False, post=post)
-
-    comments = comments.select_related('user','user__profile','reply_to')
-
-    recommends = post.recommends.filter().select_related('user')
+    post = BlogInterface(request.user).get_post_with_comments(post_pk, 
+            as_tree=is_tree, get_recommends=True)
 
     reply_to = request.GET.get('reply_to')
     if reply_to:
@@ -249,10 +236,10 @@ def post_view(request, post_pk):
 
     context = {}
     context['post'] = post
-    context['user_blog'] = post_user
-    context['comments'] = comments
+    context['user_blog'] = post.user
+    context['comments'] = post.comments_post
     context['is_tree'] = is_tree
-    context['recommends'] = recommends
+    context['recommends'] = post.recommend_users
     context['reply_form'] = form_p.form
     context['reply_to'] = reply_to
     return render_template(request, 'blog/post_view.html', context)
@@ -305,7 +292,6 @@ def help(request):
     context = {}
     context['settings'] = settings
     return render_template(request, 'blog/help.html', context)
-
 
 @login_required
 def profile_edit(request):
