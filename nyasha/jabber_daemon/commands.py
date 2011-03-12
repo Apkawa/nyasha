@@ -8,7 +8,6 @@ BL - Show your blacklist
 BL @username - Add/delete user to/from your blacklist
 BL *tag - Add/delete tag to/from your blacklist
 '''
-import re
 
 from hashlib import sha1
 from random import randint
@@ -23,11 +22,17 @@ from django.conf import settings
 
 
 from core import Iq, VCard
-from blog.models import Post, Comment, Subscribed, Recommend, Tag, BlackList
+from blog.models import Post, Subscribed, Recommend, Tag, BlackList
 from blog.views import render_post, render_comment, send_broadcast, send_alert, cache_func
 
 from django.db.models import Count, Q
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
+
+from blog.logic import (
+        UserInterface, UserInterfaceError,
+        PostInterface, PostInterfaceError,
+        BlogInterface, BlogInterfaceError,
+        )
 
 
 def _get_object(cls, **kwargs):
@@ -73,20 +78,13 @@ def show_message_command(request, post_pk, comment_number=None, show_comments=No
     #1234\\1 - Show reply
     #1234+ - Show message with replies
     '''
-    context = {}
+    post_i = PostInterface(request.user)
     if not comment_number:
-        try:
-            post = Post.objects.select_related('user').get(pk=post_pk)
-            body = render_post(post, with_comments=bool(show_comments))
-        except Post.DoesNotExist:
-            return "Message not found."
+        post = post_i.get_post(post_pk)
+        body = render_post(post, with_comments=bool(show_comments))
     else:
-        try:
-            comment = Comment.objects.select_related('user').get(post=post_pk, number=comment_number)
-            body = render_comment(comment)
-        except Comment.DoesNotExist:
-            return "Message not found."
-
+        comment = post_i.get_comment(post_pk, comment_number)
+        body = render_comment(comment)
     return body[:-1]
 
 def comment_add_command(request, post_pk, message, comment_number=None):
@@ -94,67 +92,30 @@ def comment_add_command(request, post_pk, message, comment_number=None):
     #1234 Blah-blah-blah - Answer to message #1234
     #1234/5 Blah - Answer to reply #1234/5
     '''
-    user = request.user
-    reply_to = comment_number
-    try:
-        post = Post.objects.get(pk=post_pk)
-    except Post.DoesNotExist:
-        return "Message not found."
-
-    if request.user.pk != post.user_id and post.tags.filter(name='readonly'):
-        return "Sorry, you can't reply to this post, it is *readonly."
-
-    if BlackList.objects.filter(user=post.user_id, blacklisted_user=user).exists():
-        return "Sorry, you can't reply to this user posts."
-
-    if reply_to:
-        try:
-            reply_to = post.comments.get(number=reply_to)
-        except Comment.DoesNotExist:
-            return "Message not found."
-
-    comment = Comment.add_comment(post, user, message, reply_to, from_client=request.from_jid.resource)
+    comment = PostInterface(request.user).add_reply(message, post_pk,
+            comment_number, from_client=request.from_jid.resource)
 
     text = '''Reply posted\n%s %s'''%(comment.get_number(), comment.get_full_url())
     return text
 
 def add_tag_command(request, post_pk, tag):
-    try:
-        post = Post.objects.get(pk=post_pk)
-    except Post.DoesNotExist:
-        return "Message not found."
-
-    if not post.user_id == request.user.pk:
-        return "This is not your message."
-
-    post_tag = post.tags.through.objects.filter(tag__name=tag, post=post)
-    if post_tag:
-        post_tag.delete()
-        return 'Tag deleted.'
-    else:
-        if post.tags.count() >= 5:
-            return 'Sorry, 5 tags maximum.'
-        tag, create = Tag.objects.get_or_create(name=tag)
-        post.tags.add(tag)
-        return 'Tag added.'
-
+    tag = PostInterface(request.user).add_tag(post_pk, tagname=tag)
+    return 'Tag added.'
 
 def recommend_post_command(request, post_pk):
     '''
     ! #1234 - Recommend post
     '''
-    try:
-        post = Post.objects.get(pk=post_pk)
-    except Post.DoesNotExist:
-        return "Message not found."
     user = request.user
+    post = PostInterface(user).get_post(post_pk)
+
     if post.user_id == user.pk:
         return '''You can't recommend your own messages.'''
 
     recommend, created = Recommend.admin_objects.get_or_create(user=request.user, post=post)
     if created or recommend.is_deleted:
         if created:
-            send_alert(post.user, 
+            send_alert(post.user,
                     '@%s recommend your post %s'%(request.user.username, post.get_number()),
                     sender=request.get_sender())
             send_broadcast(user, render_post(post, recommend_by=user), exclude_user=[user, post.user])
@@ -173,44 +134,8 @@ def delete_command(request, post_pk=None, comment_number=None, last=False):
     D #123/1 - Delete reply
     D L - Delete last message
     '''
-    user = request.user
-    if last:
-        l = []
-        try:
-            post = Post.objects.filter(user=user).latest()
-            l.append(post)
-        except Post.DoesNotExist:
-            pass
-
-        try:
-            comment = Comment.objects.filter(user=user).latest()
-            l.append(comment)
-        except Comment.DoesNotExist:
-            pass
-
-        if l and len(l) > 1:
-            obj = max(l, key=lambda o: o.datetime)
-        elif len(l) == 1:
-            obj = l[0]
-        else:
-            return "Message not found."
-    else:
-        if not comment_number:
-            try:
-                obj = Post.objects.get(pk=post_pk)
-            except Post.DoesNotExist:
-                return "Message not found."
-        else:
-            try:
-                obj = Comment.objects.get(post=post_pk, number=comment_number)
-            except Comment.DoesNotExist:
-                return "Message not found."
-
-        if not obj.user_id == user.pk:
-            return 'This is not your message.'
-
-    responce = 'Message %s deleted.'%obj.get_number()
-    obj.delete()
+    number = BlogInterface(request.user).delete_last()
+    responce = 'Message %s deleted.'%number
     return responce
 
 def subscribe_show_command(request):
@@ -221,7 +146,7 @@ def subscribe_show_command(request):
             user=request.user, subscribed_user__isnull=False).order_by('subscribed_user__username'
                     ).values_list('subscribed_user__username', flat=True)
     subscribe_list = '\n'.join(["@%s"%s for s in subscribed_query])
-    return "You are subscribed to users:\n%s"%subscribe_list 
+    return "You are subscribed to users:\n%s"%subscribe_list
 
 def subscribe_toggle_command(request, post_pk=None, username=None, tagname=None, delete=False):
     '''
@@ -280,9 +205,11 @@ def subscribe_toggle_command(request, post_pk=None, username=None, tagname=None,
 def blacklist_toggle_command(request, username=None, tagname=None):
     if not username and not tagname:
         blacklist = BlackList.objects.filter(user=request.user
-                ).order_by('-blacklisted_user').values('blacklisted_tag__name','blacklisted_user__username')
+                ).order_by('-blacklisted_user').values(
+                        'blacklisted_tag__name','blacklisted_user__username')
         return 'Your blacklist:\n %s'%'\n'.join(
-                b['blacklisted_user__username'] and "@%s"%b['blacklisted_user__username'] or "*%s"%b['blacklisted_tag__name']
+                b['blacklisted_user__username']
+                    and "@%s"%b['blacklisted_user__username'] or "*%s"%b['blacklisted_tag__name']
                 for b in blacklist
                 )
     kw = {}
@@ -305,15 +232,7 @@ def blacklist_toggle_command(request, username=None, tagname=None):
 
 
 def _render_posts(queryset, numpage=1,  per_page=10):
-    paginate = Paginator(queryset.select_related('user','user__profile'), per_page)
-
-    try:
-        page = paginate.page(numpage)
-    except (EmptyPage, InvalidPage):
-        page = paginate.page(paginate.num_pages)
-
-    posts = page.object_list
-    posts = Tag.attach_tags(posts)
+    posts = BlogInterface.paginate(queryset, numpage, per_page)
     context = {}
     context['posts'] = reversed(posts)
     body = render_to_string('jabber/posts.txt', context)[:-1]
@@ -321,59 +240,26 @@ def _render_posts(queryset, numpage=1,  per_page=10):
 
 @cache_func(30)
 def last_messages(request):
-    return _render_posts(Post.objects.get_posts())
+    return _render_posts(BlogInterface(request.user).get_posts())
 
 @cache_func(30)
 def last_messages_by_tag(request, tag):
-    return _render_posts(Post.objects.get_posts().filter(tags__name=tag))
+    return _render_posts(BlogInterface(request.user).get_posts(tag_name=tag))
 
 @cache_func(30)
 def last_messages_by_user(request, username, tag=None):
     '''
     # - Show last messages from your feed (## - second page, ...)
     '''
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return "Unknown user, sorry."
-    kw={}
-    kw['user'] = user
-    if tag:
-        kw['tags__name'] = tag
-    return _render_posts(Post.objects.get_posts(user).filter(**kw))
+    return _render_posts(BlogInterface(request.user).get_posts(username=username, tag_name=tag))
 
 @cache_func(30)
 def user_feed_messages(request, numpage, username=None):
     numpage = len(numpage)
-    if username:
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return "Unknown user, sorry."
-    else:
-        user = request.user
-
-    posts = Post.objects.get_posts(user)
-    return _render_posts(posts, numpage)
+    return _render_posts(BlogInterface(request.user).get_posts(username=username or request.user), numpage)
 
 def personal_message_command(request, username, message):
-    message = message.strip()
-    if not message:
-        return "Empty message."
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return "Unknown user, sorry."
-
-    if BlackList.objects.filter(user=user, blacklisted_user=request.user).exists():
-        return "Sorry, you can't send private message to this user"
-
-    context = {}
-    context['from_user'] = request.user
-    context['user'] = user
-    context['message'] = message
-    personal_message = render_to_string('jabber/personal_message.txt', context)
-    send_alert(user, personal_message)
+    BlogInterface(request.user).send_personal_messgae(username, message)
     return "Send personal message"
 
 @cache_func(30)
@@ -381,20 +267,20 @@ def show_tags_command(request):
     '''
     * - Show your tags
     '''
-    tags = Tag.objects.filter(post__user=2).values('name').annotate(count=Count('post')).order_by('name')
-    return "Your tags: (tag - messages)\n\n%s"%'\n'.join("*%s - %s"%(t['name'],t['count']) for t in tags)
+    tags = Tag.objects.filter(post__user=request.user
+            ).values('name').annotate(count=Count('post')).order_by('name')
+    return "Your tags: (tag - messages)\n\n%s" % '\n'.join("*%s - %s"%(t['name'],t['count']) for t in tags)
 
 
 @cache_func(30)
 def user_info(request, username):
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return "Unknown user, sorry."
+    user = UserInterface(request.user).get_user_info(username=username)
+
     context = {}
     context['user'] = user
     context['userprofile'] = user.get_profile()
-    context['last_messages_and_recommendations'] = Post.objects.filter(Q(recommends__user=user)|Q(user=user)).order_by('-id')[:10]
+    context['last_messages_and_recommendations'] = Post.objects.filter(
+            Q(recommends__user=user)|Q(user=user)).order_by('-id')[:10]
     return render_to_string('jabber/user_info.txt', context)
 
 def vcard_command(request):
@@ -421,7 +307,6 @@ def vcard_command(request):
     request.stream.set_response_handlers(get_vcard_req, res_handler=vcard_success, err_handler=vcard_error)
     request.stream.send(get_vcard_req)
     return "Updating..."
-
 
 def login_command(request):
     token = sha1('%s-%s-%i'%(request.user.pk, settings.SECRET_KEY, randint(10, 99999))).hexdigest()

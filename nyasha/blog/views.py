@@ -220,7 +220,7 @@ def post_view(request, post_pk):
 
     is_tree = request.COOKIES.get('comments_tree')
 
-    post = BlogInterface(request.user).get_post_with_comments(post_pk, 
+    post = BlogInterface(request.user).get_post_with_comments(post_pk,
             as_tree=is_tree, get_recommends=True)
 
     reply_to = request.GET.get('reply_to')

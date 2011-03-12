@@ -3,7 +3,7 @@ import time
 from functools import wraps
 from datetime import datetime
 
-from core import BaseMessageHandler, BaseIqHandler, BasePresenceHandler 
+from core import BaseMessageHandler, BaseIqHandler, BasePresenceHandler
 from core import BaseHandler
 from core import BaseRoomManager, BaseRoomHandler
 
@@ -20,6 +20,8 @@ from django.core.cache import cache
 
 from blog.views import post_in_blog, send_broadcast, send_subscribes_broadcast, render_post
 from blog.models import Subscribed
+
+from blog.logic import InterfaceError
 
 from django.db import connection
 
@@ -48,12 +50,15 @@ class PrivateMessageHandler(BaseMessageHandler):
         message_body = message.body
         if not message_body:
             return
-
         begin_queries_count = len(connection.queries)
 
         user = get_user_from_jid(from_jid)
         request = Request(message, self.get_stream(), user)
-        text = command_patterns.execute_command(request)
+        try:
+            text = command_patterns.execute_command(request)
+        except InterfaceError, error:
+            text = error.message
+
         if not text:
             post = post_in_blog(message_body, user, from_jid.resource)
             if not post:

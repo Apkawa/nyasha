@@ -1,5 +1,6 @@
 import os
 import logging
+import logging.config
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,57 +15,71 @@ logging.basicConfig(level=level,
                    format='%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
                    datefmt='%d-%m-%Y %H:%M:%S',
                    filename=os.path.join(PROJECT_ROOT,'log', 'nyasha.log'),
-                   filemode='a')
+                   filemode='a'
+                   )
+
+logger = logging.getLogger('jabber_daemon.core')
+logger.addHandler(logging.StreamHandler())
+#logger.setLevel(logging.DEBUG) # change to DEBUG for higher verbosity
+logger.setLevel(logging.INFO) # change to DEBUG for higher verbosity
+
+for name in ['pyxmpp', 'pyxmpp.StreamSASLMixIn',
+        'pyxmpp.StreamTLSMixIn', 'pyxmpp.sasl.DigestMD5ClientAuthenticator']:
+    logging.getLogger(name).setLevel(logging.ERROR)
 
 #for django >= 1.3 ^__^
-#LOGGING = {
-#    'version': 1,
-#    #'disable_existing_loggers': True,
-#    'formatters': {
-#        'base': {
-#            'format': '%(asctime)s %(name)-20s %(levelname)-8s %(message)s'
-#        },
-#        'simple': {
-#            'format': '%(levelname)-8s %(message)s'
-#        },
-#    },
-#    'filters': {
-#        'special': {
-#            '()': 'project.logging.SpecialFilter',
-#            'foo': 'bar',
-#        }
-#    },
-#    'handlers': {
-#        'null': {
-#            'level':'DEBUG',
-#            'class':'django.utils.log.NullHandler',
-#        },
-#        'console':{
-#            'level':'DEBUG',
-#            'class':'logging.StreamHandler',
-#            'formatter': 'simple'
-#        },
-#        'error': {
-#            'level':'ERROR',
-#            'class':'logging.handlers.RotatingFileHandler',
-#            'filename':os.path.join(PROJECT_ROOT,'log', 'error.log'),
-#            'formatter':'base',
-#            }
-#    },
-#    'loggers': {
-#        'django': {
-#            'handlers':['null'],
-#            'propagate': True,
-#            'level':'INFO',
-#        },
-#        'django.request': {
-#            'handlers': ['error'],
-#            'level': 'ERROR',
-#            'propagate': False,
-#        },
-#    }
-#}
+LOGGING = {
+   'version': 1,
+   #'disable_existing_loggers': True,
+   'formatters': {
+       'base': {
+           'format': '%(asctime)s %(name)-20s %(levelname)-8s %(message)s'
+       },
+       'simple': {
+           'format': '%(levelname)-8s %(message)s'
+       },
+   },
+   'filters': {},
+   'handlers': {
+       'null': {
+           'level':'DEBUG',
+           'class':'logging.NullHandler',
+       },
+       'console':{
+           'level':'DEBUG',
+           'class':'logging.StreamHandler',
+           'formatter': 'simple'
+       },
+       'error': {
+           'level':'ERROR',
+           'class':'logging.handlers.RotatingFileHandler',
+           'filename':os.path.join(PROJECT_ROOT,'log', 'error.log'),
+           'formatter':'base',
+           }
+   },
+   'loggers': {
+       'django': {
+           'handlers':['null'],
+           'propagate': True,
+           'level':'INFO',
+       },
+       'pyxmpp':{
+           'handlers':['null'],
+           'level':'DEBUG',
+           },
+       'django.request': {
+           'handlers': ['error'],
+           'level': 'ERROR',
+           'propagate': False,
+       },
+    'root': {
+           'handlers':['console'],
+           'level':'DEBUG',
+       }
+   }
+}
 
+#logging.config.dictConfig(LOGGING)
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -208,7 +223,7 @@ COMPRESS_CSS = {
             'media': 'print',
         },
     },
-    
+
     # other CSS groups goes here
 }
 

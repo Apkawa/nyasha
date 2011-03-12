@@ -26,7 +26,7 @@ from django.utils.encoding import smart_str
 class _VCard(OldVCard):
     def __repr__(self):
         FN = self.content["FN"] and self.content["FN"].value
-        
+
         return "<vCard of %r>" % (FN)
 
 #VCard.components['N'] = (VCard.components['N'],"optional")
@@ -100,7 +100,7 @@ class Command(object):
 
     __args = ()
     __kwargs = {}
-    
+
     def __init__(self, regexp, command, doc='', extra_kwargs=None):
         self.regexp = re.compile(regexp, re.MULTILINE|re.DOTALL)
         self.command = command
@@ -183,7 +183,7 @@ class BaseMessageHandler(BaseHandler):
         message = self._message_from_stanza(stanza)
         #pprint(message)
         func = getattr(self, "%s_message"%message.type, None)
-        #return_list 
+        #return_list
         if func and callable(func):
             func(message)
             #self.any_message(message)
@@ -359,7 +359,7 @@ class Client(JabberClient):
     def get_plugins(self):
         import plugins
         return [p(self) for p in plugins.PLUGINS]
-    
+
     def get_loop_tasks(self):
         import plugins
         return plugins.LOOP_TASK
@@ -417,12 +417,6 @@ class Client(JabberClient):
 
 
 
-logger = logging.getLogger('jabber_daemon.core')
-logger.addHandler(logging.StreamHandler())
-#logger.setLevel(logging.DEBUG) # change to DEBUG for higher verbosity
-logger.setLevel(logging.INFO) # change to DEBUG for higher verbosity
-for name in ['pyxmpp.StreamSASLMixIn', 'pyxmpp.StreamTLSMixIn', 'pyxmpp.sasl.DigestMD5ClientAuthenticator']:
-    logging.getLogger(name).setLevel(logging.ERROR)
 
 
 def main():

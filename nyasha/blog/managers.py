@@ -3,6 +3,7 @@ from django.db.models.query import QuerySet
 from django.db import models
 from django.db.models import Q
 
+
 class BaseManager(models.Manager):
     queryset_class = QuerySet
     def get_query_set(self):
@@ -14,7 +15,6 @@ class BaseManager(models.Manager):
 class NotDeletedManager(BaseManager):
     def get_query_set(self):
         return super(NotDeletedManager, self).get_query_set().exclude(is_deleted=1)
-
 
 class PostQyerySet(QuerySet):
     def select_related_tag(self):

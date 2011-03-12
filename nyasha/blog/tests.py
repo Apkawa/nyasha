@@ -8,7 +8,7 @@ Replace these with more appropriate tests for your application.
 
 from django.test import TestCase
 
-from views import parse_message 
+from views import parse_message
 
 from django.contrib.auth.models import User
 from logic import UserInterface, UserInterfaceError
@@ -48,6 +48,21 @@ class UserInterfaceTest(TestCase):
     def test_get_user(self):
         user = UserInterface(self.user).get_user(self.user.username)
         self.assertEqual(user, self.user)
+
+    def test_get_user_info(self):
+        user = UserInterface(self.user).get_user_info(self.user.id)
+        self.assertEqual(user, self.user)
+        self.assertTrue(isinstance(user.comments_count, int))
+
+    def test_get_user_info_by_username(self):
+        user = UserInterface(self.user).get_user_info(username=self.user.username)
+        self.assertEqual(user, self.user)
+        self.assertTrue(isinstance(user.comments_count, int))
+
+    def test_get_user_info_by_self(self):
+        user = UserInterface(self.user).get_user_info()
+        self.assertEqual(user, self.user)
+        self.assertTrue(isinstance(user.comments_count, int))
 
     def test_get_not_exists_user(self):
         self.assertRaises(UserInterfaceError, UserInterface(self.user).get_user, "not_exist_user")

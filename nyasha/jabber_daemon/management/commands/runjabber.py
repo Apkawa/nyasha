@@ -36,6 +36,7 @@ class Command(BaseDaemon):
                 c.disconnect()
                 break
             except Exception, error:
+                print error
                 logger.exception(error)
                 c.disconnect()
                 c.connect()
@@ -51,7 +52,7 @@ class Command(BaseDaemon):
                     break
         else:
             self.run_jabber_client()
-        
+
     def usage(self, subcommand):
         return 'runjabber'
 
