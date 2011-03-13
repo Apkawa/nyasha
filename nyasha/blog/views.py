@@ -105,7 +105,7 @@ def render_post(post, with_comments=False, recommend_by=None, template='jabber/p
     context['post'] = post
     context['recommend_by'] = recommend_by
     if with_comments:
-        context['comments'] = post.comments.all()
+        context['comments'] = post.comments.filter().select_related('user')
     return render_to_string(template, context)
 
 def render_comment(comment, reply_to=None, template='jabber/comment.txt'):

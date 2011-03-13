@@ -1,24 +1,19 @@
 # -*- coding: utf-8 -*-
 import time
-from functools import wraps
 from datetime import datetime
 
 from core import BaseMessageHandler, BaseIqHandler, BasePresenceHandler
-from core import BaseHandler
-from core import BaseRoomManager, BaseRoomHandler
 
-from core import Message, Presence, Iq, JID, Request
+from core import Message, Iq, JID, Request
 
 from core import TimeoutException
 
 from command_resolver import command_patterns
 
-from django.db.models import Q
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.core.cache import cache
 
-from blog.views import post_in_blog, send_broadcast, send_subscribes_broadcast, render_post
+from blog.views import post_in_blog, send_subscribes_broadcast, render_post
 from blog.models import Subscribed
 
 from blog.logic import InterfaceError
@@ -39,7 +34,6 @@ def get_user_from_jid(jid):
     user_email = "%s@%s"%(jid.node, jid.domain)
     user, created = User.objects.get_or_create(email=user_email, defaults={'username':slugify(user_email)})
     return user
-
 
 
 class PrivateMessageHandler(BaseMessageHandler):
@@ -78,7 +72,7 @@ class PrivateMessageHandler(BaseMessageHandler):
 class PresenceHandler(BasePresenceHandler):
     def subscribe(self, presence):
         from_jid = presence.get_from_jid()
-        user = get_user_from_jid(from_jid)
+        get_user_from_jid(from_jid)
         return presence.make_accept_response()
 
 class StatusHandler(BaseIqHandler):
@@ -87,10 +81,6 @@ class StatusHandler(BaseIqHandler):
         print iq
 
 
-
-class BasePlugin(object):
-    def test_command(self, args):
-        return response
 
 class ExampleMessageHandler(BaseMessageHandler):
     message_types = ('chat',)

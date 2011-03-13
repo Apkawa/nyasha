@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import os, Image
+import os
+import Image
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.db.models.fields.files import ImageFieldFile
@@ -17,7 +18,8 @@ class AvatarStorage(FileSystemStorage):
     def get_thumb_name(self, name, thumb_size):
         dir_name, file_name = os.path.split(name)
         file_root, file_ext = os.path.splitext(file_name)
-        name = os.path.join(dir_name, "%s_%s%s" % (file_root, thumb_size, file_ext))
+        name = os.path.join(dir_name,
+                "%s_%s%s" % (file_root, thumb_size, file_ext))
         return name
 
     def get_available_name(self, name):
@@ -43,13 +45,14 @@ class AvatarStorage(FileSystemStorage):
         return name
 
     def _save(self, name, content):
-        result =  super(AvatarStorage, self)._save(name, content)
+        result = super(AvatarStorage, self)._save(name, content)
         if self.size:
             self._save_thumb(name, self.size, thumb=False)
 
         for size in self.thumb_sizes:
             self._save_thumb(name, size)
         return result
+
 
 class AvatarImageFileField(ImageFieldFile):
     def __init__(self, *args, **kwargs):
@@ -59,7 +62,8 @@ class AvatarImageFileField(ImageFieldFile):
 
     def get_thumb_name(self, size):
         thumb_name = self.storage.get_thumb_name(self.name, size)
-        if self.storage.exists(self.name) and not self.storage.exists(thumb_name):
+        if self.storage.exists(self.name) \
+                and not self.storage.exists(thumb_name):
             self.storage._save_thumb(self.name, size)
         return thumb_name
 
@@ -71,8 +75,8 @@ class AvatarImageFileField(ImageFieldFile):
                 url = self.storage.url(thumb_name)
             else:
                 path = url = None
-            setattr(self, 'path_%s'%size, path)
-            setattr(self, 'url_%s'%size, url)
+            setattr(self, 'path_%s' % size, path)
+            setattr(self, 'url_%s' % size, url)
 
     def save(self, *args, **kwargs):
         super(AvatarImageFileField, self).save(*args, **kwargs)
@@ -85,14 +89,14 @@ class AvatarImageFileField(ImageFieldFile):
             self._make_prop()
 
 
-
 class AvatarImageField(models.ImageField):
     attr_class = AvatarImageFileField
 
     def __init__(self, size=None, thumb_sizes=None, **kwargs):
         if 'storage' not in kwargs:
-            kwargs['storage'] = AvatarStorage(size=size, thumb_sizes=thumb_sizes)
+            kwargs['storage'] = AvatarStorage(
+                                    size=size,
+                                    thumb_sizes=thumb_sizes)
         self.size = size or None
         self.thumb_sizes = thumb_sizes or []
         super(AvatarImageField, self).__init__(**kwargs)
-

@@ -7,17 +7,18 @@ class PostForm(forms.Form):
     body = forms.CharField(widget=forms.Textarea)
 
 
-
 class ProfileEditForm(forms.ModelForm):
     username = forms.CharField()
     email = forms.EmailField(label="jabber jid", required=False)
+
     class Meta:
         model = Profile
         fields = ('name', 'url', 'comment', 'avatar', 'is_off', 'email')
 
     def __init__(self, *args, **kwargs):
         ins = kwargs['instance']
-        kwargs['initial'] = {'username':ins.user.username,'email': ins.user.email}
+        kwargs['initial'] = {'username': ins.user.username,
+                'email': ins.user.email}
         super(ProfileEditForm, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -29,7 +30,6 @@ class ProfileEditForm(forms.ModelForm):
         if user.username != new_username:
             user.username = new_username
             user_save = True
-        new_email = data['email']
 
         if user_save:
             user.save()
@@ -52,5 +52,3 @@ class ProfileEditForm(forms.ModelForm):
             raise forms.ValidationError("New username exists!")
 
         return username
-
-
