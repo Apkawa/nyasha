@@ -128,8 +128,8 @@ class PostInterface(Interface):
         from models import Post, Tag, Subscribed
         try:
             posts = Post.objects.comments_count().filter(pk=post_id)
-            posts = Tag.attach_tags(posts)
             posts = Subscribed.join_is_subscribed(self.user, posts)
+            posts = Tag.attach_tags(posts)
             post = posts[0]
         except (Post.DoesNotExist, IndexError):
             raise PostInterfaceError("Message not found.")
