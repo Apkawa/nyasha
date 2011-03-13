@@ -105,7 +105,9 @@ def render_post(post, with_comments=False, recommend_by=None, template='jabber/p
     context['post'] = post
     context['recommend_by'] = recommend_by
     if with_comments:
-        context['comments'] = post.comments.filter().select_related('user')
+        context['comments'] = reversed(BlogInterface.paginate(
+                        post.comments.filter().select_related('user').order_by('-number'),
+                        per_page=100))
     return render_to_string(template, context)
 
 def render_comment(comment, reply_to=None, template='jabber/comment.txt'):
@@ -208,6 +210,8 @@ def user_blog(request, username=None):
     return render_template(request, 'blog/user_blog.html', context)
 
 
+COMMENTS_PER_PAGE = 500
+
 def post_view(request, post_pk):
     if 'tree' in request.GET:
         is_tree = bool(request.GET.get('tree'))
@@ -219,9 +223,26 @@ def post_view(request, post_pk):
         return res
 
     is_tree = request.COOKIES.get('comments_tree')
+    page = request.GET.get('page', 1)
 
     post = BlogInterface(request.user).get_post_with_comments(post_pk,
             as_tree=is_tree, get_recommends=True)
+
+    comments = post.comments_post
+
+    try:
+        page = int(page)
+    except ValueError:
+        return redirect('.')
+
+    paginate = Paginator(comments, COMMENTS_PER_PAGE)
+
+    try:
+        page = paginate.page(page)
+    except (EmptyPage, InvalidPage):
+        page = paginate.page(paginate.num_pages)
+
+    comments = page.object_list
 
     reply_to = request.GET.get('reply_to')
     if reply_to:
@@ -237,7 +258,8 @@ def post_view(request, post_pk):
     context = {}
     context['post'] = post
     context['user_blog'] = post.user
-    context['comments'] = post.comments_post
+    context['page'] = page
+    context['comments'] = comments
     context['is_tree'] = is_tree
     context['recommends'] = post.recommend_users
     context['reply_form'] = form_p.form

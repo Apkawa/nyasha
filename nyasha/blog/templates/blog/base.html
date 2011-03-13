@@ -8,13 +8,15 @@
             <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/42.png" width="42" height="42" alt=""/>
             {% endif %}
             <a href="{% url user_blog user.username %}">@{{ user }}</a>
-            <a href="{% url profile_edit %}">{{ _("edit profile")|capfirst }}</a>
-            <a href="{% url logout %}">{{ _("logout")|capfirst }}</a>
+            <div class="a-right">
+                <a href="{% url profile_edit %}">{{ _("edit profile")|capfirst }}</a>
+                <a href="{% url logout %}">{{ _("logout")|capfirst }}</a>
+            </div>
     {% else %}
             <a href="{% url login %}">{{ _("login")|capfirst }}</a>
     {% endif %}
             </div>
-        
+
 {% endblock %}
 {% block menu %}
     <ul>
@@ -22,7 +24,7 @@
         <li> <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
 </li>
     {% endif %}
-<li>    
+<li>
     <a href="{% url user_list %}">{{ _("user top")|capfirst }}</a>
 </li>
 <li><a href="{% url help %}">{{ _("help")|capfirst }}</a></li>

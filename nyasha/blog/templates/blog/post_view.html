@@ -15,13 +15,29 @@
             {% endfor %}
         {% endif %}
     </div>
-    <h2 class="span-4">{{ _("Replies")|capfirst }} ({{ post.comments_count }})</h2>
-    <div id="toggle_mode" class="prepend-9 span-1 last">
+    <h2 class="span-5">{{ _("Replies")|capfirst }} ({{ post.comments_count }})</h2>
+    <div id="toggle_mode" class="prepend-8 span-1 last">
     <form method="get" action="">
         <input type="hidden" name="tree" value="{% if not is_tree %}1{% endif %}"/>
         <button>{% if not is_tree %}{{ _("tree")|capfirst }}{% else %}{{ _("linear")|capfirst }}{% endif %}</button>
     </form>
     </div>
+    {% if page.has_other_pages %}
+    <div class="paginator span-15">
+        {% if page.has_previous %}
+            <div class='page_newer'>
+                <a href="?page={{ page.previous_page_number }}">{{ "←" }} {{ _("older")|capfirst }}</a>
+                <a href="?page=1">{{ "" }} {{ _("first")|capfirst }}</a>
+            </div>
+        {% endif %}
+        {% if page.has_next %}
+            <div class='page_older'>
+                <a href="?page={{ page.paginator.num_pages }}">{{ "" }} {{ _("last")|capfirst }}</a>
+                <a href="?page={{ page.next_page_number }}">{{ _("newer")|capfirst }} {{ "→" }}</a>
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
     <div id="comments_wrap" class="span-15">
     {% if is_tree %}
         {% for comment, structure in comments|tree_info %}
@@ -49,13 +65,29 @@
                         <tr>
                             <td>{{ reply_form.body }}</td>
                         </tr>
-                        <tr>                        
+                        <tr>
                             <td><button type="submit">{{ _("scated")|capfirst }}</button></td>
                         </tr>
                     </tbody>
                 </table>
             </form>
         </div>
+    </div>
+    {% endif %}
+    {% if page.has_other_pages %}
+    <div class="paginator span-15">
+        {% if page.has_previous %}
+            <div class='page_newer'>
+                <a href="?page={{ page.previous_page_number }}">{{ "←" }} {{ _("older")|capfirst }}</a>
+                <a href="?page=1">{{ "" }} {{ _("first")|capfirst }}</a>
+            </div>
+        {% endif %}
+        {% if page.has_next %}
+            <div class='page_older'>
+                <a href="?page={{ page.paginator.num_pages }}">{{ "" }} {{ _("last")|capfirst }}</a>
+                <a href="?page={{ page.next_page_number }}">{{ _("newer")|capfirst }} {{ "→" }}</a>
+            </div>
+        {% endif %}
     </div>
     {% endif %}
     </div>

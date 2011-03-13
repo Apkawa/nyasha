@@ -129,15 +129,16 @@ class Command(BaseDaemon):
             pi = PostInterface(user)
             post = pi.add_post(lorem_ipsum.paragraph(), tags=self.get_tags())
             self.make_replies_for_post(post)
-            for i in xrange(random.randrange(5, 200)):
-                pi.add_reply(lorem_ipsum.paragraph(), *self.get_post_or_comment())
+            #for i in xrange(random.randrange(5, 200)):
+            #    pi.add_reply(lorem_ipsum.paragraph(), *self.get_post_or_comment())
 
     def start_server(self, *args, **options):
         print "start"
-        user = self.get_user()
-        pi = PostInterface(user)
-        post = pi.add_post(lorem_ipsum.paragraph(), tags=self.get_tags())
-        self.make_replies_for_post(post, 20000)
+        self.generate_fish()
+        #user = self.get_user()
+        #pi = PostInterface(user)
+        #post = pi.add_post(lorem_ipsum.paragraph(), tags=self.get_tags())
+        #self.make_replies_for_post(post, 20000)
 
 
 
