@@ -233,7 +233,7 @@ def post_view(request, post_pk):
     try:
         page = int(page)
     except ValueError:
-        return redirect('.')
+        return redirect('post_view', post_pk)
 
     paginate = Paginator(comments, COMMENTS_PER_PAGE)
 

@@ -21,10 +21,9 @@ class LoggingMiddleware(object):
 
         try:
             return view_func(request, *view_args,**view_kwargs)
-        except Http404:
-            pass
-        except Exception:
-            log.exception(request)
+        except Exception, error:
+            if not isinstance(error, Http404):
+                log.exception(request)
 
     def process_exception(self, request, exception):
         #logging.exception(request)
