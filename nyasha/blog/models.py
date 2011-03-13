@@ -226,6 +226,31 @@ class Subscribed(NotDeletedModel):
         subscribes.query.group_by = ['user_id']
         return subscribes.select_related('user')
 
+    @staticmethod
+    def join_is_subscribed(user, queryset):
+        if queryset.model is Post:
+            return queryset.extra(select={
+                'is_subscribed':
+                '''SELECT COUNT(1) FROM
+                    blog_subscribed AS s
+                    WHERE s.user_id = %s
+                        AND s.subscribed_post_id = blog_post.id
+                        AND is_deleted = 0
+                '''},
+                select_params = [user.pk])
+        elif queryset.model is User:
+            return queryset.extra(select={
+                'is_subscribed':
+                '''SELECT COUNT(1) FROM
+                    blog_subscribed AS s
+                    WHERE s.user_id = %s
+                        AND s.subscribed_user_id = auth_user.id
+                        AND is_deleted = 0
+                '''},
+                select_params = [user.pk])
+        return queryset
+
+
 
 class BlackList(models.Model):
     user = models.ForeignKey('auth.User', related_name="me_blacklist")

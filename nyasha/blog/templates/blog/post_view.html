@@ -1,6 +1,7 @@
 {% extends "blog/base.html" %}
 {% load mptt_tags %}
 {% load nya_blog %}
+
 {% block content %}
     <div id="content_header" class="span-15">
     {% with post.user.get_profile as user_profile %}

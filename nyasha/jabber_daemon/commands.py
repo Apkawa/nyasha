@@ -181,50 +181,9 @@ def subscribe_toggle_command(request, post_pk=None,
     U @username - Unsubscribe from user's blog
     U *tag - Unsubscribe from tag
     '''
-    kw = {}
-    kw['user'] = request.user
-    if post_pk:
-        try:
-            post = Post.objects.get(pk=post_pk)
-            kw['subscribed_post'] = post
-        except Post.DoesNotExist:
-            return "Message not found."
+    return BlogInterface(request.user).subscribe_toggle_command(
+                                            post_pk, username, tagname, delete)
 
-    if username:
-        try:
-            s_user = User.objects.get(username=username)
-            kw['subscribed_user'] = s_user
-        except User.DoesNotExist:
-            return "Unknown user, sorry."
-
-    if tagname:
-        try:
-            tag = Tag.objects.get(name=tagname)
-            kw['subscribed_tag'] = tag
-        except Tag.DoesNotExist:
-            return "Tag not found."
-
-    if not delete:
-        subscribe, created = Subscribed.admin_objects.get_or_create(**kw)
-        if not created and not subscribe.is_deleted:
-            return 'Already subscribed.'
-        else:
-            if subscribe.is_deleted:
-                subscribe.is_deleted = False
-                subscribe.save()
-            if username:
-                if created:
-                    send_alert(s_user,
-                        "@%s subscribed to your blog!" % request.user.username,
-                        sender=request.get_sender())
-                return 'Subscribed to @%s!' % username
-            elif post_pk:
-                return 'Subscribed (%i replies).' % post.comments.count()
-            elif tagname:
-                return 'Subscribed to *%s.' % tagname
-    else:
-        Subscribed.objects.filter(**kw).update(is_deleted=True)
-        return 'Unsubscribed!'
 
 
 def blacklist_toggle_command(request, username=None, tagname=None):

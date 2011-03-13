@@ -6,6 +6,7 @@ from django.http import Http404
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 
+
 class InterfaceError(Http404):
     '''
     Исключение, которое обеспечивает механизм передачи информации.
@@ -50,7 +51,7 @@ class UserInterface(Interface):
         return user
 
     def get_user_info(self, user_id=None, username=None):
-        from models import Profile
+        from models import Profile, Subscribed
         if user_id:
             users_set = User.objects.filter(pk=user_id)
         elif username:
@@ -59,6 +60,7 @@ class UserInterface(Interface):
             users_set = User.objects.filter(pk=self.user.pk)
 
         users = Profile.attach_user_info(users_set)
+        users = Subscribed.join_is_subscribed(self.user, users)
         try:
             return users[0]
         except IndexError:
@@ -123,10 +125,11 @@ class PostInterface(Interface):
         return obj.get_number()
 
     def get_post(self, post_id):
-        from models import Post, Tag
+        from models import Post, Tag, Subscribed
         try:
             posts = Post.objects.comments_count().filter(pk=post_id)
             posts = Tag.attach_tags(posts)
+            posts = Subscribed.join_is_subscribed(self.user, posts)
             post = posts[0]
         except (Post.DoesNotExist, IndexError):
             raise PostInterfaceError("Message not found.")
@@ -231,7 +234,7 @@ class BlogInterface(Interface):
         get_posts(feed=True[, username='test']) -> get feed posts for user
 
         '''
-        from models import Post
+        from models import Post, Subscribed
         user = self.user
         if username:
             user = UserInterface(self.user).get_user(username)
@@ -246,6 +249,8 @@ class BlogInterface(Interface):
 
         if tag_name:
             posts = posts.filter(tags__name=tag_name)
+
+        posts = Subscribed.join_is_subscribed(self.user, posts)
 
         return posts
 
@@ -304,3 +309,62 @@ class BlogInterface(Interface):
         personal_message = render_to_string(
                 'jabber/personal_message.txt', context)
         send_alert(user, personal_message)
+
+    def subscribe_toggle_command(self,
+                                post_pk=None,
+                                username=None,
+                                tagname=None,
+                                delete=False):
+        '''
+        S #123 - Subscribe to message replies
+        S @username - Subscribe to user's blog
+        S *tag - Subscribe to tag
+        U #123 - Unsubscribe from comments
+        U @username - Unsubscribe from user's blog
+        U *tag - Unsubscribe from tag
+        '''
+        from blog.models import Tag, Subscribed
+        from blog.views import send_alert
+
+        user = self.user
+        kw = {}
+        kw['user'] = user
+        if post_pk:
+            post = PostInterface(self.user).get_post(post_id=post_pk)
+            kw['subscribed_post'] = post
+
+        if username:
+            s_user = UserInterface(self.user).get_user(username=username)
+            kw['subscribed_user'] = s_user
+            if user.pk == s_user:
+                raise BlogInterfaceError("Not subscribe on self")
+
+        if tagname:
+            #TODO: use TagInterface
+            try:
+                tag = Tag.objects.get(name=tagname)
+                kw['subscribed_tag'] = tag
+            except Tag.DoesNotExist:
+                raise BlogInterfaceError("Tag not found.")
+
+        print kw
+        if not delete:
+            subscribe, created = Subscribed.admin_objects.get_or_create(**kw)
+            if not created and not subscribe.is_deleted:
+                raise BlogInterfaceError('Already subscribed.')
+            else:
+                if subscribe.is_deleted:
+                    subscribe.is_deleted = False
+                    subscribe.save()
+                if username:
+                    if created:
+                        send_alert(s_user,
+                            "@%s subscribed to your blog!" % self.user.username)
+                    return 'Subscribed to @%s!' % username
+                elif post_pk:
+                    return 'Subscribed (%i replies).' % post.comments.count()
+                elif tagname:
+                    return 'Subscribed to *%s.' % tagname
+        else:
+            Subscribed.objects.filter(**kw).update(is_deleted=True)
+            return 'Unsubscribed!'

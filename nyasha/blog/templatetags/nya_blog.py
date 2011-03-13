@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 import random
+import os
+
+from django.utils.safestring import mark_safe
+
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django import template
 
-from utils.markup import nya_parser 
 from django.contrib.auth.models import User
+
+from utils.markup import nya_parser
 from blog.models import Profile, Tag, Post, Comment
 
 register = template.Library()
@@ -48,3 +53,36 @@ def tags_cloud(user=None):
     context['user_blog'] = user
     context['tag_cloud'] = tag_cloud
     return context
+
+
+
+ICON_PATH = [
+        os.path.join('images', 'icons'),
+        ]
+ALIASES = {
+        'add':'add-icon',
+        'edit':'pencil',
+        'delete':'cross',
+        'archive':'box',
+        }
+def get_icon_url(icon_name):
+    icon_file = ALIASES.get(icon_name, icon_name) + ".png"
+    for icon_path in ICON_PATH:
+        test_path = os.path.join(settings.MEDIA_ROOT, icon_path, icon_file)
+
+        if os.path.exists(test_path):
+            icon_url = os.path.join(settings.MEDIA_URL, icon_path, icon_file)
+            return icon_url
+
+    icon_url = ''
+    return icon_url
+
+@register.simple_tag
+def icon_img( icon_name, alt=None, href=False):
+    icon_url = get_icon_url(icon_name)
+    if href:
+        return icon_url
+    if not alt:
+        return mark_safe( '<img class="icon" src="%s" alt="%s"/>' % (icon_url, icon_name))
+    else:
+        return mark_safe( '<img class="icon" src="%s" alt="%s"/>' % (icon_url, alt))

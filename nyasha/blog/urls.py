@@ -8,6 +8,9 @@ personal_patterns = patterns('blog.views',
             name='my_readers_list', kwargs={'my_readers': True}),
         url(r'^i_read/$', 'user_list',
             name='i_read_list', kwargs={'i_read': True}),
+
+        url(r'^subscribe/$',
+            'subscribe_toggle', name='subscribe_toggle'),
         )
 
 auth_patterns = patterns('',
@@ -41,6 +44,10 @@ urlpatterns = patterns('blog.views',
     url(r'^(?P<post_pk>[\d]+)/reply/$', 'reply_add', name='reply_add'),
     url(r'^(?P<post_pk>[\d]+)/reply/(?P<reply_to>[\d]+)/$',
         'reply_add', name='reply_add'),
+
+    url(r'^(?P<post_pk>[\d]+)/subscribe/$',
+        'subscribe_toggle', name='subscribe_toggle'),
+
     url(r'^$', 'user_blog', name='main'),
     url(r'^u/(?P<username>[\w]+)/', include(personal_patterns)),
     url(r'^profile/edit/$', 'profile_edit', name='profile_edit'),

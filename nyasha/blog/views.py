@@ -25,6 +25,7 @@ from models import Post, Subscribed, Tag, Comment, Profile, UserOpenID
 from jabber_daemon.models import SendQueue
 
 from logic import BlogInterface, PostInterface, UserInterface
+from logic import InterfaceError
 
 from utils import get_randstr
 from utils.shortcuts import render_template
@@ -72,8 +73,6 @@ def handler404(request, template_name='404.html'):
     resp = render_template(request, template_name)
     resp.status_code = 404
     return resp
-
-
 
 
 MAX_TAG_COUNT = 5
@@ -183,8 +182,15 @@ def user_blog(request, username=None):
     page = request.GET.get('page', 1)
     tagname = request.GET.get('tag')
 
-    users = Profile.attach_user_info(User.objects.filter(username=username))
-    user = username and get_object_or_404(users, username=username)
+    #users = Profile.attach_user_info(User.objects.filter(username=username))
+    #user = username and get_object_or_404(users, username=username)
+    user = None
+    if username:
+        try:
+            user = UserInterface(request.user).get_user_info(username=username)
+        except InterfaceError, error:
+            raise Http404(error)
+
     try:
         page = int(page)
     except ValueError:
@@ -310,6 +316,27 @@ def reply_add(request, post_pk, reply_to=None):
     context['form'] = form_p.form
     return render_template(request, 'blog/post_add.html', context)
 
+@login_required
+def subscribe_toggle(request, post_pk=None, username=None):
+    user = request.user
+    try:
+        if post_pk:
+            post = PostInterface(user).get_post(post_pk)
+            delete = not not post.is_subscribed
+        elif username:
+            s_user = UserInterface(user).get_user_info(username=username)
+            delete = not not s_user.is_subscribed
+        BlogInterface(user).subscribe_toggle_command(
+                post_pk=post_pk,
+                username=username,
+                delete=delete)
+    except InterfaceError, error:
+        raise Http404(error)
+    if post_pk:
+        return redirect('post_view', post_pk)
+    elif username:
+        return redirect('user_blog', username)
+
 def help(request):
     context = {}
     context['settings'] = settings
@@ -358,7 +385,6 @@ def openid_profile_delete(request, openid_pk):
     UserOpenID.objects.filter(openid=openid_pk, user=request.user).delete()
     return redirect(redirect_url)
 
-
 @cache_func(666, cache_key_func=_cache_key_func_for_view)
 def user_list(request, my_readers=False, i_read=False, username=None):
     if username:
@@ -380,7 +406,6 @@ def user_list(request, my_readers=False, i_read=False, username=None):
     context = {}
     context['users'] = users
     return render_template(request, 'blog/user_list.html', context)
-
 
 @login_required
 def confirm_jid(request, token):
