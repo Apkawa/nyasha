@@ -9,7 +9,6 @@
             {% endif %}
             <a href="{% url user_blog user.username %}">@{{ user }}</a>
             <div class="a-right">
-                <a href="{% url profile_edit %}">{{ _("edit profile")|capfirst }}</a>
                 <a href="{% url logout %}">{{ _("logout")|capfirst }}</a>
             </div>
     {% else %}
@@ -20,13 +19,12 @@
 {% endblock %}
 {% block menu %}
     <ul>
+    <li><a href="{% url user_list %}">{{ _("user top")|capfirst }}</a></li>
     {% if user.is_authenticated %}
-        <li> <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a>
-</li>
+        <li> <a href="{% url post_add %}">{{ _("add post")|capfirst }}</a></li>
+        <li><a href="{% url blacklist_view %}">{{ _("my blasklist")|capfirst }}</a></li>
+        <li><a href="{% url profile_edit %}">{{ _("edit profile")|capfirst }}</a></li>
     {% endif %}
-<li>
-    <a href="{% url user_list %}">{{ _("user top")|capfirst }}</a>
-</li>
 <li><a href="{% url help %}">{{ _("help")|capfirst }}</a></li>
     </ul>
 

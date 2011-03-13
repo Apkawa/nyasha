@@ -13,6 +13,11 @@
             {% url main as url_tag %}
         {% endif %}
         {% for tag in post.post_tags %}<a href="{{ url_tag }}?tag={{ tag.name }}">*{{ tag.name }}</a> {% endfor %}
+    <div class="f-right">
+        {% if user.pk == post.user_id %}
+            <a href="{% url post_or_reply_delete post.pk %}">{% icon_img 'delete' 'delete' %}</a>
+        {% endif %}
+    </div>
     </div>
     <div class="post_content">
         {{ post.body|nya_markup|safe|linebreaksbr }}
@@ -21,9 +26,9 @@
         {% if user.is_authenticated %}
                 <a href="{% url subscribe_toggle post_pk=post.pk %}">
             {% if post.is_subscribed %}
-                {% icon_img 'star-small' %}
+                {% icon_img 'star-small' _('unsubscribe') %}
             {% else %}
-                {% icon_img 'star-small-empty' %}
+                {% icon_img 'star-small-empty' _('subscribe') %}
             {% endif %}
                 </a>
             <a href="{% url post_view post.id %}#reply_to">{{ _("reply to")|capfirst }}</a>

@@ -253,11 +253,22 @@ class Subscribed(NotDeletedModel):
 
 
 class BlackList(models.Model):
+    '''
+    Суть блеклистов в том:
+        1) сообщения от юзера не приходят по оповещению или рекомендации
+        2) юзер не может комментить посты у того, у кого в BL
+        3) сообщения с тегом не приходят юзеру с оповещенями
+
+    Есть модификатор - is_ignore
+    Полностью игнорирует все сообщения от юзера или сообщения с тегом.
+    Пользователь просто не видит.
+    '''
     user = models.ForeignKey('auth.User', related_name="me_blacklist")
     blacklisted_user = models.ForeignKey('auth.User',
             related_name='blacklisted_user', blank=True, null=True)
     blacklisted_tag = models.ForeignKey('Tag',
             related_name='blacklisted_tag', blank=True, null=True)
+    is_ignore = models.BooleanField("Ignore user or tag", default=False)
     datetime = models.DateTimeField(auto_now=True)
 
     @classmethod

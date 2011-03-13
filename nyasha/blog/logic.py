@@ -119,7 +119,7 @@ class PostInterface(Interface):
     def delete_reply(self, post_id, reply_number):
         user = self.user
         obj = self.get_comment(post_id, reply_number)
-        if not obj.user_id == user.pk:
+        if not obj.user_id == user.pk:# and obj.post.user_id != user.pk:
             raise PostInterfaceError('This is not your message.')
         obj.delete()
         return obj.get_number()

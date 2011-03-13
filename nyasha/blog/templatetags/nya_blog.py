@@ -60,10 +60,10 @@ ICON_PATH = [
         os.path.join('images', 'icons'),
         ]
 ALIASES = {
-        'add':'add-icon',
-        'edit':'pencil',
-        'delete':'cross',
-        'archive':'box',
+        'add': 'add-icon',
+        'edit': 'pencil',
+        'delete': 'cross-octagon-frame',
+        'archive': 'box',
         }
 def get_icon_url(icon_name):
     icon_file = ALIASES.get(icon_name, icon_name) + ".png"
@@ -78,7 +78,7 @@ def get_icon_url(icon_name):
     return icon_url
 
 @register.simple_tag
-def icon_img( icon_name, alt=None, href=False):
+def icon_img(icon_name, alt=None, href=False):
     icon_url = get_icon_url(icon_name)
     if href:
         return icon_url

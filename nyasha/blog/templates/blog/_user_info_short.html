@@ -9,9 +9,9 @@
     {% if user.is_authenticated and user.pk != user_blog.pk %}
         <a href='{% url subscribe_toggle username=user_profile.user.username %}'>
             {% if user_blog.is_subscribed %}
-                {% icon_img 'heart' %}
+                {% icon_img 'heart' _('unsubscribe') %}
             {% else %}
-                {% icon_img 'heart-empty' %}
+                {% icon_img 'heart-empty' _('subscribe') %}
             {% endif %}
         </a>
     {% endif %}

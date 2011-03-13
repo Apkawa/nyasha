@@ -8,6 +8,11 @@
         <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/22.png" width="22" height="22" alt=""/>
         {% endif %}
         <a href="{% url user_blog comment.user.username%}">@{{ comment.user.username }}</a>
+        <div class='f-right'>
+        {% if user.pk == comment.user_id %}
+            <a href="{% url post_or_reply_delete post.pk comment.number %}">{% icon_img 'delete' 'delete' %}</a>
+        {% endif %}
+        </div>
     </div>
     <div class="comment_content">
         {{ comment.body|nya_markup|safe|linebreaksbr }}
@@ -23,7 +28,7 @@
                         <tr>
                             <td>{{ reply_form.body }}</td>
                         </tr>
-                        <tr>                        
+                        <tr>
                             <td><button type="submit">{{ _("scated")|capfirst }}</button></td>
                         </tr>
                     </tbody>

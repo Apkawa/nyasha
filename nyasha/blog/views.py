@@ -21,7 +21,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 
 from loginza.models import OpenID
-from models import Post, Subscribed, Tag, Comment, Profile, UserOpenID
+from models import Post, Subscribed, Tag, Comment, Profile, UserOpenID, BlackList
 from jabber_daemon.models import SendQueue
 
 from logic import BlogInterface, PostInterface, UserInterface
@@ -317,6 +317,19 @@ def reply_add(request, post_pk, reply_to=None):
     return render_template(request, 'blog/post_add.html', context)
 
 @login_required
+def post_or_reply_delete(request, post_pk, number=None):
+    try:
+        if number:
+            PostInterface(request.user).delete_reply(post_id=post_pk, reply_number=number)
+        else:
+            PostInterface(request.user).delete_post(post_id=post_pk)
+    except InterfaceError, error:
+        #TODO: 401
+        raise Http404(error)
+
+    return redirect(request.META.get('HTTP_REFERER'))
+
+@login_required
 def subscribe_toggle(request, post_pk=None, username=None):
     user = request.user
     try:
@@ -332,15 +345,29 @@ def subscribe_toggle(request, post_pk=None, username=None):
                 delete=delete)
     except InterfaceError, error:
         raise Http404(error)
-    if post_pk:
-        return redirect('post_view', post_pk)
-    elif username:
-        return redirect('user_blog', username)
+    #if post_pk:
+    #    return redirect('post_view', post_pk)
+    #elif username:
+    #    return redirect('user_blog', username)
+    return redirect(request.META.get('HTTP_REFERER'))
 
 def help(request):
     context = {}
     context['settings'] = settings
     return render_template(request, 'blog/help.html', context)
+
+@login_required
+def blacklist_view(request):
+    blacklist = BlackList.objects.filter(user=request.user
+                ).order_by('-blacklisted_user').select_related(
+                        'blacklisted_tag', 'blacklisted_user')
+    context = {}
+    context['blacklist'] = blacklist
+    return render_template(request, 'blog/user_blacklist.html', context)
+
+@login_required
+def blacklist_toggle(request, username):
+    return redirect(request.META.get('HTTP_REFERER'))
 
 @login_required
 def profile_edit(request):

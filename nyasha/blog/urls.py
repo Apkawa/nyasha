@@ -13,6 +13,19 @@ personal_patterns = patterns('blog.views',
             'subscribe_toggle', name='subscribe_toggle'),
         )
 
+post_patterns = patterns('blog.views',
+    url(r'^$', 'post_view', name='post_view'),
+    url(r'^reply/$', 'reply_add', name='reply_add'),
+    url(r'^reply/(?P<reply_to>[\d]+)/$',
+        'reply_add', name='reply_add'),
+
+    url(r'^delete/$', 'post_or_reply_delete', name='post_or_reply_delete'),
+    url(r'^(?P<number>[\d]+)/delete/$', 'post_or_reply_delete', name='post_or_reply_delete'),
+
+    url(r'^/subscribe/$',
+        'subscribe_toggle', name='subscribe_toggle'),
+        )
+
 auth_patterns = patterns('',
         url(r'^login/(?P<token>[\w]{40})/$',
             'blog.views.jabber_login', name='jabber_login'),
@@ -39,14 +52,15 @@ atom_patterns = patterns('',
 urlpatterns = patterns('blog.views',
     # Example:
     url(r'^help/$', 'help', name='help'),
-    url(r'^(?P<post_pk>[\d]+)$', 'post_view', name='post_view'),
     url(r'^add/$', 'post_add', name='post_add'),
-    url(r'^(?P<post_pk>[\d]+)/reply/$', 'reply_add', name='reply_add'),
-    url(r'^(?P<post_pk>[\d]+)/reply/(?P<reply_to>[\d]+)/$',
-        'reply_add', name='reply_add'),
+    url(r'^(?P<post_pk>[\d]+)/', include(post_patterns)),
+    #url(r'^(?P<post_pk>[\d]+)$', 'post_view', name='post_view'),
+    #url(r'^(?P<post_pk>[\d]+)/reply/$', 'reply_add', name='reply_add'),
+    #url(r'^(?P<post_pk>[\d]+)/reply/(?P<reply_to>[\d]+)/$',
+    #    'reply_add', name='reply_add'),
 
-    url(r'^(?P<post_pk>[\d]+)/subscribe/$',
-        'subscribe_toggle', name='subscribe_toggle'),
+    #url(r'^(?P<post_pk>[\d]+)/subscribe/$',
+    #    'subscribe_toggle', name='subscribe_toggle'),
 
     url(r'^$', 'user_blog', name='main'),
     url(r'^u/(?P<username>[\w]+)/', include(personal_patterns)),
@@ -56,6 +70,7 @@ urlpatterns = patterns('blog.views',
     url(r'^profile/confrim_jid/(?P<token>\w{,50})/$',
         'confirm_jid', name='confirm_jid'),
 
+    url(r'^profile/blacklist/$', 'blacklist_view', name='blacklist_view'),
 
     #Top
     url(r'^users/$', 'user_list', name='user_list'),
@@ -63,6 +78,7 @@ urlpatterns = patterns('blog.views',
         name='my_readers_list', kwargs={'my_readers': True}),
     url(r'^users/i_read/$', 'user_list',
         name='i_read_list', kwargs={'i_read': True}),
+
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^auth/', include(auth_patterns)),
