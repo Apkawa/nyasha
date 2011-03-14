@@ -228,6 +228,8 @@ class Subscribed(NotDeletedModel):
 
     @staticmethod
     def join_is_subscribed(user, queryset):
+        if user.is_anonymous():
+            return queryset
         if queryset.model is Post:
             return queryset.extra(select={
                 'is_subscribed':
