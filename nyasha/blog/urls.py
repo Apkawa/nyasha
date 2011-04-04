@@ -63,7 +63,7 @@ urlpatterns = patterns('blog.views',
     #    'subscribe_toggle', name='subscribe_toggle'),
 
     url(r'^$', 'user_blog', name='main'),
-    url(r'^u/(?P<username>[\w]+)/', include(personal_patterns)),
+    url(r'^u/(?P<username>[\w-]+)/', include(personal_patterns)),
     url(r'^profile/edit/$', 'profile_edit', name='profile_edit'),
     url(r'^profile/openid/(?P<openid_pk>\d+)/$',
         'openid_profile_delete', name='openid_profile_delete'),
