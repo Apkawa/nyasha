@@ -1,6 +1,30 @@
 {% extends "blog/base.html" %}
 {% load cache %}
 {% load nya_blog %}
+{% block add_js %}
+    <script type="text/javascript" charset="utf-8" src="{{ MEDIA_URL }}js/fast_submit.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        function go_page(page) {
+            alert(page);
+        }
+        function paginate(older) {
+            if (!older){
+                page = $('div.page_older a').attr('href');
+            } else {
+                page = $('div.page_newer a').attr('href');
+            }
+            go_page(page);
+        }
+        $(document).ready( function() {
+        $(document).bind('keypress', 'ctrl-i', function() {
+                alert('nya');
+                paginate(true);
+        });
+        $(document).bind('keypress', 'ctrl+left',
+            function() {paginate(false)});
+        });
+    </script>
+{% endblock add_js %}
 {% block content %}
     <div id="content_header" class="span-15">
     {% if user_blog %}

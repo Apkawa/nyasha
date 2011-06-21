@@ -21,8 +21,10 @@ class Command(BaseDaemon):
         jid = settings.JABBER_BOT_SETTINGS['jid']
         password = settings.JABBER_BOT_SETTINGS['password']
         resource = settings.JABBER_BOT_SETTINGS['resource']
+        server = settings.JABBER_BOT_SETTINGS.get('server', None)
+        port = settings.JABBER_BOT_SETTINGS.get('post', 5222)
         print jid
-        c = Client(jid, password, resource)
+        c = Client(jid, password, resource, server=server, port=port)
         c.connect()
         while True:
             try:

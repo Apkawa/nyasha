@@ -2,9 +2,20 @@
 {% block page_head %}
     <h1>Add post/comment</h1>
 {% endblock page_head %}
+{% block add_js %}
+    <script type="text/javascript" charset="utf-8" src="{{ MEDIA_URL }}js/fast_submit.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+        $(document).ready( function() {
+            fast_submit_bind("#post_add_form", function() {
+                $("#post_add_form").submit();
+            });
+        });
+    </script>
+{% endblock add_js %}
 {% block page %}
     <div class="form_wrap span_15">
-    <form action="." method="POST">
+    <form id="post_add_form" action="." method="POST">
         {% csrf_token %}
     <table>
         <tbody>

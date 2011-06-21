@@ -314,13 +314,14 @@ class Client(JabberClient):
 
     allow_tasks = False
 
-    def __init__(self, jid, password, resource='Bot', tls_cacerts=None):
+    def __init__(self, jid, password, resource='Bot', tls_cacerts=None, server=None, port=5222):
         # if bare JID is provided add a resource -- it is required
         if isinstance(jid, basestring):
             jid = JID(jid)
         if not jid.resource:
             jid=JID(jid.node, jid.domain, resource)
         self.jid = jid
+        server = server or jid.domain
 
         if tls_cacerts:
             if tls_cacerts == 'tls_noverify':
@@ -334,7 +335,8 @@ class Client(JabberClient):
         # and identity data
         JabberClient.__init__(self, jid, password,
                 disco_name="PyXMPP example: echo bot", disco_type="bot",
-                tls_settings = tls_settings)
+                server=None, port=None,
+                tls_settings=tls_settings)
 
         # add the separate components
         self.interface_providers = self.get_plugins()

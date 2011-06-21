@@ -2,6 +2,18 @@
 {% load mptt_tags %}
 {% load nya_blog %}
 
+{% block add_js %}
+    <script type="text/javascript" charset="utf-8" src="{{ MEDIA_URL }}js/fast_submit.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+        $(document).ready( function() {
+            fast_submit_bind("#comment_reply form", function() {
+                $("#comment_reply form").submit();
+            });
+        });
+    </script>
+{% endblock add_js %}
+
 {% block content %}
     <div id="content_header" class="span-15">
     {% with post.user.get_profile as user_profile %}
