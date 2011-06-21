@@ -1,4 +1,8 @@
 *.pyc
-settings_*.py
+*.sql
+backup/*
+env/*
+*.log
+settings*.py
 static/avatar/o/*
 .*

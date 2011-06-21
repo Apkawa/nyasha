@@ -12,6 +12,10 @@ from models import OpenID
 
 @csrf_exempt
 def openid_login(request, secret_hash,  provider=None):
+    '''
+    Проверка и валидация openid.
+    в итоге записывается в ссесию openid_pk и перекидыватся обратно на форму входа.
+    '''
     redirect_url = request.GET.get('redirect_url', '/')
     if secret_hash == request.session.get('openid_secret_hash') and 'token' in request.POST:
         token = request.POST['token']
@@ -29,7 +33,7 @@ def openid_login(request, secret_hash,  provider=None):
                     break
 
         o, created = OpenID.objects.get_or_create(
-                provider_url=profile_data['provider'], 
+                provider_url=profile_data['provider'],
                 uid=profile_data['uid'],
                 defaults={'profile_json':profile_json, 'provider':provider}
                 )

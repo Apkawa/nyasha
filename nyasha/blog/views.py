@@ -176,6 +176,7 @@ def main(request):
     context = {}
     return render_template(request, 'blog/main.html', context)
 
+#TODO: Переместить в settings
 PER_PAGE = 10
 @cache_func(30, cache_key_func=_cache_key_func_for_view)
 def user_blog(request, username=None):
@@ -216,8 +217,8 @@ def user_blog(request, username=None):
     return render_template(request, 'blog/user_blog.html', context)
 
 
+#TODO: Переместить в settings
 COMMENTS_PER_PAGE = 500
-
 def post_view(request, post_pk):
     if 'tree' in request.GET:
         is_tree = bool(request.GET.get('tree'))
