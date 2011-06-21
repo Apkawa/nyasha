@@ -245,7 +245,7 @@ class BlogInterface(Interface):
             posts = Post.objects.get_posts()
 
         if username:
-            posts.filter(user=user)
+            posts = posts.filter(user=user)
 
         if tag_name:
             posts = posts.filter(tags__name=tag_name)
