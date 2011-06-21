@@ -1,0 +1,28 @@
+{% extends "blog/base_page.html" %}
+{% block page_head %}
+    <h1>{{ _("My blacklist")|capfirst }}</h1>
+{% endblock page_head %}
+{% block page %}
+    <div class="form_wrap prepend-2 span-10">
+    {% for b in blacklist %}
+        {% if b.blacklisted_user_id %}
+            <div class="user_row">
+            {% if u.profile.avatar %}
+                <img class="small_avatar" src="{{ b.blacklisted_user.profile.avatar.url_42 }}" alt=""/>
+            {% else %}
+                <img class="small_avatar" src="{{ MEDIA_URL }}avatar/default/42.png" width="42" height="42" alt=""/>
+            {% endif %}
+                <a href="{% url user_blog b.blacklisted_user.username %}">@{{ b.blacklisted_user.username }}</a>
+            </div>
+        {% else %}
+            <div class="user_row">
+                <a href="?tag={{ b.blacklisted_tag.name }}">{{ b.blacklisted_tag.name }}</a>
+            </div>
+        {% endif %}
+    {% empty %}
+    <div class="a-center">
+    <h2>{{ _("blacklist is empty")|capfirst }}</h2>
+</div>
+    {% endfor %}
+    </div>
+{% endblock page %}
