@@ -35,9 +35,7 @@
     {% for uopenid in user.useropenids.all %}
         {% with uopenid.openid as openid %}
             <img src="http://loginza.ru/img/providers/{{ openid.provider }}.png" alt="" />
-            {% with openid.get_profile_data as profile_data %}
-                {{ profile_data.nickname }}
-            {% endwith %}
+                {{ openid.get_nickname }}
             <a href="{% url openid_profile_delete openid.pk %}">[x]</a>
         {% endwith %}
     {% endfor %}

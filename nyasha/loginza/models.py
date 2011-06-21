@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 
-# Create your models here.
 class OpenID(models.Model):
     PROVIDER_CHOICES = [
              ('google', 'google'),
@@ -26,8 +26,7 @@ class OpenID(models.Model):
 
     provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
     provider_url = models.URLField()
-
-
+    #TODO: Change to JsonField =3
     profile_json = models.TextField()
 
     datetime_create = models.DateTimeField(auto_now_add=True)
@@ -43,3 +42,10 @@ class OpenID(models.Model):
         except ValueError:
             pass
         return {}
+
+    def get_nickname(self):
+        if self.provider in ['facebook']:
+            return self.get_profile_data()['name']['full_name']
+        else:
+            return self.get_profile_data()['nickname']
+
