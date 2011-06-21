@@ -3,6 +3,7 @@
 {% load nya_blog %}
 {% block add_js %}
     <script type="text/javascript" charset="utf-8" src="{{ MEDIA_URL }}js/fast_submit.js"></script>
+        {%comment %}
     <script type="text/javascript" charset="utf-8">
         function go_page(page) {
             alert(page);
@@ -24,6 +25,7 @@
             function() {paginate(false)});
         });
     </script>
+        {% endcomment %}
 {% endblock add_js %}
 {% block content %}
     <div id="content_header" class="span-15">
