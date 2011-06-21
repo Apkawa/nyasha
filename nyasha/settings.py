@@ -193,6 +193,7 @@ INSTALLED_APPS = (
     'compress',
     #'djangosphinx',
 
+    'django_extensions',
     #
     'blog',
     'jabber_daemon',
