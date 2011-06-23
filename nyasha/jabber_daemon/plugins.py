@@ -75,6 +75,14 @@ class PresenceHandler(BasePresenceHandler):
         get_user_from_jid(from_jid)
         return presence.make_accept_response()
 
+    def unavailable(self, presence):
+        from_jid = presence.get_from_jid()
+        user = get_user_from_jid(from_jid)
+        p = user.profile
+        p.status = 'u'
+        p.save()
+
+
 class StatusHandler(BaseIqHandler):
     features = ("jabber:iq:last",)
     def get_iq(self, iq):

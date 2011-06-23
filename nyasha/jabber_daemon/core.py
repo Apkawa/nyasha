@@ -252,7 +252,7 @@ class BasePresenceHandler(BaseHandler):
         """Handle 'available' (without 'type') and 'unavailable' <presence/>."""
         msg=u"%s has become " % (stanza.get_from())
         t = stanza.get_type() or "available"
-        print t
+        #print t
         if t=="unavailable":
             msg+=u"unavailable"
         else:
@@ -270,14 +270,13 @@ class BasePresenceHandler(BaseHandler):
         status=stanza.get_status()
         if status:
             msg+=u": "+status
-        print msg
+        #print msg
 
     def presence_control(self,stanza):
         """Handle subscription control <presence/> stanzas -- acknowledge
         them."""
         msg = unicode(stanza.get_from())
         t = stanza.get_type()
-        print t
 
         func = getattr(self, t, None)
         if func:
