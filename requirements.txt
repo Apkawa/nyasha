@@ -1,8 +1,8 @@
-Django==1.2.5
-PIL==1.1.7
-South==0.7.3
-django-compress==1.0.1
-django-mptt==0.4.2
+Django==1.3
+PIL
+South
+django-compress
+django-mptt
 pyxmpp==1.1.1
 wsgiref==0.1.2
 yuicompressor==2.4.2
@@ -10,11 +10,12 @@ MySQL-python
 dnspython
 python-memcached
 PyYAML
+werkzeug
 
 #dev
 -e git+https://github.com/robhudson/django-debug-toolbar#egg=debug-toolbar
 django-extensions
 
-# in system 
+# in system
 # libxml2
 # libyaml

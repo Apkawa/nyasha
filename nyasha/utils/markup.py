@@ -4,6 +4,7 @@ import os
 
 import re
 import string
+import urlparse
 
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.encoding import force_unicode
@@ -18,10 +19,14 @@ def is_img_url(url):
     ext = os.path.splitext(url)[1]
     return ext[1:].lower() in ['jpg','jpeg','png','gif', 'bmp']
 
-youtube_re = re.compile(r'http://www.youtube.com/watch\?v=([\w-]+)')
+youtube_re = re.compile(r'^http://www.youtube.com/watch')
 def is_youtube_url(url):
     match = youtube_re.match(url)
-    return match and match.groups()[0]
+    if match:
+        key =  urlparse.parse_qs(urlparse.urlparse(url).query)['v']
+        if key:
+            return key[0]
+    return None
 
 vimeo_re = re.compile(r'http://vimeo.com/([\d]+)')
 def is_vimeo_url(url):
