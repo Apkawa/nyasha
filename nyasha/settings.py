@@ -1,44 +1,24 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-import logging
-import logging.config
 
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-sys.path.append(os.path.join(PROJECT_ROOT, 'libs'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, 'libs'))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-level = logging.INFO
-if DEBUG:
-    level = logging.DEBUG
+                   #filename=os.path.join(PROJECT_ROOT,'log', 'nyasha.log'),
 
-logging.basicConfig(level=level,
-                   format='%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
-                   datefmt='%d-%m-%Y %H:%M:%S',
-                   filename=os.path.join(PROJECT_ROOT,'log', 'nyasha.log'),
-                   filemode='a'
-                   )
-
-logger = logging.getLogger('jabber_daemon.core')
-logger.addHandler(logging.StreamHandler())
-#logger.setLevel(logging.DEBUG) # change to DEBUG for higher verbosity
-logger.setLevel(logging.INFO) # change to DEBUG for higher verbosity
-
-for name in ['pyxmpp', 'pyxmpp.StreamSASLMixIn',
-        'pyxmpp.StreamTLSMixIn', 'pyxmpp.sasl.DigestMD5ClientAuthenticator']:
-    logging.getLogger(name).setLevel(logging.ERROR)
-
-#for django >= 1.3 ^__^
 LOGGING = {
    'version': 1,
    #'disable_existing_loggers': True,
    'formatters': {
        'base': {
-           'format': '%(asctime)s %(name)-20s %(levelname)-8s %(message)s'
+           'format': '%(asctime)s %(name)-20s %(levelname)-8s %(message)s',
+            'datefmt': '%d-%m-%Y %H:%M:%S',
        },
        'simple': {
            'format': '%(levelname)-8s %(message)s'
@@ -70,16 +50,20 @@ LOGGING = {
        },
        'pyxmpp':{
            'handlers':['null'],
-           'level':'DEBUG',
+           'level':'ERROR',
            },
        'django.request': {
            'handlers': ['error'],
            'level': 'ERROR',
            'propagate': False,
        },
-    'root': {
+        'root': {
            'handlers':['console'],
            'level':'DEBUG',
+       },
+       'jabber_daemon.core': {
+           'handlers': ['console'],
+           'level': 'INFO',
        }
    }
 }
@@ -155,7 +139,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'utils.logger.LoggingMiddleware',
+    #'utils.logger.LoggingMiddleware',
 )
 #
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
