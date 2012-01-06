@@ -10,8 +10,6 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, 'libs'))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-                   #filename=os.path.join(PROJECT_ROOT,'log', 'nyasha.log'),
-
 LOGGING = {
    'version': 1,
    #'disable_existing_loggers': True,
@@ -36,11 +34,21 @@ LOGGING = {
            'formatter': 'simple'
        },
        'error': {
-           'level':'ERROR',
-           'class':'logging.handlers.RotatingFileHandler',
-           'filename':os.path.join(PROJECT_ROOT,'log', 'error.log'),
-           'formatter':'base',
-           }
+               'level':'ERROR',
+               'class':'logging.handlers.TimedRotatingFileHandler',
+               'filename':os.path.join(PROJECT_ROOT,'log', 'error.log'),
+               'when': 'D',
+               'backupCount': 3,
+               'formatter':'base',
+           },
+       'nyasha_log': {
+               'level':'INFO',
+               'class':'logging.handlers.TimedRotatingFileHandler',
+               'filename':os.path.join(PROJECT_ROOT,'log', 'nyasha.log'),
+               'when': 'D',
+               'backupCount': 3,
+               'formatter':'base',
+           },
    },
    'loggers': {
        'django': {
@@ -49,8 +57,12 @@ LOGGING = {
            'level':'INFO',
        },
        'pyxmpp':{
-           'handlers':['null'],
+           'handlers':['null', 'error'],
            'level':'ERROR',
+           },
+       'pyxmpp.Cient':{
+           'handlers':['console', 'error'],
+           'level':'INFO',
            },
        'django.request': {
            'handlers': ['error'],
@@ -62,7 +74,7 @@ LOGGING = {
            'level':'DEBUG',
        },
        'jabber_daemon.core': {
-           'handlers': ['console'],
+           'handlers': ['console', 'nyasha_log'],
            'level': 'INFO',
        }
    }
