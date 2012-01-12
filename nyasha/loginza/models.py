@@ -44,8 +44,12 @@ class OpenID(models.Model):
         return {}
 
     def get_nickname(self):
-        if self.provider in ['facebook']:
-            return self.get_profile_data()['name']['full_name']
+        profile_data = self.get_profile_data()
+        if 'nickname' in profile_data:
+            return profile_data['nickname']
         else:
-            return self.get_profile_data()['nickname']
+            try:
+                return profile_data['name']['full_name']
+            except KeyError:
+                return profile_data['uid']
 
