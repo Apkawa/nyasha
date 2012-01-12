@@ -24,10 +24,6 @@ LOGGING = {
    },
    'filters': {},
    'handlers': {
-       'null': {
-           'level':'DEBUG',
-           'class':'logging.NullHandler',
-       },
        'console':{
            'level':'DEBUG',
            'class':'logging.StreamHandler',
@@ -52,12 +48,12 @@ LOGGING = {
    },
    'loggers': {
        'django': {
-           'handlers':['null'],
+           'handlers':['console'],
            'propagate': True,
            'level':'INFO',
        },
        'pyxmpp':{
-           'handlers':['null', 'error'],
+           'handlers':['error'],
            'level':'ERROR',
            },
        'pyxmpp.Cient':{
