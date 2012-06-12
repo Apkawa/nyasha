@@ -6,7 +6,8 @@
 import json
 from functools import wraps
 
-from django.core.validators import RegexValidator, validate_integer, validate_slug, EmailValidator
+from django.core.validators \
+import RegexValidator, validate_integer, validate_slug, EmailValidator
 from django.core.validators import ValidationError
 
 class RESTFullException(Exception):
@@ -29,7 +30,7 @@ def login_required(func):
 
 def validate_args(**validator_kwargs):
     '''
-    Проверяет входные параметры на 
+    Проверяет входные параметры на
     корректность регэкспу или другой проверочной функции.
     '''
     def wrapper(func):
